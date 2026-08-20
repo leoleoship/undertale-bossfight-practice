@@ -13,7 +13,7 @@ const commandPanel = document.getElementById("commandPanel");
 const commandText = document.getElementById("commandText");
 const turnInfo = document.getElementById("turnInfo");
 
-const arena = { x: 260, y: 174, w: 440, h: 310 };
+const arena = { x: 260, y: 190, w: 440, h: 292 };
 const maxHp = 92;
 const pixel = 6;
 
@@ -163,9 +163,9 @@ const heartColors = {
 };
 
 const difficulty = {
-  normal: { damage: 8, rate: 1, speed: 1 },
-  hard: { damage: 11, rate: 1.25, speed: 1.18 },
-  insane: { damage: 15, rate: 1.55, speed: 1.35 },
+  normal: { damage: 5, rate: 0.62, speed: 0.82, cap: 24 },
+  hard: { damage: 8, rate: 0.9, speed: 1 },
+  insane: { damage: 11, rate: 1.15, speed: 1.12 },
 };
 
 let selectedBoss = bosses[0];
@@ -448,6 +448,8 @@ function syncTurnUi() {
 }
 
 function spawn(kind, data) {
+  const cap = difficulty[difficultyKey].cap || (difficultyKey === "hard" ? 34 : 46);
+  if (state.bullets.length >= cap && kind !== "beam" && kind !== "vine") return;
   state.bullets.push({ kind, age: 0, hit: false, ...data });
 }
 
@@ -897,14 +899,211 @@ function drawBackdrop() {
 }
 
 function drawBoss() {
-  const sprite = bossSprites[selectedBoss.id];
-  const scale = sprite[0].length > 14 ? 5 : 7;
-  const w = sprite[0].length * scale;
-  const h = sprite.length * scale;
-  drawPixelSprite(sprite, canvas.width / 2 - w / 2, 38 + Math.sin(state.t * 4) * 3, scale);
-  ctx.strokeStyle = selectedBoss.color;
-  ctx.lineWidth = 3;
-  ctx.strokeRect(canvas.width / 2 - w / 2 - 10, 28, w + 20, h + 20);
+  ctx.save();
+  ctx.translate(canvas.width / 2, 104 + Math.sin(state.t * 4) * 2);
+  if (selectedBoss.id === "sans") drawSansPortrait(1.15);
+  else if (selectedBoss.id === "disbelief") drawPapyrusPortrait(1.04);
+  else if (selectedBoss.id === "btt") drawTrioPortrait(0.78);
+  else if (selectedBoss.id === "undyne") drawUndynePortrait(1, false);
+  else if (selectedBoss.id === "undying") drawUndynePortrait(1.03, true);
+  else if (selectedBoss.id === "asgore") drawAsgorePortrait(0.95);
+  else if (selectedBoss.id === "omega") drawOmegaPortrait(0.82);
+  else if (selectedBoss.id === "asriel") drawAsrielPortrait(0.96);
+  else if (selectedBoss.id === "mettaton") drawMettatonPortrait(1);
+  else {
+    const sprite = bossSprites[selectedBoss.id];
+    const scale = sprite[0].length > 14 ? 5 : 7;
+    const w = sprite[0].length * scale;
+    drawPixelSprite(sprite, -w / 2, -60, scale);
+  }
+  ctx.restore();
+}
+
+function px(x, y, w, h, color = "#ffffff") {
+  ctx.fillStyle = color;
+  ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+}
+
+function outlineBox(x, y, w, h, color = "#ffffff") {
+  px(x, y, w, 4, color);
+  px(x, y + h - 4, w, 4, color);
+  px(x, y, 4, h, color);
+  px(x + w - 4, y, 4, h, color);
+}
+
+function drawSkull(x, y, s, grin = true) {
+  px(x - 28 * s, y - 36 * s, 56 * s, 8 * s);
+  px(x - 40 * s, y - 28 * s, 80 * s, 44 * s);
+  px(x - 32 * s, y + 16 * s, 64 * s, 22 * s);
+  px(x - 24 * s, y - 10 * s, 18 * s, 14 * s, "#050507");
+  px(x + 8 * s, y - 10 * s, 18 * s, 14 * s, "#050507");
+  px(x - 4 * s, y + 2 * s, 8 * s, 14 * s, "#050507");
+  if (grin) {
+    px(x - 24 * s, y + 22 * s, 48 * s, 6 * s, "#050507");
+    for (let i = -18; i <= 18; i += 9) px(x + i * s, y + 22 * s, 3 * s, 12 * s, "#ffffff");
+  }
+}
+
+function drawSansPortrait(s) {
+  ctx.save();
+  ctx.scale(s, s);
+  drawSkull(0, -62, 1, true);
+  outlineBox(-50, -12, 100, 66);
+  px(-46, -8, 18, 56, "#050507");
+  px(28, -8, 18, 56, "#050507");
+  px(-14, 0, 28, 36, "#050507");
+  px(-66, -4, 18, 62);
+  px(48, -4, 18, 62);
+  px(-48, 54, 34, 50);
+  px(14, 54, 34, 50);
+  px(-60, 102, 46, 12);
+  px(14, 102, 46, 12);
+  ctx.restore();
+}
+
+function drawPapyrusPortrait(s) {
+  ctx.save();
+  ctx.scale(s, s);
+  drawSkull(0, -78, 0.82, true);
+  outlineBox(-34, -26, 68, 82);
+  px(-56, -18, 22, 24);
+  px(34, -18, 22, 24);
+  px(-8, -70, 70, 5, "#ffd166");
+  px(54, -66, 8, 8, "#ffd166");
+  px(-78, 8, 14, 88);
+  px(64, 4, 14, 92);
+  px(-96, 88, 36, 10);
+  px(60, 88, 36, 10);
+  px(-30, 56, 20, 58);
+  px(10, 56, 20, 58);
+  px(-42, 108, 34, 10);
+  px(8, 108, 34, 10);
+  ctx.restore();
+}
+
+function drawTrioPortrait(s) {
+  ctx.save();
+  ctx.scale(s, s);
+  ctx.translate(-92, 0);
+  drawPapyrusPortrait(0.7);
+  ctx.translate(92, 10);
+  drawSansPortrait(0.7);
+  ctx.translate(92, -6);
+  drawUndynePortrait(0.65, true);
+  ctx.restore();
+}
+
+function drawUndynePortrait(s, undying) {
+  ctx.save();
+  ctx.scale(s, s);
+  const accent = undying ? "#80ed99" : "#57d6ff";
+  px(-38, -106, 76, 54);
+  px(-48, -94, 12, 36);
+  px(36, -94, 12, 36);
+  px(-22, -86, 16, 12, "#050507");
+  px(8, -86, 16, 12, "#050507");
+  px(-8, -72, 16, 8, "#050507");
+  px(-88, -116, 78, 8, accent);
+  outlineBox(-44, -50, 88, 70);
+  px(-66, -42, 22, 50);
+  px(44, -42, 22, 50);
+  px(-78, -4, 26, 64);
+  px(52, -4, 26, 64);
+  px(-70, 60, 22, 54);
+  px(48, 60, 22, 54);
+  px(-92, 108, 42, 10);
+  px(50, 108, 42, 10);
+  px(-108, 20, 12, 92, accent);
+  px(-120, 102, 38, 8, accent);
+  if (undying) {
+    px(-58, -72, 116, 8, accent);
+    px(-54, -20, 108, 10, accent);
+  }
+  ctx.restore();
+}
+
+function drawAsgorePortrait(s) {
+  ctx.save();
+  ctx.scale(s, s);
+  px(-74, -112, 28, 42);
+  px(46, -112, 28, 42);
+  px(-58, -94, 116, 56);
+  px(-24, -76, 16, 12, "#050507");
+  px(8, -76, 16, 12, "#050507");
+  px(-10, -58, 20, 8, "#050507");
+  outlineBox(-56, -34, 112, 104);
+  px(-70, -10, 14, 74);
+  px(56, -10, 14, 74);
+  px(-40, 70, 28, 48);
+  px(12, 70, 28, 48);
+  px(-52, 114, 44, 10);
+  px(8, 114, 44, 10);
+  px(-4, -12, 8, 72, "#ffd166");
+  ctx.restore();
+}
+
+function drawOmegaPortrait(s) {
+  ctx.save();
+  ctx.scale(s, s);
+  px(-120, -10, 28, 88, "#80ed99");
+  px(92, -10, 28, 88, "#80ed99");
+  px(-132, 64, 48, 20, "#80ed99");
+  px(84, 64, 48, 20, "#80ed99");
+  px(-62, -86, 124, 74);
+  px(-74, -104, 148, 24);
+  px(-42, -66, 18, 18, "#050507");
+  px(24, -66, 18, 18, "#050507");
+  px(-26, -30, 52, 8, "#050507");
+  for (let i = -78; i <= 78; i += 26) px(i, -16, 16, 80, "#f6d28a");
+  px(-24, 46, 48, 44, "#ff7a1a");
+  px(-12, 58, 24, 20, "#050507");
+  px(-106, -96, 26, 18);
+  px(80, -96, 26, 18);
+  ctx.restore();
+}
+
+function drawAsrielPortrait(s) {
+  ctx.save();
+  ctx.scale(s, s);
+  px(-74, -118, 38, 28);
+  px(36, -118, 38, 28);
+  px(-52, -100, 104, 56);
+  px(-22, -82, 18, 12, "#050507");
+  px(6, -82, 18, 12, "#050507");
+  px(-16, -62, 32, 8, "#050507");
+  px(-88, -60, 176, 22);
+  outlineBox(-54, -38, 108, 90);
+  px(-14, -14, 28, 34, "#050507");
+  px(-78, -30, 24, 92);
+  px(54, -30, 24, 92);
+  px(-42, 52, 28, 64);
+  px(14, 52, 28, 64);
+  px(-56, 110, 40, 10);
+  px(16, 110, 40, 10);
+  px(-88, -96, 42, 8, "#c77dff");
+  ctx.restore();
+}
+
+function drawMettatonPortrait(s) {
+  ctx.save();
+  ctx.scale(s, s);
+  px(-42, -112, 84, 44);
+  px(-22, -98, 14, 12, "#050507");
+  px(8, -98, 14, 12, "#050507");
+  px(-18, -78, 36, 7, "#050507");
+  px(-86, -56, 172, 12);
+  outlineBox(-56, -52, 112, 82);
+  px(-12, -26, 24, 24, "#050507");
+  px(-74, -36, 18, 88);
+  px(56, -36, 18, 88);
+  px(-108, 38, 52, 9);
+  px(56, 38, 52, 9);
+  px(-58, 30, 22, 88);
+  px(36, 30, 22, 88);
+  px(-76, 112, 44, 10);
+  px(32, 112, 44, 10);
+  px(-8, -20, 16, 16, "#ff8bd1");
+  ctx.restore();
 }
 
 function drawArena() {
