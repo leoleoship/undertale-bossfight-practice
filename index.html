@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bossfight Practice</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="side">
+        <div class="brand">
+          <span class="heart-mark"></span>
+          <div>
+            <h1>Bossfight Practice</h1>
+            <p>Fan-made bullet practice</p>
+          </div>
+        </div>
+
+        <div class="roster" id="bossRoster" aria-label="Boss select"></div>
+
+        <div class="panel">
+          <div class="panel-title">Difficulty</div>
+          <div class="segmented" id="difficulty">
+            <button class="active" data-difficulty="normal">Normal</button>
+            <button data-difficulty="hard">Hard</button>
+            <button data-difficulty="insane">Insane</button>
+          </div>
+        </div>
+
+        <div class="panel compact">
+          <div class="stat-row">
+            <span>Move</span>
+            <strong>Arrow keys / WASD</strong>
+          </div>
+          <div class="stat-row">
+            <span>Focus</span>
+            <strong>Shift</strong>
+          </div>
+          <div class="stat-row">
+            <span>Restart</span>
+            <strong>R</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="stage-wrap">
+        <div class="hud">
+          <div>
+            <span class="label">Boss</span>
+            <strong id="bossName">Undyne</strong>
+          </div>
+          <div>
+            <span class="label">Wave</span>
+            <strong id="waveName">Spear Rain</strong>
+          </div>
+          <div>
+            <span class="label">Time</span>
+            <strong id="timeLeft">60.0</strong>
+          </div>
+        </div>
+
+        <canvas id="game" width="960" height="640" aria-label="Bossfight practice game"></canvas>
+
+        <div class="bottom-bar">
+          <div class="hp">
+            <span>HP</span>
+            <div class="hp-track">
+              <div class="hp-fill" id="hpFill"></div>
+            </div>
+            <strong id="hpText">92 / 92</strong>
+          </div>
+          <div class="actions">
+            <button id="startBtn">Start</button>
+            <button id="restartBtn">Restart</button>
+          </div>
+        </div>
+
+        <div class="touch-controls" aria-label="Touch controls">
+          <button data-touch-key="ArrowUp">▲</button>
+          <div>
+            <button data-touch-key="ArrowLeft">◀</button>
+            <button data-touch-key="Shift">◆</button>
+            <button data-touch-key="ArrowRight">▶</button>
+          </div>
+          <button data-touch-key="ArrowDown">▼</button>
+        </div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
