@@ -1124,7 +1124,7 @@ function spawnUndyneArrow(speed, forcedDir = null, delay = 0) {
     down: { x: p.x, y: arena.y + arena.h + 36, vx: 0, vy: -speed, angle: -Math.PI / 2, dir: "down" },
     left: { x: arena.x - 36, y: p.y, vx: speed, vy: 0, angle: 0, dir: "left" },
   };
-  const dir = forcedDir || ["up", "right", "down", "left"][Math.floor(rand(0, 4))];
+  const dir = forcedDir || ["up", "right", "down", "left"][sequenceIndex(0.5) % 4];
   spawn("arrow", { ...specs[dir], r: 13, delay });
 }
 
@@ -1223,10 +1223,13 @@ function spawnBlasterLine(key, interval, dt, biasHorizontal = 0.5) {
 }
 
 function spawnBlaster(biasHorizontal = 0.5) {
-  const horizontal = Math.random() < biasHorizontal;
+  const index = sequenceIndex(0.9);
+  const horizontal = index % 4 < Math.round(biasHorizontal * 4);
+  const xLane = [0.22, 0.42, 0.62, 0.82, 0.34, 0.7][index % 6];
+  const yLane = [0.3, 0.5, 0.7, 0.4, 0.6][index % 5];
   spawn("beam", {
-    x: horizontal ? arena.x : rand(arena.x + 30, arena.x + arena.w - 30),
-    y: horizontal ? rand(arena.y + 30, arena.y + arena.h - 30) : arena.y,
+    x: horizontal ? arena.x : arena.x + arena.w * xLane,
+    y: horizontal ? arena.y + arena.h * yLane : arena.y,
     vx: 0,
     vy: 0,
     r: 24,
@@ -1303,9 +1306,12 @@ function undyingPattern(dt) {
       spawnUndyneArrowChord(278, chord.split(" "), 0.07);
     }
     else {
-      const edge = Math.floor(rand(0, 4));
-      const x = edge === 0 ? arena.x - 36 : edge === 1 ? arena.x + arena.w + 36 : rand(arena.x, arena.x + arena.w);
-      const y = edge === 2 ? arena.y - 36 : edge === 3 ? arena.y + arena.h + 36 : rand(arena.y, arena.y + arena.h);
+      const index = sequenceIndex(0.27);
+      const edge = index % 4;
+      const lanes = [0.18, 0.34, 0.52, 0.7, 0.86, 0.42, 0.62];
+      const lane = lanes[index % lanes.length];
+      const x = edge === 0 ? arena.x - 36 : edge === 1 ? arena.x + arena.w + 36 : arena.x + arena.w * lane;
+      const y = edge === 2 ? arena.y - 36 : edge === 3 ? arena.y + arena.h + 36 : arena.y + arena.h * lane;
       const a = Math.atan2(state.player.y - y, state.player.x - x);
       spawn("spear", { x, y, vx: Math.cos(a) * 282, vy: Math.sin(a) * 282, r: 12, angle: a, delay: 0.14 });
     }
@@ -3051,10 +3057,6 @@ function rectCircle(rx, ry, rw, rh, cx, cy, cr) {
 
 function clamp(n, min, max) {
   return Math.max(min, Math.min(max, n));
-}
-
-function rand(min, max) {
-  return Math.random() * (max - min) + min;
 }
 
 function titleCase(value) {
