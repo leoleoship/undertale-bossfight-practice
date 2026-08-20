@@ -1030,6 +1030,251 @@ function drawBossImage(id) {
   return true;
 }
 
+const matrixColors = {
+  W: "#ffffff",
+  K: "#050507",
+  B: "#57d6ff",
+  C: "#2f8de4",
+  Y: "#ffd166",
+  G: "#80ed99",
+  O: "#ff7a1a",
+  R: "#ff3855",
+  P: "#ff8bd1",
+  V: "#c77dff",
+  D: "#8a8f99",
+  A: "#f6d28a",
+};
+
+const matrixSprites = {
+  sans: [
+    "............WWWWWW............",
+    ".........WWWWWWWWWWWW.........",
+    ".......WWWWWWWWWWWWWWWW.......",
+    "......WWWKKKWWWWWWKKKWWW......",
+    ".....WWWKKKKWWWWWWKKKKBWW.....",
+    ".....WWWWKWWWWWWWWWWKWWWW.....",
+    "......WWWWWKKWWKKWWWWW.......",
+    ".......WWWWWWWWWWWWWW........",
+    ".........WWKKKKKKWW..........",
+    ".......WWWWWWWWWWWWWW........",
+    ".....WWWWBBBBBBBBWWWWWW......",
+    "....WWWBBBBKKKKBBBBWWW.......",
+    "...WWWBBBBBKKKKBBBBBWWW......",
+    "...WWBBBBBBBBBBBBBBBBWW......",
+    "...WWBBBKKKBBBBKKKBBBWW......",
+    "....WWWKKKBBBBBBKKKWWW.......",
+    ".....WWWWBBBBBBBBWWWW........",
+    ".......WWWWWWWWWWWW..........",
+    ".......WWWW....WWWW..........",
+    "......WWWW......WWWW.........",
+    ".....WWWW........WWWW........",
+    "....WWWW..........WWWW.......",
+    "...WWWWW..........WWWWW......",
+  ],
+  disbelief: [
+    ".............WWWW.............",
+    ".........WWWWWWWWWWWW.........",
+    ".......WWWWWWWWWWWWWWWW.......",
+    "......WWWKKKWWWWWWKKKWWW......",
+    ".....WWWKKKWWWWWWWWKKKWWW.....",
+    ".....WWWWWWWKKWWKKWWWWWWW.....",
+    "......WWWWWWWWWWWWWWWWWW......",
+    "........WWWKKKKKKKKWWW........",
+    "..........WWWWWWWWWW..........",
+    ".............YY...............",
+    "............YYYY..............",
+    ".....WWWWWWWWWWWWWWWWWW......",
+    "...WWWWWWWWWWWWWWWWWWWWWW....",
+    "..WWWWKKKKWWWWWWWWKKKKWWWW...",
+    ".WWWWKKKKKKWWWWWWKKKKKKWWWW..",
+    "WWWWWWWWWWWWKKKKWWWWWWWWWWWW.",
+    "....WWWWWWWWWWWWWWWWWWWW.....",
+    "......WWWWWWWWWWWWWWWW.......",
+    "......WWWW........WWWW.......",
+    ".....WWWW..........WWWW......",
+    ".....WWWW..........WWWW......",
+    "....WWWWW..........WWWWW.....",
+    "...WWWWWW..........WWWWWW....",
+  ],
+  undyne: [
+    ".............CCCCCC...........",
+    "..........CCCCCCCCCCCC........",
+    "........CCCCCCCCCCCCCCCC......",
+    ".......CCCWKKCCCCCCKKWCCC.....",
+    "......CCCWKKKCCCCCCKKKWCCC....",
+    ".....CCCCCCCCKKKKCCCCCCCC.....",
+    ".....CCCCCCCCCCCCCCCCCCCC.....",
+    "......CCCCCCKKKKKKCCCCCC......",
+    ".........CCCCCCCCCCCC.........",
+    "...........YYYYYYYY...........",
+    ".....CCCCCCCCCCCCCCCCCC.......",
+    "...CCCCCCCCCCCCCCCCCCCCCC.....",
+    "..CCCCCCCCKKKKKKKKCCCCCCCC....",
+    "..CCCCCCCKKKKKKKKKKCCCCCCC....",
+    "...CCCCCCCCCCCCCCCCCCCCCC.....",
+    ".....CCCCCCCCCCCCCCCCCC.......",
+    "....CCCCCC........CCCCCC......",
+    "...CCCCCC..........CCCCCC.....",
+    "..CCCCCC............CCCCCC....",
+    ".CCCCCC..............CCCCCC...",
+    "CCCCCC................CCCCCC..",
+    "..CCCC................CCCC....",
+    "....CC................CC......",
+  ],
+  undying: [
+    ".............GGGGGG...........",
+    "..........GGGGGGGGGGGG........",
+    "........GGGGGGGGGGGGGGGG......",
+    ".......GGGWKKGGGGGGKKWGGG.....",
+    "......GGGWKKKGGGGGGKKKWGGG....",
+    ".....GGGGGGGGKKKKGGGGGGGG.....",
+    ".....GGGGGGGGGGGGGGGGGGGG.....",
+    "......GGGGGGKKKKKKGGGGGG......",
+    ".........GGGGGGGGGGGG.........",
+    "...........YYYYYYYY...........",
+    ".....GGGGGGGGGGGGGGGGGG.......",
+    "...GGGGGGGGGGGGGGGGGGGGGG.....",
+    "..GGGGGGGKKKKKKKKGGGGGGGG.....",
+    "..GGGGGGKKKKKKKKKKGGGGGGG.....",
+    ".GGGGGGGGGGGGGGGGGGGGGGGGG....",
+    "GGGGGGGGGGGGGGGGGGGGGGGGGG....",
+    "...GGGGGG........GGGGGG.......",
+    "..GGGGGG..........GGGGGG......",
+    ".GGGGGG............GGGGGG.....",
+    "GGGGGG..............GGGGGG....",
+    "GGGGG................GGGGG....",
+    "..GG....................GG....",
+    "....G..................G......",
+  ],
+  asgore: [
+    ".....AA.................AA....",
+    "....AAAA...............AAAA...",
+    "...AAAAAA.............AAAAAA..",
+    "....AA.WWWWWWWWWWWWW.AA......",
+    "......WWWWWWWWWWWWWWWW.......",
+    ".....WWWKKKWWWWWWKKKWWW......",
+    ".....WWWWKKWWWWWWKKWWWW......",
+    "......WWWWWWKKKKWWWWWW.......",
+    "........WWWWWWWWWWWW.........",
+    "..........YYYYYYYY...........",
+    ".....WWWWWWWWWWWWWWWWWW......",
+    "...WWWWWWWWWWWWWWWWWWWWWW....",
+    "..WWWWWWWWWWWWWWWWWWWWWWWW...",
+    "..WWWWWWYYYYYYYYYYYYWWWWWW...",
+    ".WWWWWWWYYYYYYYYYYYYWWWWWWW..",
+    "WWWWWWWWWWWWWWWWWWWWWWWWWW...",
+    "....WWWWWW......WWWWWW.......",
+    "...WWWWWW........WWWWWW......",
+    "...WWWWW..........WWWWW......",
+    "..WWWWW............WWWWW.....",
+    ".WWWWW..............WWWWW....",
+    "WWWWW................WWWWW...",
+  ],
+  omega: [
+    "...........WWWWWWWWWW.........",
+    ".......WWWWWWWWWWWWWWWWWW.....",
+    "....GGWWWWWWWWWWWWWWWWWWGG....",
+    "...GGGWWWKKKWWWWWWKKKWWWGGG...",
+    "..GGGGWWWKKKKWWWWKKKKWWWGGGG..",
+    ".GGGGGWWWWKKKWWWWKKKWWWWGGGGG.",
+    "GGGGGGGWWWWWWWWWWWWWWGGGGGGGG.",
+    "GGGGGGGGGWWKKKKKKWWGGGGGGGGGG.",
+    "..GGGGGGGGWWWWWWWWGGGGGGGG....",
+    ".....AAAAAOOOOOOOOAAAAA.......",
+    "....AAAAAOOOOOOOOOOAAAAA......",
+    "...AAAAAOOOOKKKKOOOOAAAAA.....",
+    "..AAAAAOOOOOKKKKOOOOOAAAAA....",
+    "...AAAAAOOOOOOOOOOAAAAA.......",
+    ".....AAAAOOOOOOOOAAAA.........",
+    "GGGG....AAAA..AAAA....GGGG....",
+    "GGGGG....AA....AA....GGGGG....",
+    ".GGGGG............GGGGG.......",
+    "..GGGGG..........GGGGG........",
+    "...GGGGG........GGGGG.........",
+    "....GGGG........GGGG..........",
+  ],
+  asriel: [
+    "......WW...............WW.....",
+    ".....WWWW.............WWWW....",
+    "....WWWWW.............WWWWW...",
+    "......WWWWWWWWWWWWWWWWW......",
+    ".....WWWWWWWWWWWWWWWWWWW.....",
+    "....WWWKKKWWWWWWWWWKKKWWW....",
+    "....WWWWKKWWWWWWWWWKKWWWW....",
+    ".....WWWWWWKKKKKWWWWWW.......",
+    ".......WWWWWWWWWWWWWW........",
+    ".........YYYYYYYYYY..........",
+    "....WWWWVVVVVVVVVVVVWWWW.....",
+    "..WWWWVVVVVVVVVVVVVVVVWWWW...",
+    ".WWWWVVVVVVKKKKVVVVVVVVWWWW..",
+    "WWWWVVVVVVKKKKKKVVVVVVVVWWWW.",
+    "WWWWWWVVVVVVVVVVVVVVVVWWWWWW.",
+    "..WWWWWWVVVVVVVVVVWWWWWW.....",
+    "....WWWWWW......WWWWWW.......",
+    "...WWWWW..........WWWWW......",
+    "..WWWWW............WWWWW.....",
+    ".WWWWW..............WWWWW....",
+    "WWWWW................WWWWW...",
+  ],
+  mettaton: [
+    "...........PPPPPPPPPP.........",
+    ".........PPPPPPPPPPPPPP.......",
+    "........PPPKKKPPPPKKKPPP......",
+    ".......PPPPKKKPPPPKKKPPPP.....",
+    "........PPPPPPKKKKPPPPPP......",
+    "..........PPPPPPPPPPPP........",
+    ".......PPPPPPPPPPPPPPPPPP.....",
+    "....PPPPPPPPPPPPPPPPPPPPPP....",
+    "..PPPPPPPPPPPPPPPPPPPPPPPPPP..",
+    "..PPPPPPPPPPKKKKPPPPPPPPPPPP..",
+    "...PPPPPPPPKKKKKKPPPPPPPPP....",
+    "....PPPPPPPPPPPPPPPPPPPP......",
+    "......PPPPPPPPPPPPPPPP........",
+    "........PPPPPPPPPPPP..........",
+    "......PPPPPP......PPPPPP......",
+    "....PPPPPP..........PPPPPP....",
+    "..PPPPPP..............PPPPPP..",
+    "PPPPPP..................PPPPPP",
+    "...PPPP................PPPP...",
+    "...PPPP................PPPP...",
+    "..PPPPP................PPPPP..",
+  ],
+};
+
+function drawMatrixBoss(id) {
+  if (id === "btt") {
+    ctx.save();
+    ctx.translate(-105, 12);
+    drawMatrixSprite(matrixSprites.disbelief, -35, -82, 2.6);
+    ctx.translate(105, 14);
+    drawMatrixSprite(matrixSprites.sans, -38, -78, 2.6);
+    ctx.translate(104, -10);
+    drawMatrixSprite(matrixSprites.undying, -38, -84, 2.45);
+    ctx.restore();
+    return true;
+  }
+  const rows = matrixSprites[id];
+  if (!rows) return false;
+  const scale = id === "omega" ? 4.1 : id === "mettaton" ? 4.15 : 4.25;
+  const maxWidth = Math.max(...rows.map((row) => row.length)) * scale;
+  const height = rows.length * scale;
+  drawMatrixSprite(rows, -maxWidth / 2, -height / 2 + 4, scale);
+  return true;
+}
+
+function drawMatrixSprite(rows, x, y, size) {
+  for (let row = 0; row < rows.length; row++) {
+    for (let col = 0; col < rows[row].length; col++) {
+      const color = matrixColors[rows[row][col]];
+      if (!color) continue;
+      ctx.fillStyle = "#050507";
+      ctx.fillRect(Math.round(x + col * size - 1), Math.round(y + row * size - 1), Math.ceil(size + 2), Math.ceil(size + 2));
+      ctx.fillStyle = color;
+      ctx.fillRect(Math.round(x + col * size), Math.round(y + row * size), Math.ceil(size), Math.ceil(size));
+    }
+  }
+}
+
 const tile = 5;
 
 function tileRect(x, y, w, h, color = "#ffffff") {
@@ -1058,6 +1303,7 @@ function tileSkull(cx, y, wide = false, eyeColor = "#050507") {
 }
 
 function drawTileBoss(id) {
+  if (drawMatrixBoss(id)) return;
   if (id === "sans") drawTileSans(1.1);
   else if (id === "disbelief") drawTilePapyrus(1.04);
   else if (id === "btt") drawTileTrio();
