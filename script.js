@@ -995,6 +995,23 @@ function drawBoss() {
   ctx.save();
   ctx.translate(canvas.width / 2, 130 + Math.sin(state.t * 4) * 2);
   if (!drawBossImage(selectedBoss.id)) drawTileBoss(selectedBoss.id);
+  drawBossNameplate();
+  ctx.restore();
+}
+
+function drawBossNameplate() {
+  const text = selectedBoss.name.toUpperCase();
+  ctx.save();
+  ctx.font = "bold 16px Courier New";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const width = Math.min(320, ctx.measureText(text).width + 28);
+  px(-width / 2, 82, width, 24, "#050507");
+  ctx.strokeStyle = selectedBoss.color;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(-width / 2, 82, width, 24);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text, 0, 95);
   ctx.restore();
 }
 
@@ -1074,6 +1091,7 @@ function drawTileSans(scale = 1) {
   tileRect(4, 10, 8, 2);
   tileRect(-14, -8, 3, 10);
   tileRect(11, -8, 3, 10);
+  tileRect(2, -20, 2, 2, "#57d6ff");
   ctx.restore();
 }
 
@@ -1134,6 +1152,8 @@ function drawTileUndyne(undying, scale = 1) {
   tileRect(2, 14, 8, 2);
   tileLine(-20, -7, -24, 16, accent);
   tileLine(-25, 16, -17, 16, accent);
+  tileLine(-24, 16, -31, 19, accent);
+  tileLine(-24, 16, -31, 13, accent);
   if (undying) {
     tileRect(-12, -12, 24, 2, accent);
     tileRect(-10, -3, 20, 2, accent);
@@ -1220,6 +1240,7 @@ function drawTileMettaton(scale = 1) {
   tileRect(2, -21, 3, 2, "#050507");
   tileRect(-3, -17, 8, 1, "#050507");
   tileRect(-20, -13, 40, 3);
+  tileRect(-23, -10, 46, 2, "#ff8bd1");
   tileRect(-12, -10, 24, 13);
   tileRect(-3, -5, 6, 5, "#ff8bd1");
   tileLine(-17, -9, -31, 12);
