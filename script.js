@@ -563,6 +563,18 @@ function updateShots(dt) {
     for (const b of state.bullets) {
       if (b.kind === "beam" || b.kind === "vine" || shot.hit) continue;
       if (Math.hypot(shot.x - b.x, shot.y - b.y) < (b.r || 18) + 5) {
+        if (b.kind === "bomb") {
+          spawn("beam", {
+            x: b.x,
+            y: arena.y,
+            vx: 0,
+            vy: 0,
+            r: 24,
+            horizontal: false,
+            warn: 0.08,
+            life: 0.45,
+          });
+        }
         b.y = arena.y - 200;
         shot.hit = true;
         state.mercy = clamp(state.mercy + 1, 0, 100);
@@ -676,19 +688,15 @@ function runPattern(dt) {
 }
 
 function undynePattern(dt) {
-  if (state.wave === 0 && every("spear-rain", 0.28, dt)) {
-    const lane = Math.floor(rand(0, 4));
-    const x = lane === 0 ? arena.x - 36 : lane === 1 ? arena.x + arena.w + 36 : rand(arena.x, arena.x + arena.w);
-    const y = lane === 2 ? arena.y - 36 : lane === 3 ? arena.y + arena.h + 36 : rand(arena.y, arena.y + arena.h);
-    const a = Math.atan2(state.player.y - y, state.player.x - x);
-    spawn("spear", { x, y, vx: Math.cos(a) * 245, vy: Math.sin(a) * 245, r: 13, angle: a });
+  if (state.wave === 0 && every("spear-rain", 0.46, dt)) {
+    spawnUndyneArrow(190);
   }
-  if (state.wave === 1 && every("cross-lances", 0.42, dt)) {
+  if (state.wave === 1 && every("cross-lances", 0.64, dt)) {
     const fromLeft = Math.random() > 0.5;
-    spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: rand(arena.y + 20, arena.y + arena.h - 20), vx: fromLeft ? 330 : -330, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI });
-    spawn("spear", { x: rand(arena.x + 20, arena.x + arena.w - 20), y: arena.y - 35, vx: 0, vy: 285, r: 13, angle: Math.PI / 2 });
+    spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: rand(arena.y + 20, arena.y + arena.h - 20), vx: fromLeft ? 265 : -265, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI });
+    if (Math.random() > 0.35) spawn("spear", { x: rand(arena.x + 20, arena.x + arena.w - 20), y: arena.y - 35, vx: 0, vy: 235, r: 13, angle: Math.PI / 2 });
   }
-  if (state.wave === 2 && every("cyclone", 0.18, dt)) {
+  if (state.wave === 2 && every("cyclone", 0.34, dt)) {
     const angle = state.t * 3.2;
     const x = arena.x + arena.w / 2 + Math.cos(angle) * 230;
     const y = arena.y + arena.h / 2 + Math.sin(angle) * 165;
@@ -697,12 +705,24 @@ function undynePattern(dt) {
   }
 }
 
+function spawnUndyneArrow(speed) {
+  const side = Math.floor(rand(0, 4));
+  const p = state.player;
+  const specs = [
+    { x: p.x, y: arena.y - 36, vx: 0, vy: speed, angle: Math.PI / 2, dir: "up" },
+    { x: arena.x + arena.w + 36, y: p.y, vx: -speed, vy: 0, angle: Math.PI, dir: "right" },
+    { x: p.x, y: arena.y + arena.h + 36, vx: 0, vy: -speed, angle: -Math.PI / 2, dir: "down" },
+    { x: arena.x - 36, y: p.y, vx: speed, vy: 0, angle: 0, dir: "left" },
+  ];
+  spawn("arrow", { ...specs[side], r: 13 });
+}
+
 function asgorePattern(dt) {
-  if (every("embers", 0.22, dt)) {
+  if (every("embers", 0.34, dt)) {
     const side = Math.random() > 0.5 ? -1 : 1;
-    spawn("fire", { x: arena.x + arena.w / 2 + side * 245, y: rand(arena.y, arena.y + arena.h), vx: -side * rand(160, 230), vy: Math.sin(state.t * 2) * 45, r: rand(9, 15) });
+    spawn("fire", { x: arena.x + arena.w / 2 + side * 245, y: rand(arena.y, arena.y + arena.h), vx: -side * rand(135, 205), vy: Math.sin(state.t * 2) * 45, r: rand(9, 15) });
   }
-  if (state.wave >= 1 && every("sweep", 1.5, dt)) {
+  if (state.wave >= 1 && every("sweep", 1.75, dt)) {
     const y = rand(arena.y + 34, arena.y + arena.h - 34);
     spawn("trident", { x: arena.x - 60, y, vx: 380, vy: 0, r: 22, angle: 0 });
   }
@@ -715,13 +735,13 @@ function asgorePattern(dt) {
 }
 
 function disbeliefPattern(dt) {
-  if (every("bones", state.wave === 0 ? 0.32 : 0.22, dt)) {
+  if (every("bones", state.wave === 0 ? 0.46 : 0.38, dt)) {
     const gap = rand(arena.y + 70, arena.y + arena.h - 70);
     const fromLeft = Math.random() > 0.5;
     spawn("bone", { x: fromLeft ? arena.x - 30 : arena.x + arena.w + 30, y: gap - 72, vx: fromLeft ? 235 : -235, vy: 0, r: 16, h: 86 });
     spawn("bone", { x: fromLeft ? arena.x - 30 : arena.x + arena.w + 30, y: gap + 72, vx: fromLeft ? 235 : -235, vy: 0, r: 16, h: 86 });
   }
-  if (state.wave >= 1 && every("blue", 0.85, dt)) {
+  if (state.wave >= 1 && every("blue", 1.05, dt)) {
     spawn("blueBone", { x: rand(arena.x + 15, arena.x + arena.w - 15), y: arena.y - 28, vx: 0, vy: 230, r: 14, h: 58 });
   }
   if (state.wave === 2 && every("slam", 1.2, dt)) {
@@ -733,15 +753,15 @@ function disbeliefPattern(dt) {
 
 function bttPattern(dt) {
   undynePattern(dt);
-  if (every("small-fire", 0.55, dt)) {
+  if (every("small-fire", 0.85, dt)) {
     const side = Math.floor(rand(0, 4));
     const x = side === 0 ? arena.x - 20 : side === 1 ? arena.x + arena.w + 20 : rand(arena.x, arena.x + arena.w);
     const y = side === 2 ? arena.y - 20 : side === 3 ? arena.y + arena.h + 20 : rand(arena.y, arena.y + arena.h);
     const a = Math.atan2(state.player.y - y, state.player.x - x);
     spawn("fire", { x, y, vx: Math.cos(a) * 185, vy: Math.sin(a) * 185, r: 9 });
   }
-  if (state.wave >= 1) spawnBlasterLine("blaster", 1.35, dt, 0.5);
-  if (state.wave === 2 && every("btt-bones", 0.52, dt)) {
+  if (state.wave >= 1) spawnBlasterLine("blaster", 1.85, dt, 0.5);
+  if (state.wave === 2 && every("btt-bones", 0.72, dt)) {
     const x = rand(arena.x + 20, arena.x + arena.w - 20);
     spawn("blueBone", { x, y: arena.y - 34, vx: 0, vy: 270, r: 15, h: 70 });
   }
@@ -767,44 +787,47 @@ function spawnBlaster(biasHorizontal = 0.5) {
 }
 
 function sansPattern(dt) {
-  if (every("sans-bones", state.wave === 0 ? 0.26 : 0.2, dt)) {
+  if (every("sans-bones", state.wave === 0 ? 0.46 : 0.34, dt)) {
     const h = rand(54, 116);
-    spawn("bone", { x: arena.x + arena.w + 28, y: arena.y + arena.h - h / 2, vx: -260, vy: 0, r: 14, h });
+    spawn("bone", { x: arena.x + arena.w + 28, y: arena.y + arena.h - h / 2, vx: -220, vy: 0, r: 14, h });
     if (state.wave === 0 && Math.random() > 0.55) {
-      spawn("bone", { x: arena.x - 28, y: arena.y + h / 2, vx: 260, vy: 0, r: 14, h: h * 0.8 });
+      spawn("bone", { x: arena.x - 28, y: arena.y + h / 2, vx: 220, vy: 0, r: 14, h: h * 0.8 });
     }
   }
-  if (state.wave >= 1 && every("sans-blue", 0.7, dt)) {
+  if (state.wave >= 1 && every("sans-blue", 1.0, dt)) {
     spawn("blueBone", { x: rand(arena.x + 20, arena.x + arena.w - 20), y: arena.y - 34, vx: 0, vy: 255, r: 14, h: 70 });
   }
-  if (state.wave === 2 && every("sans-beam", 1.05, dt)) {
+  if (state.wave === 2 && every("sans-beam", 1.45, dt)) {
     spawnBlaster(0.65);
   }
 }
 
 function undyingPattern(dt) {
-  if (every("undying-aimed", 0.22, dt)) {
-    const edge = Math.floor(rand(0, 4));
-    const x = edge === 0 ? arena.x - 36 : edge === 1 ? arena.x + arena.w + 36 : rand(arena.x, arena.x + arena.w);
-    const y = edge === 2 ? arena.y - 36 : edge === 3 ? arena.y + arena.h + 36 : rand(arena.y, arena.y + arena.h);
-    const a = Math.atan2(state.player.y - y, state.player.x - x);
-    spawn("spear", { x, y, vx: Math.cos(a) * 275, vy: Math.sin(a) * 275, r: 12, angle: a });
+  if (every("undying-aimed", 0.32, dt)) {
+    if (state.heartMode === "green") spawnUndyneArrow(235);
+    else {
+      const edge = Math.floor(rand(0, 4));
+      const x = edge === 0 ? arena.x - 36 : edge === 1 ? arena.x + arena.w + 36 : rand(arena.x, arena.x + arena.w);
+      const y = edge === 2 ? arena.y - 36 : edge === 3 ? arena.y + arena.h + 36 : rand(arena.y, arena.y + arena.h);
+      const a = Math.atan2(state.player.y - y, state.player.x - x);
+      spawn("spear", { x, y, vx: Math.cos(a) * 245, vy: Math.sin(a) * 245, r: 12, angle: a });
+    }
   }
-  if (state.wave >= 1 && every("undying-cross", 0.46, dt)) {
-    spawn("spear", { x: rand(arena.x, arena.x + arena.w), y: arena.y - 35, vx: 0, vy: 325, r: 12, angle: Math.PI / 2 });
-    spawn("spear", { x: arena.x - 35, y: rand(arena.y, arena.y + arena.h), vx: 335, vy: 0, r: 12, angle: 0 });
+  if (state.wave >= 1 && every("undying-cross", 0.68, dt)) {
+    spawn("spear", { x: rand(arena.x, arena.x + arena.w), y: arena.y - 35, vx: 0, vy: 275, r: 12, angle: Math.PI / 2 });
+    if (Math.random() > 0.4) spawn("spear", { x: arena.x - 35, y: rand(arena.y, arena.y + arena.h), vx: 285, vy: 0, r: 12, angle: 0 });
   }
 }
 
 function omegaPattern(dt) {
-  if (every("omega-petal", 0.18, dt)) {
+  if (every("omega-petal", 0.34, dt)) {
     const a = state.t * 4 + rand(-0.7, 0.7);
     const x = arena.x + arena.w / 2 + Math.cos(a) * 245;
     const y = arena.y + arena.h / 2 + Math.sin(a) * 180;
     const toward = Math.atan2(state.player.y - y, state.player.x - x);
-    spawn("petal", { x, y, vx: Math.cos(toward) * 190, vy: Math.sin(toward) * 190, r: 12, angle: toward, spin: 2.2 });
+    spawn("petal", { x, y, vx: Math.cos(toward) * 150, vy: Math.sin(toward) * 150, r: 12, angle: toward, spin: 2.2 });
   }
-  if (state.wave >= 1 && every("omega-vine", 1.0, dt)) {
+  if (state.wave >= 1 && every("omega-vine", 1.35, dt)) {
     const horizontal = Math.random() > 0.5;
     spawn("vine", {
       x: horizontal ? arena.x : rand(arena.x + 20, arena.x + arena.w - 20),
@@ -817,32 +840,32 @@ function omegaPattern(dt) {
       life: 1.18,
     });
   }
-  if (state.wave === 2 && every("omega-ring", 1.2, dt)) {
-    for (let i = 0; i < 14; i++) {
-      const a = (Math.PI * 2 * i) / 14 + state.t;
-      spawn("petal", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 155, vy: Math.sin(a) * 155, r: 9, angle: a, spin: -2.5 });
+  if (state.wave === 2 && every("omega-ring", 1.45, dt)) {
+    for (let i = 0; i < 10; i++) {
+      const a = (Math.PI * 2 * i) / 10 + state.t;
+      spawn("pellet", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 135, vy: Math.sin(a) * 135, r: 8, angle: a, spin: -2.5 });
     }
   }
 }
 
 function asrielPattern(dt) {
-  if (every("asriel-starfall", 0.2, dt)) {
-    spawn("star", { x: rand(arena.x, arena.x + arena.w), y: arena.y - 24, vx: rand(-55, 55), vy: rand(190, 275), r: 12, spin: 3.2 });
+  if (every("asriel-starfall", 0.36, dt)) {
+    spawn("star", { x: rand(arena.x, arena.x + arena.w), y: arena.y - 24, vx: rand(-45, 45), vy: rand(165, 235), r: 12, spin: 3.2 });
   }
-  if (state.wave >= 1 && every("asriel-saber", 0.95, dt)) {
+  if (state.wave >= 1 && every("asriel-saber", 1.35, dt)) {
     const fromLeft = Math.random() > 0.5;
     spawn("saber", { x: fromLeft ? arena.x - 58 : arena.x + arena.w + 58, y: rand(arena.y + 30, arena.y + arena.h - 30), vx: fromLeft ? 410 : -410, vy: 0, r: 22, angle: fromLeft ? 0 : Math.PI });
   }
-  if (state.wave === 2 && every("asriel-hope", 1.15, dt)) {
-    for (let i = 0; i < 10; i++) {
-      const a = (Math.PI * 2 * i) / 10 - state.t;
-      spawn("star", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 170, vy: Math.sin(a) * 170, r: 10, spin: -4 });
+  if (state.wave === 2 && every("asriel-hope", 1.45, dt)) {
+    for (let i = 0; i < 8; i++) {
+      const a = (Math.PI * 2 * i) / 8 - state.t;
+      spawn("diamond", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 145, vy: Math.sin(a) * 145, r: 10, spin: -4 });
     }
   }
 }
 
 function mettatonPattern(dt) {
-  if (every("mettaton-spot", 0.75, dt)) {
+  if (every("mettaton-spot", 1.05, dt)) {
     spawn("beam", {
       x: rand(arena.x + 25, arena.x + arena.w - 25),
       y: arena.y,
@@ -854,10 +877,11 @@ function mettatonPattern(dt) {
       life: 1.0,
     });
   }
-  if (state.wave >= 1 && every("mettaton-bombs", 0.28, dt)) {
-    spawn("bomb", { x: rand(arena.x, arena.x + arena.w), y: arena.y - 24, vx: Math.sin(state.t * 5) * 75, vy: rand(210, 285), r: 13, spin: 5 });
+  if (state.wave >= 1 && every("mettaton-bombs", 0.48, dt)) {
+    const kind = Math.random() > 0.45 ? "bomb" : "box";
+    spawn(kind, { x: rand(arena.x, arena.x + arena.w), y: arena.y - 24, vx: Math.sin(state.t * 5) * 65, vy: rand(165, 235), r: 13, spin: 5 });
   }
-  if (state.wave === 2 && every("mettaton-rush", 0.5, dt)) {
+  if (state.wave === 2 && every("mettaton-rush", 0.78, dt)) {
     const y = rand(arena.y + 25, arena.y + arena.h - 25);
     spawn("leg", { x: arena.x + arena.w + 45, y, vx: -360, vy: 0, r: 22, angle: Math.PI });
   }
@@ -879,6 +903,9 @@ function touching(b) {
   }
   if (b.kind === "leg" || b.kind === "saber") {
     return rectCircle(b.x - 28, b.y - 10, 56, 20, p.x, p.y, p.r);
+  }
+  if (b.kind === "box") {
+    return rectCircle(b.x - 14, b.y - 14, 28, 28, p.x, p.y, p.r);
   }
   return Math.hypot(p.x - b.x, p.y - b.y) < p.r + b.r;
 }
@@ -1374,7 +1401,7 @@ function drawBullets() {
     ctx.save();
     ctx.translate(b.x, b.y);
     ctx.rotate(b.angle || 0);
-    if (b.kind === "spear") {
+    if (b.kind === "spear" || b.kind === "arrow") {
       ctx.fillStyle = "#111118";
       ctx.fillRect(-22, -8, 42, 16);
       ctx.fillStyle = selectedBoss.color;
@@ -1417,6 +1444,15 @@ function drawBullets() {
       ctx.fillRect(-2, 14, 4, 8);
       ctx.fillRect(-22, -2, 8, 4);
       ctx.fillRect(14, -2, 8, 4);
+    } else if (b.kind === "diamond") {
+      ctx.fillStyle = "#111118";
+      ctx.fillRect(-15, -15, 30, 30);
+      ctx.fillStyle = "#57d6ff";
+      ctx.fillRect(-4, -16, 8, 8);
+      ctx.fillRect(-10, -8, 20, 8);
+      ctx.fillRect(-16, 0, 32, 8);
+      ctx.fillRect(-10, 8, 20, 8);
+      ctx.fillRect(-4, 16, 8, 8);
     } else if (b.kind === "petal") {
       ctx.fillStyle = "#111118";
       ctx.fillRect(-15, -10, 30, 20);
@@ -1426,6 +1462,13 @@ function drawBullets() {
       ctx.fillRect(-4, -4, 8, 8);
       ctx.fillStyle = "#80ed99";
       ctx.fillRect(10, -2, 10, 4);
+    } else if (b.kind === "pellet") {
+      ctx.fillStyle = "#111118";
+      ctx.fillRect(-10, -10, 20, 20);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(-6, -6, 12, 12);
+      ctx.fillStyle = "#ff7a1a";
+      ctx.fillRect(-3, -3, 6, 6);
     } else if (b.kind === "bomb") {
       ctx.fillStyle = "#111118";
       ctx.fillRect(-14, -14, 28, 28);
@@ -1435,6 +1478,13 @@ function drawBullets() {
       ctx.fillRect(-4, -14, 8, 8);
       ctx.fillStyle = "#ffd166";
       ctx.fillRect(8, -16, 10, 6);
+    } else if (b.kind === "box") {
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(-14, -14, 28, 28);
+      ctx.fillStyle = "#050507";
+      ctx.fillRect(-10, -10, 20, 20);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(-5, -5, 10, 10);
     } else if (b.kind === "leg") {
       ctx.fillStyle = "#111118";
       ctx.fillRect(-34, -13, 68, 26);
