@@ -21,6 +21,7 @@ The BGM loops are original chiptune-style tracks tuned to each boss's mood and t
 Boss portraits use original fan-art pixel sprites made from small square pieces with recognizable character shapes, outfits, weapons, and poses.
 The boss select cards also show these portraits as pixel thumbnails so the roster is recognizable before the fight starts.
 In battle, each portrait has boss-specific sizing and a pixel outline so large bosses, short bosses, and trio characters keep their intended silhouettes.
+The battle stage also draws boss-specific pixel cues behind portraits, including bones, spears, tridents, flames, vines, eyes, wings, stars, and Mettaton-style lights.
 If a PNG fails to load, the fallback art uses hand-authored pixel matrices before falling back to older procedural tile shapes.
 Boss sprites also draw stronger signature cues over the pixel matrices, such as Sans's skull outline, Undyne's spear and armor, Asgore's horns, Omega Flowey's vines and monitor face, Asriel's wings, and Mettaton's pose.
 Those cues are built from single-color square blocks, so the characters stay closer to the pixel-piece look while becoming easier to recognize.

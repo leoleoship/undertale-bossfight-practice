@@ -1014,12 +1014,134 @@ function drawBackdrop() {
 function drawBoss() {
   ctx.save();
   ctx.translate(canvas.width / 2, 130 + Math.sin(state.t * 4) * 2);
+  drawBossStageCues(selectedBoss.id);
   if (!drawBossImage(selectedBoss.id)) {
     drawTileBoss(selectedBoss.id);
     drawBossSignature(selectedBoss.id);
   }
   drawBossNameplate();
   ctx.restore();
+}
+
+function drawBossStageCues(id) {
+  ctx.save();
+  ctx.globalAlpha = 0.46;
+  if (id === "sans") {
+    drawStageBones(-190, 45, 380, "#ffffff");
+    drawStageBlaster(155, -54, 0.9);
+    cueStageBlock(10, -82, 10, 10, "#57d6ff");
+  } else if (id === "disbelief") {
+    drawStageBones(-205, 58, 410, "#ffffff");
+    drawStageBoneSpear(-155, 36, -80, -82, "#ffffff");
+    drawStageBoneSpear(150, 45, 70, -86, "#ffffff");
+    cueStageLine(2, -116, 116, -136, "#ffd166", 5);
+  } else if (id === "btt") {
+    drawStageBones(-210, 62, 420, "#ffffff");
+    drawStageBlaster(0, -70, 0.76);
+    drawStageSpear(-168, 40, -106, -72, "#80ed99");
+    drawStageSpear(174, 44, 102, -74, "#57d6ff");
+  } else if (id === "undyne" || id === "undying") {
+    const color = id === "undying" ? "#80ed99" : "#57d6ff";
+    for (let i = -2; i <= 2; i++) {
+      drawStageSpear(-210, i * 24, -118, i * 12 - 78, color);
+      drawStageSpear(210, i * 24, 118, i * 12 - 78, color);
+    }
+    if (id === "undying") {
+      cueStageBlock(-18, 48, 36, 24, "#ff3855");
+      cueStageLine(-64, 60, 64, 60, "#80ed99", 7);
+    }
+  } else if (id === "asgore") {
+    drawStageTrident(152, -8);
+    for (let i = 0; i < 7; i++) drawStageFlame(-175 + i * 58, 58 + Math.sin(state.t * 4 + i) * 5);
+  } else if (id === "omega") {
+    for (let i = 0; i < 4; i++) {
+      const side = i % 2 === 0 ? -1 : 1;
+      cueStageLine(side * (120 + i * 18), -50 + i * 20, side * (210 - i * 8), 66 + i * 12, "#80ed99", 8);
+    }
+    drawStageEye(-155, -54);
+    drawStageEye(155, -54);
+    drawStageEye(-112, 14);
+    drawStageEye(112, 14);
+  } else if (id === "asriel") {
+    drawStageWing(-150, -28, -1);
+    drawStageWing(150, -28, 1);
+    for (let i = 0; i < 7; i++) drawStageStar(-150 + i * 50, -78 + (i % 2) * 22, i % 2 ? "#ffd166" : "#ffffff");
+  } else if (id === "mettaton") {
+    cueStageLine(-205, -76, -54, -32, "#ff8bd1", 8);
+    cueStageLine(205, -76, 54, -32, "#ff8bd1", 8);
+    for (let i = 0; i < 8; i++) cueStageBlock(-174 + i * 50, 62, 24, 12, i % 2 ? "#ffffff" : "#ff8bd1");
+  }
+  ctx.restore();
+}
+
+function cueStageBlock(x, y, w, h, color = "#ffffff") {
+  px(x, y, w, h, "#050507");
+  px(x + 2, y + 2, Math.max(2, w - 4), Math.max(2, h - 4), color);
+}
+
+function cueStageLine(x1, y1, x2, y2, color = "#ffffff", size = 6) {
+  const steps = Math.max(1, Math.ceil(Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) / size));
+  for (let i = 0; i <= steps; i++) {
+    const t = i / steps;
+    cueStageBlock(Math.round(x1 + (x2 - x1) * t), Math.round(y1 + (y2 - y1) * t), size, size, color);
+  }
+}
+
+function drawStageBones(x, y, width, color) {
+  cueStageLine(x, y, x + width, y, color, 8);
+  for (let i = x; i < x + width; i += 34) {
+    cueStageBlock(i, y - 11, 18, 18, color);
+    cueStageBlock(i + 14, y - 5, 14, 14, color);
+  }
+}
+
+function drawStageBoneSpear(x1, y1, x2, y2, color) {
+  cueStageLine(x1, y1, x2, y2, color, 7);
+  cueStageBlock(x2 - 8, y2 - 8, 18, 18, color);
+}
+
+function drawStageSpear(x1, y1, x2, y2, color) {
+  cueStageLine(x1, y1, x2, y2, color, 7);
+  cueStageBlock(x2 - 7, y2 - 7, 18, 18, "#ffffff");
+  cueStageBlock(x2 - 3, y2 - 3, 10, 10, color);
+}
+
+function drawStageTrident(x, y) {
+  cueStageLine(x, y + 72, x, y - 74, "#ffd166", 7);
+  cueStageLine(x - 24, y - 44, x - 24, y - 82, "#ffd166", 7);
+  cueStageLine(x + 24, y - 44, x + 24, y - 82, "#ffd166", 7);
+  cueStageLine(x - 24, y - 44, x, y - 62, "#ffd166", 7);
+  cueStageLine(x + 24, y - 44, x, y - 62, "#ffd166", 7);
+}
+
+function drawStageFlame(x, y) {
+  cueStageBlock(x - 11, y - 6, 22, 24, "#ff7a1a");
+  cueStageBlock(x - 6, y - 14, 12, 12, "#ff7a1a");
+  cueStageBlock(x - 4, y + 4, 8, 12, "#ffd166");
+}
+
+function drawStageBlaster(x, y, s = 1) {
+  cueStageBlock(x - 32 * s, y - 18 * s, 48 * s, 34 * s, "#ffffff");
+  cueStageBlock(x - 8 * s, y - 6 * s, 10 * s, 10 * s, "#050507");
+  cueStageBlock(x + 10 * s, y - 6 * s, 10 * s, 10 * s, "#050507");
+  cueStageBlock(x + 16 * s, y - 26 * s, 34 * s, 12 * s, "#ffffff");
+  cueStageBlock(x + 16 * s, y + 12 * s, 34 * s, 12 * s, "#ffffff");
+}
+
+function drawStageEye(x, y) {
+  cueStageBlock(x - 18, y - 10, 36, 20, "#ffffff");
+  cueStageBlock(x - 6, y - 6, 12, 12, "#050507");
+}
+
+function drawStageWing(x, y, side) {
+  cueStageLine(x, y, x + side * 90, y + 34, "#ffffff", 8);
+  cueStageLine(x + side * 12, y + 22, x + side * 78, y + 70, "#ffffff", 8);
+  cueStageLine(x + side * 28, y + 44, x + side * 58, y + 100, "#ffffff", 8);
+}
+
+function drawStageStar(x, y, color) {
+  cueStageBlock(x - 4, y - 14, 8, 28, color);
+  cueStageBlock(x - 14, y - 4, 28, 8, color);
 }
 
 function drawBossNameplate() {
