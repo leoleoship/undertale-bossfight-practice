@@ -11,6 +11,8 @@ This is a fan-made practice project with original code and simple original visua
 - Disbelief Papyrus
 - Bad Time Trio
 
+Each fight uses original pixel-style character art, 8-bit bullets, and an original browser-generated chiptune loop.
+
 ## Run Locally
 
 Open `index.html` in a browser.

@@ -12,6 +12,7 @@ const difficultyEl = document.getElementById("difficulty");
 
 const arena = { x: 260, y: 174, w: 440, h: 310 };
 const maxHp = 92;
+const pixel = 6;
 
 const bosses = [
   {
@@ -59,6 +60,103 @@ let difficultyKey = "normal";
 let state = makeState();
 let keys = new Set();
 let lastTime = performance.now();
+let music = {
+  ctx: null,
+  gain: null,
+  playing: false,
+  currentBoss: null,
+  nextTime: 0,
+  step: 0,
+};
+
+const chipTunes = {
+  undyne: {
+    bpm: 172,
+    lead: [659, 740, 784, 740, 659, 587, 659, 880, 784, 740, 659, 587, 523, 587, 659, 740],
+    bass: [165, 165, 196, 196, 147, 147, 196, 196],
+  },
+  asgore: {
+    bpm: 136,
+    lead: [392, 440, 523, 587, 659, 587, 523, 440, 349, 392, 440, 523, 587, 523, 440, 392],
+    bass: [98, 131, 147, 131, 87, 117, 131, 117],
+  },
+  disbelief: {
+    bpm: 188,
+    lead: [523, 0, 523, 587, 622, 587, 523, 392, 466, 0, 466, 523, 587, 523, 466, 392],
+    bass: [131, 131, 117, 117, 98, 98, 117, 117],
+  },
+  btt: {
+    bpm: 198,
+    lead: [784, 740, 659, 587, 659, 740, 784, 988, 880, 784, 740, 659, 587, 659, 740, 784],
+    bass: [196, 147, 165, 196, 220, 165, 147, 196],
+  },
+};
+
+const bossSprites = {
+  undyne: [
+    "....BBBB....",
+    "...BCCCB...",
+    "..BCCCCCB..",
+    "..BCCWCCB..",
+    "...BYYB....",
+    "..BYYYYB...",
+    ".BYYBBYYB..",
+    "BYYB..BYYB.",
+    "...BSSB....",
+    "..BSSSSB...",
+    ".BB....BB..",
+  ],
+  asgore: [
+    "..GG....GG..",
+    ".GYG....GYG.",
+    ".GYYYYYYYYG.",
+    "..GWWYYWWG..",
+    "...GYYYYG...",
+    "..RYYYYYYR..",
+    ".RRYRRYYRR..",
+    "RR.RYYYYR.R.",
+    "...GSSSSG...",
+    "..GSS..SSG..",
+    ".GG......GG.",
+  ],
+  disbelief: [
+    "...WWWWWW...",
+    "..WKKWWKKW..",
+    "..WWWWWWWW..",
+    "...WMMMMW...",
+    "....WBBW....",
+    "..WWBBBBWW..",
+    ".WBBWWWWBBW.",
+    "WBB.WBBW.BBW",
+    "...WBBBBW...",
+    "..WW....WW..",
+    ".WW......WW.",
+  ],
+  btt: [
+    "WWWW..BBBB..GGGG",
+    "WKKW.BCCCCB.GYYG",
+    "WWWW.BCWWCB.GWWG",
+    ".WW...BYYB...GG.",
+    "BBBB.BYYYYB.RRRR",
+    "BWWB.BYBBYB.RYYR",
+    "BBBB.BYYYYB.RRRR",
+    ".BB...BSSB...GG.",
+    "BBBB.BSSSSB.GSSG",
+  ],
+};
+
+const spriteColors = {
+  ".": null,
+  B: "#57d6ff",
+  C: "#2f8de4",
+  W: "#ffffff",
+  Y: "#ffd166",
+  S: "#8a8f99",
+  G: "#f6d28a",
+  R: "#d94f45",
+  K: "#111118",
+  M: "#ff3855",
+};
 
 function makeState() {
   return {
@@ -79,6 +177,7 @@ function makeState() {
 function selectBoss(boss) {
   selectedBoss = boss;
   bossName.textContent = boss.name;
+  if (music.playing) restartMusicForBoss();
   resetGame(false);
   renderRoster();
 }
@@ -106,6 +205,10 @@ function resetGame(autoStart = true) {
   waveName.textContent = selectedBoss.waves[0];
   timeLeft.textContent = "60.0";
   syncHp();
+  if (autoStart && music.ctx) {
+    restartMusicForBoss();
+    startMusic();
+  }
 }
 
 function syncHp() {
@@ -145,6 +248,7 @@ function update(dt) {
     state.over = true;
     state.won = true;
     state.running = false;
+    stopMusic();
   }
 
   movePlayer(dt);
@@ -163,6 +267,7 @@ function update(dt) {
       if (state.hp <= 0) {
         state.over = true;
         state.running = false;
+        stopMusic();
       }
     }
   }
@@ -318,17 +423,14 @@ function drawBackdrop() {
 }
 
 function drawBoss() {
-  ctx.save();
-  ctx.translate(canvas.width / 2, 78);
+  const sprite = bossSprites[selectedBoss.id];
+  const scale = selectedBoss.id === "btt" ? 5 : 7;
+  const w = sprite[0].length * scale;
+  const h = sprite.length * scale;
+  drawPixelSprite(sprite, canvas.width / 2 - w / 2, 38 + Math.sin(state.t * 4) * 3, scale);
   ctx.strokeStyle = selectedBoss.color;
-  ctx.fillStyle = selectedBoss.color;
-  ctx.lineWidth = 4;
-  ctx.strokeRect(-38, -32, 76, 64);
-  ctx.font = "bold 42px Courier New";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText(selectedBoss.icon, 0, 1);
-  ctx.restore();
+  ctx.lineWidth = 3;
+  ctx.strokeRect(canvas.width / 2 - w / 2 - 10, 28, w + 20, h + 20);
 }
 
 function drawArena() {
@@ -343,48 +445,48 @@ function drawBullets() {
     ctx.translate(b.x, b.y);
     ctx.rotate(b.angle || 0);
     if (b.kind === "spear") {
+      ctx.fillStyle = "#111118";
+      ctx.fillRect(-22, -8, 42, 16);
       ctx.fillStyle = selectedBoss.color;
-      ctx.fillRect(-18, -4, 36, 8);
-      ctx.beginPath();
-      ctx.moveTo(18, -11);
-      ctx.lineTo(34, 0);
-      ctx.lineTo(18, 11);
-      ctx.fill();
+      ctx.fillRect(-18, -3, 30, 6);
+      ctx.fillRect(12, -9, 8, 18);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(20, -3, 12, 6);
     } else if (b.kind === "fire") {
+      ctx.fillStyle = "#111118";
+      ctx.fillRect(-b.r, -b.r, b.r * 2, b.r * 2);
       ctx.fillStyle = "#ff7a1a";
-      ctx.beginPath();
-      ctx.arc(0, 0, b.r, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillRect(-b.r + 2, -b.r + 4, b.r * 2 - 4, b.r * 2 - 6);
+      ctx.fillRect(-b.r / 2, -b.r - 4, b.r, b.r);
       ctx.fillStyle = "#ffd166";
-      ctx.beginPath();
-      ctx.arc(-2, -2, b.r * 0.45, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillRect(-4, -4, 8, 12);
     } else if (b.kind === "trident") {
-      ctx.strokeStyle = "#ffd166";
-      ctx.lineWidth = 5;
-      ctx.beginPath();
-      ctx.moveTo(-34, 0);
-      ctx.lineTo(32, 0);
-      ctx.moveTo(18, 0);
-      ctx.lineTo(34, -18);
-      ctx.moveTo(18, 0);
-      ctx.lineTo(34, 0);
-      ctx.moveTo(18, 0);
-      ctx.lineTo(34, 18);
-      ctx.stroke();
+      ctx.fillStyle = "#ffd166";
+      ctx.fillRect(-34, -3, 62, 6);
+      ctx.fillRect(20, -18, 7, 36);
+      ctx.fillRect(30, -22, 7, 12);
+      ctx.fillRect(30, -6, 7, 12);
+      ctx.fillRect(30, 10, 7, 12);
     } else if (b.kind === "bone" || b.kind === "blueBone") {
+      ctx.fillStyle = "#111118";
+      ctx.fillRect(-12, -b.h / 2 - 10, 24, b.h + 20);
       ctx.fillStyle = b.kind === "blueBone" ? "#57d6ff" : "#ffffff";
-      ctx.fillRect(-8, -b.h / 2, 16, b.h);
-      ctx.beginPath();
-      ctx.arc(0, -b.h / 2, 12, 0, Math.PI * 2);
-      ctx.arc(0, b.h / 2, 12, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillRect(-7, -b.h / 2, 14, b.h);
+      ctx.fillRect(-13, -b.h / 2 - 8, 26, 16);
+      ctx.fillRect(-13, b.h / 2 - 8, 26, 16);
+      ctx.fillRect(-19, -b.h / 2 - 2, 8, 8);
+      ctx.fillRect(11, -b.h / 2 - 2, 8, 8);
+      ctx.fillRect(-19, b.h / 2 - 6, 8, 8);
+      ctx.fillRect(11, b.h / 2 - 6, 8, 8);
     } else if (b.kind === "beam") {
       const active = b.age >= b.warn;
       ctx.globalAlpha = active ? 0.82 : 0.35;
       ctx.fillStyle = active ? "#ffffff" : "#57d6ff";
-      if (b.horizontal) ctx.fillRect(-10, -14, arena.w + 20, 28);
-      else ctx.fillRect(-14, -10, 28, arena.h + 20);
+      if (b.horizontal) {
+        for (let x = -10; x < arena.w + 20; x += 18) ctx.fillRect(x, -14, 12, 28);
+      } else {
+        for (let y = -10; y < arena.h + 20; y += 18) ctx.fillRect(-14, y, 28, 12);
+      }
     }
     ctx.restore();
   }
@@ -395,14 +497,40 @@ function drawPlayer() {
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.globalAlpha = p.inv > 0 ? 0.45 + Math.sin(state.t * 32) * 0.25 : 1;
-  ctx.rotate(Math.PI / 4);
-  ctx.fillStyle = "#ff3855";
-  ctx.fillRect(-7, -7, 14, 14);
-  ctx.beginPath();
-  ctx.arc(-7, -7, 7, 0, Math.PI * 2);
-  ctx.arc(7, -7, 7, 0, Math.PI * 2);
-  ctx.fill();
+  drawPixelHeart(-12, -10, pixel);
   ctx.restore();
+}
+
+function drawPixelHeart(x, y, size) {
+  const map = [
+    ".XX.XX.",
+    "XXXXXXX",
+    "XXXXXXX",
+    ".XXXXX.",
+    "..XXX..",
+    "...X...",
+  ];
+  ctx.fillStyle = "#111118";
+  ctx.fillRect(x - 2, y - 2, map[0].length * size + 4, map.length * size + 4);
+  ctx.fillStyle = "#ff3855";
+  for (let row = 0; row < map.length; row++) {
+    for (let col = 0; col < map[row].length; col++) {
+      if (map[row][col] === "X") ctx.fillRect(x + col * size, y + row * size, size, size);
+    }
+  }
+}
+
+function drawPixelSprite(sprite, x, y, size) {
+  for (let row = 0; row < sprite.length; row++) {
+    for (let col = 0; col < sprite[row].length; col++) {
+      const color = spriteColors[sprite[row][col]];
+      if (!color) continue;
+      ctx.fillStyle = "#0a0a0f";
+      ctx.fillRect(x + col * size - 1, y + row * size - 1, size + 2, size + 2);
+      ctx.fillStyle = color;
+      ctx.fillRect(x + col * size, y + row * size, size, size);
+    }
+  }
 }
 
 function drawOverlay() {
@@ -441,8 +569,83 @@ function loop(now) {
   const dt = Math.min(0.033, (now - lastTime) / 1000);
   lastTime = now;
   update(dt);
+  updateMusic();
   draw();
   requestAnimationFrame(loop);
+}
+
+function initAudio() {
+  if (music.ctx) return;
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) return;
+  music.ctx = new AudioContext();
+  music.gain = music.ctx.createGain();
+  music.gain.gain.value = 0.13;
+  music.gain.connect(music.ctx.destination);
+}
+
+function startMusic() {
+  initAudio();
+  if (!music.ctx) return;
+  if (music.ctx.state === "suspended") music.ctx.resume();
+  if (music.currentBoss !== selectedBoss.id) restartMusicForBoss();
+  music.playing = true;
+  music.nextTime = Math.max(music.ctx.currentTime, music.nextTime || 0);
+}
+
+function stopMusic() {
+  music.playing = false;
+}
+
+function restartMusicForBoss() {
+  music.currentBoss = selectedBoss.id;
+  music.step = 0;
+  music.nextTime = music.ctx ? music.ctx.currentTime : 0;
+}
+
+function updateMusic() {
+  if (!music.playing || !music.ctx || !state.running || state.over) return;
+  const tune = chipTunes[selectedBoss.id];
+  const beat = 60 / tune.bpm;
+  while (music.nextTime < music.ctx.currentTime + 0.18) {
+    const lead = tune.lead[music.step % tune.lead.length];
+    const bass = tune.bass[Math.floor(music.step / 2) % tune.bass.length];
+    if (lead) playTone(lead, music.nextTime, beat * 0.42, "square", 0.08);
+    if (music.step % 2 === 0) playTone(bass, music.nextTime, beat * 0.8, "triangle", 0.055);
+    if (music.step % 4 === 2) playNoiseHat(music.nextTime, beat * 0.12);
+    music.step++;
+    music.nextTime += beat / 2;
+  }
+}
+
+function playTone(freq, start, duration, type, volume) {
+  const osc = music.ctx.createOscillator();
+  const gain = music.ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, start);
+  gain.gain.setValueAtTime(0.0001, start);
+  gain.gain.exponentialRampToValueAtTime(volume, start + 0.01);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+  osc.connect(gain);
+  gain.connect(music.gain);
+  osc.start(start);
+  osc.stop(start + duration + 0.02);
+}
+
+function playNoiseHat(start, duration) {
+  const sampleRate = music.ctx.sampleRate;
+  const buffer = music.ctx.createBuffer(1, Math.ceil(sampleRate * duration), sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+  const source = music.ctx.createBufferSource();
+  const gain = music.ctx.createGain();
+  gain.gain.setValueAtTime(0.025, start);
+  gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+  source.buffer = buffer;
+  source.connect(gain);
+  gain.connect(music.gain);
+  source.start(start);
+  source.stop(start + duration);
 }
 
 window.addEventListener("keydown", (event) => {
@@ -473,9 +676,13 @@ document.querySelectorAll("[data-touch-key]").forEach((button) => {
 startBtn.addEventListener("click", () => {
   if (state.over) resetGame(true);
   else state.running = true;
+  startMusic();
 });
 
-restartBtn.addEventListener("click", () => resetGame(true));
+restartBtn.addEventListener("click", () => {
+  resetGame(true);
+  startMusic();
+});
 
 difficultyEl.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-difficulty]");
