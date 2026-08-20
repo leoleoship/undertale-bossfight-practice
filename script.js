@@ -958,45 +958,66 @@ function undyingPattern(dt) {
 }
 
 function omegaPattern(dt) {
-  if (every("omega-petal", 0.34, dt)) {
-    const a = state.t * 4 + rand(-0.7, 0.7);
-    const x = arena.x + arena.w / 2 + Math.cos(a) * 245;
-    const y = arena.y + arena.h / 2 + Math.sin(a) * 180;
-    const toward = Math.atan2(state.player.y - y, state.player.x - x);
-    spawn("petal", { x, y, vx: Math.cos(toward) * 150, vy: Math.sin(toward) * 150, r: 12, angle: toward, spin: 2.2 });
-  }
-  if (state.wave >= 1 && every("omega-vine", 1.35, dt)) {
-    const horizontal = Math.random() > 0.5;
-    spawn("vine", {
-      x: horizontal ? arena.x : rand(arena.x + 20, arena.x + arena.w - 20),
-      y: horizontal ? rand(arena.y + 20, arena.y + arena.h - 20) : arena.y,
-      vx: 0,
-      vy: 0,
-      r: 24,
-      horizontal,
-      warn: 0.62,
-      life: 1.18,
-    });
-  }
-  if (state.wave === 2 && every("omega-ring", 1.45, dt)) {
-    for (let i = 0; i < 10; i++) {
-      const a = (Math.PI * 2 * i) / 10 + state.t;
-      spawn("pellet", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 135, vy: Math.sin(a) * 135, r: 8, angle: a, spin: -2.5 });
+  if (state.wave === 0 && every("omega-petal", 0.38, dt)) {
+    const lanes = [0.18, 0.34, 0.5, 0.66, 0.82, 0.42, 0.58];
+    const x = arena.x + arena.w * lanes[Math.floor(state.waveT / 0.38) % lanes.length];
+    spawn("petal", { x, y: arena.y - 26, vx: Math.sin(state.waveT * 5) * 30, vy: 168, r: 12, angle: Math.PI / 2, spin: 2.2 });
+    if (Math.floor(state.waveT / 0.38) % 3 === 0) {
+      const side = x < arena.x + arena.w / 2 ? arena.x + arena.w + 26 : arena.x - 26;
+      const toward = Math.atan2(state.player.y - arena.y - arena.h * 0.5, state.player.x - side);
+      spawn("petal", { x: side, y: arena.y + arena.h * 0.5, vx: Math.cos(toward) * 135, vy: Math.sin(toward) * 135, r: 12, angle: toward, spin: 2.2 });
     }
+  }
+  if (state.wave >= 1) {
+    const vine = sequencedEvery("omega-vine", 1.0, dt, ["v25", "h40", "v75", "h65"]);
+    if (vine) {
+      const horizontal = vine[0] === "h";
+      const n = Number(vine.slice(1)) / 100;
+      spawn("vine", {
+        x: horizontal ? arena.x : arena.x + arena.w * n,
+        y: horizontal ? arena.y + arena.h * n : arena.y,
+        vx: 0,
+        vy: 0,
+        r: 24,
+        horizontal,
+        warn: 0.62,
+        life: 1.1,
+      });
+    }
+  }
+  if (state.wave === 2 && every("omega-ring", 1.2, dt)) {
+    const skip = Math.floor(state.waveT / 1.2) % 12;
+    for (let i = 0; i < 12; i++) {
+      if (i === skip || i === (skip + 1) % 12) continue;
+      const a = (Math.PI * 2 * i) / 12 + state.waveT * 0.45;
+      spawn("pellet", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 138, vy: Math.sin(a) * 138, r: 8, angle: a, spin: -2.5 });
+    }
+  } else if (state.wave >= 1 && every("omega-pellet-lanes", 0.56, dt)) {
+    const fromLeft = Math.floor(state.waveT / 0.56) % 2 === 0;
+    const y = arena.y + arena.h * ([0.25, 0.45, 0.65, 0.35, 0.75][Math.floor(state.waveT / 0.56) % 5]);
+    spawn("pellet", { x: fromLeft ? arena.x - 18 : arena.x + arena.w + 18, y, vx: fromLeft ? 148 : -148, vy: 0, r: 8, angle: fromLeft ? 0 : Math.PI, spin: -2.5 });
   }
 }
 
 function asrielPattern(dt) {
-  if (every("asriel-starfall", 0.36, dt)) {
-    spawn("star", { x: rand(arena.x, arena.x + arena.w), y: arena.y - 24, vx: rand(-45, 45), vy: rand(165, 235), r: 12, spin: 3.2 });
+  if (every("asriel-starfall", state.wave === 0 ? 0.34 : 0.46, dt)) {
+    const lanes = [0.16, 0.3, 0.44, 0.58, 0.72, 0.86, 0.38, 0.66];
+    const index = Math.floor(state.waveT / (state.wave === 0 ? 0.34 : 0.46));
+    const x = arena.x + arena.w * lanes[index % lanes.length];
+    spawn("star", { x, y: arena.y - 24, vx: index % 2 ? 36 : -36, vy: state.wave === 0 ? 178 : 205, r: 12, spin: 3.2 });
   }
-  if (state.wave >= 1 && every("asriel-saber", 1.35, dt)) {
-    const fromLeft = Math.random() > 0.5;
-    spawn("saber", { x: fromLeft ? arena.x - 58 : arena.x + arena.w + 58, y: rand(arena.y + 30, arena.y + arena.h - 30), vx: fromLeft ? 410 : -410, vy: 0, r: 22, angle: fromLeft ? 0 : Math.PI });
+  if (state.wave >= 1) {
+    const lane = sequencedEvery("asriel-saber", 1.05, dt, [0.24, 0.72, 0.42, 0.58]);
+    if (lane !== null) {
+      const fromLeft = Math.floor(state.waveT / 1.05) % 2 === 0;
+      spawn("saber", { x: fromLeft ? arena.x - 58 : arena.x + arena.w + 58, y: arena.y + arena.h * lane, vx: fromLeft ? 410 : -410, vy: 0, r: 22, angle: fromLeft ? 0 : Math.PI });
+    }
   }
-  if (state.wave === 2 && every("asriel-hope", 1.45, dt)) {
+  if (state.wave === 2 && every("asriel-hope", 1.15, dt)) {
+    const skip = Math.floor(state.waveT / 1.15) % 8;
     for (let i = 0; i < 8; i++) {
-      const a = (Math.PI * 2 * i) / 8 - state.t;
+      if (i === skip) continue;
+      const a = (Math.PI * 2 * i) / 8 - state.waveT * 0.55;
       spawn("diamond", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 145, vy: Math.sin(a) * 145, r: 10, spin: -4 });
     }
   }
@@ -1253,20 +1274,7 @@ function drawBossSpeechBox() {
   ctx.save();
   px(box.x, box.y, box.w, box.h, "#ffffff");
   px(box.x + 4, box.y + 4, box.w - 8, box.h - 8, "#050507");
-  ctx.fillStyle = "#ffffff";
-  ctx.beginPath();
-  ctx.moveTo(box.x + 18, box.y + box.h - 4);
-  ctx.lineTo(box.x - 12, box.y + box.h + 14);
-  ctx.lineTo(box.x + 32, box.y + box.h - 4);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = "#050507";
-  ctx.beginPath();
-  ctx.moveTo(box.x + 22, box.y + box.h - 4);
-  ctx.lineTo(box.x - 1, box.y + box.h + 8);
-  ctx.lineTo(box.x + 34, box.y + box.h - 4);
-  ctx.closePath();
-  ctx.fill();
+  drawSpeechTail(box);
   ctx.font = "bold 15px Courier New";
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
@@ -1276,10 +1284,34 @@ function drawBossSpeechBox() {
 }
 
 function getSpeechBoxPlacement(id) {
-  if (id === "omega" || id === "asriel") return { x: 126, y: -124, w: 256, h: 78 };
-  if (id === "btt") return { x: 116, y: -112, w: 270, h: 76 };
-  if (id === "sans") return { x: 112, y: -118, w: 250, h: 74 };
-  return { x: 118, y: -126, w: 256, h: 76 };
+  if (id === "omega" || id === "asriel") return { x: -382, y: -124, w: 256, h: 78, tail: "right" };
+  if (id === "btt") return { x: 116, y: -112, w: 270, h: 76, tail: "left" };
+  if (id === "sans") return { x: 112, y: -118, w: 250, h: 74, tail: "left-low" };
+  if (id === "mettaton") return { x: 118, y: -120, w: 250, h: 76, tail: "left" };
+  return { x: 118, y: -126, w: 256, h: 76, tail: "left" };
+}
+
+function drawSpeechTail(box) {
+  const right = box.tail === "right";
+  const low = box.tail === "left-low";
+  const anchorX = right ? box.x + box.w - 18 : box.x + 18;
+  const tipX = right ? box.x + box.w + 14 : box.x - 12;
+  const baseY = box.y + box.h - (low ? 12 : 4);
+  const tipY = box.y + box.h + (low ? 22 : 14);
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.moveTo(anchorX, baseY);
+  ctx.lineTo(tipX, tipY);
+  ctx.lineTo(anchorX + (right ? -14 : 14), baseY);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#050507";
+  ctx.beginPath();
+  ctx.moveTo(anchorX + (right ? -4 : 4), baseY);
+  ctx.lineTo(tipX + (right ? -8 : 8), tipY - 6);
+  ctx.lineTo(anchorX + (right ? -16 : 16), baseY);
+  ctx.closePath();
+  ctx.fill();
 }
 
 function getBossSpeech() {
