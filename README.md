@@ -36,6 +36,7 @@ Several fights use scripted lane/sequenced attacks to feel closer to their sourc
 Omega Flowey and Asriel also use more staged lane patterns, with vine grids, pellet bursts with gaps, star curtains, saber sweeps, and ring attacks with readable safe spaces.
 Large weapon attacks now show short lane warnings before moving, making tridents, sabers, spears, and leg sweeps feel more deliberate.
 Undyne-style green-heart turns use square-box shield reads with multi-direction arrow chords and warning lanes.
+Boss waves also adjust the battle box shape for closer practice feel, including low corridor boxes, narrow cage boxes, wide final-phase boxes, and tall yellow-heart boxes.
 Sans and Disbelief include blue/orange bone rules: stop for blue attacks and move through orange attacks.
 Normal mode is tuned for learning, with lower damage, slower attacks, and a bullet cap so waves stay dodgeable.
 

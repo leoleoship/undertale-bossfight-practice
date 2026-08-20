@@ -18,6 +18,8 @@ const squareArena = { x: 361, y: 292, w: 238, h: 238 };
 const compactArena = { x: 300, y: 314, w: 360, h: 194 };
 const tallArena = { x: 300, y: 278, w: 360, h: 260 };
 const wideArena = { x: 220, y: 300, w: 520, h: 220 };
+const lowWideArena = { x: 212, y: 324, w: 536, h: 178 };
+const tallNarrowArena = { x: 330, y: 268, w: 300, h: 282 };
 const arena = { ...baseArena };
 const maxHp = 92;
 const pixel = 6;
@@ -551,8 +553,11 @@ function applyArenaLayout(heartMode = state?.heartMode || selectedBoss.heartMode
 
 function getArenaLayout(id, heartMode, wave = 0) {
   if (usesSquareArena(id, heartMode)) return squareArena;
-  if (id === "sans" || id === "disbelief") return heartMode === "blue" ? compactArena : baseArena;
-  if (id === "omega" || id === "asriel") return wideArena;
+  if (id === "sans") return wave === 2 ? lowWideArena : compactArena;
+  if (id === "disbelief") return heartMode === "blue" ? compactArena : wideArena;
+  if (id === "btt") return wave === 2 ? wideArena : baseArena;
+  if (id === "omega") return wave === 1 ? tallNarrowArena : wideArena;
+  if (id === "asriel") return wave === 2 ? tallArena : wideArena;
   if (id === "mettaton" && heartMode === "yellow") return tallArena;
   if (id === "asgore" && wave === 2) return wideArena;
   return baseArena;
@@ -928,6 +933,14 @@ function asgorePattern(dt) {
     const y = arena.y + arena.h * ([0.18, 0.74, 0.36, 0.58, 0.26, 0.82][index % 6]);
     spawn("fire", { x: arena.x + arena.w / 2 + side * 245, y, vx: -side * (135 + (index % 3) * 22), vy: Math.sin(t * 2 + index) * 38, r: 10 + (index % 3) * 2 });
   }
+  if (state.wave === 0 && every("fire-ring", 1.4, dt)) {
+    const skip = sequenceIndex(1.4) % 10;
+    for (let i = 0; i < 10; i++) {
+      if (i === skip || i === (skip + 1) % 10) continue;
+      const a = (Math.PI * 2 * i) / 10 + t * 0.35;
+      spawn("fire", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 118, vy: Math.sin(a) * 118, r: 9 });
+    }
+  }
   if (state.wave >= 1) {
     const lane = sequencedEvery("sweep", 1.22, dt, [0.22, 0.5, 0.78, 0.36, 0.64]);
     if (lane !== null) {
@@ -965,9 +978,8 @@ function disbeliefPattern(dt) {
     if (xFrac !== null) spawn("blueBone", { x: arena.x + arena.w * xFrac, y: arena.y - 28, vx: 0, vy: 230, r: 14, h: 58 });
   }
   if (state.wave === 2 && every("slam", 1.15, dt)) {
-    for (let i = 0; i < 7; i++) {
-      spawn(i % 3 === 1 ? "orangeBone" : "bone", { x: arena.x + 26 + i * ((arena.w - 52) / 6), y: arena.y + arena.h + 34, vx: 0, vy: -250, r: 13, h: i % 2 ? 58 : 78 });
-    }
+    const gap = sequenceIndex(1.15) % 7;
+    spawnBoneWallFromBottom(gap, 7, 236, [58, 78, 68], 1);
   }
 }
 
@@ -990,7 +1002,20 @@ function bttPattern(dt) {
 
 function spawnBlasterLine(key, interval, dt, biasHorizontal = 0.5) {
   if (!every(key, interval, dt)) return;
-  spawnBlaster(biasHorizontal);
+  const index = sequenceIndex(interval);
+  const horizontal = index % 4 < Math.round(biasHorizontal * 4);
+  const hLanes = [0.28, 0.56, 0.74, 0.42];
+  const vLanes = [0.2, 0.8, 0.5, 0.34, 0.66];
+  spawn("beam", {
+    x: horizontal ? arena.x : arena.x + arena.w * vLanes[index % vLanes.length],
+    y: horizontal ? arena.y + arena.h * hLanes[index % hLanes.length] : arena.y,
+    vx: 0,
+    vy: 0,
+    r: 24,
+    horizontal,
+    warn: 0.52,
+    life: 1.0,
+  });
 }
 
 function spawnBlaster(biasHorizontal = 0.5) {
@@ -1039,6 +1064,29 @@ function sansPattern(dt) {
       });
     }
   }
+  if (state.wave === 2 && every("sans-floor-ceiling", 1.55, dt)) {
+    const gap = sequenceIndex(1.55) % 8;
+    spawnBoneWallFromBottom(gap, 8, 218, [52, 92, 68], 1);
+    spawnBoneWallFromTop((gap + 4) % 8, 8, 208, [48, 78, 62]);
+  }
+}
+
+function spawnBoneWallFromBottom(gap, count, speed, heights, orangeOffset = -1) {
+  for (let i = 0; i < count; i++) {
+    if (i === gap || i === (gap + 1) % count) continue;
+    const x = arena.x + 24 + i * ((arena.w - 48) / Math.max(1, count - 1));
+    const kind = i % 3 === orangeOffset ? "orangeBone" : "bone";
+    spawn(kind, { x, y: arena.y + arena.h + 34, vx: 0, vy: -speed, r: 13, h: heights[i % heights.length] });
+  }
+}
+
+function spawnBoneWallFromTop(gap, count, speed, heights, orangeOffset = -1) {
+  for (let i = 0; i < count; i++) {
+    if (i === gap || i === (gap + count - 1) % count) continue;
+    const x = arena.x + 24 + i * ((arena.w - 48) / Math.max(1, count - 1));
+    const kind = i % 3 === orangeOffset ? "orangeBone" : "bone";
+    spawn(kind, { x, y: arena.y - 34, vx: 0, vy: speed, r: 13, h: heights[i % heights.length] });
+  }
 }
 
 function undyingPattern(dt) {
@@ -1077,8 +1125,16 @@ function omegaPattern(dt) {
       spawn("petal", { x: side, y: arena.y + arena.h * 0.5, vx: Math.cos(toward) * 135, vy: Math.sin(toward) * 135, r: 12, angle: toward, spin: 2.2 });
     }
   }
+  if (state.wave === 0 && every("omega-burst", 1.65, dt)) {
+    const skip = sequenceIndex(1.65) % 14;
+    for (let i = 0; i < 14; i++) {
+      if (i === skip || i === (skip + 1) % 14 || i === (skip + 13) % 14) continue;
+      const a = (Math.PI * 2 * i) / 14 - t * 0.28;
+      spawn("pellet", { x: arena.x + arena.w / 2, y: arena.y + arena.h * 0.44, vx: Math.cos(a) * 118, vy: Math.sin(a) * 118, r: 7, angle: a, spin: -2.1 });
+    }
+  }
   if (state.wave >= 1) {
-    const vine = sequencedEvery("omega-vine", 1.0, dt, ["v25", "h40", "v75", "h65"]);
+    const vine = sequencedEvery("omega-vine", 0.92, dt, ["v25", "h38", "v75", "h62", "v50"]);
     if (vine) {
       const horizontal = vine[0] === "h";
       const n = Number(vine.slice(1)) / 100;
@@ -1117,6 +1173,14 @@ function asrielPattern(dt) {
     const x = arena.x + arena.w * lanes[index % lanes.length];
     spawn("star", { x, y: arena.y - 24, vx: index % 2 ? 36 : -36, vy: state.wave === 0 ? 178 : 205, r: 12, spin: 3.2 });
   }
+  if (state.wave === 0 && every("asriel-star-curtain", 1.35, dt)) {
+    const gap = sequenceIndex(1.35) % 6;
+    for (let i = 0; i < 6; i++) {
+      if (i === gap) continue;
+      const x = arena.x + 34 + i * ((arena.w - 68) / 5);
+      spawn("star", { x, y: arena.y - 26, vx: i % 2 ? 24 : -24, vy: 158, r: 10, spin: 3.5, delay: i * 0.06 });
+    }
+  }
   if (state.wave >= 1) {
     const lane = sequencedEvery("asriel-saber", 1.05, dt, [0.24, 0.72, 0.42, 0.58]);
     if (lane !== null) {
@@ -1149,15 +1213,19 @@ function mettatonPattern(dt) {
       life: 1.0,
     });
   }
+  if (state.wave === 0 && every("mettaton-sweeping-spot", 1.64, dt)) {
+    const y = arena.y + arena.h * ([0.28, 0.5, 0.72, 0.42][sequenceIndex(1.64) % 4]);
+    spawn("beam", { x: arena.x, y, vx: 0, vy: 0, r: 24, horizontal: true, warn: 0.58, life: 0.95 });
+  }
   if (state.wave >= 1 && every("mettaton-bombs", 0.48, dt)) {
     const index = Math.floor(t / 0.48);
     const kind = index % 3 === 0 ? "box" : "bomb";
     const lanes = [0.18, 0.38, 0.58, 0.78];
     const x = arena.x + arena.w * lanes[index % lanes.length];
-    spawn(kind, { x, y: arena.y - 24, vx: Math.sin(state.t * 5) * 45, vy: rand(165, 225), r: 13, spin: 5 });
+    spawn(kind, { x, y: arena.y - 24, vx: Math.sin(t * 5) * 45, vy: 170 + (index % 3) * 22, r: 13, spin: 5 });
   }
   if (state.wave === 2 && every("mettaton-rush", 0.78, dt)) {
-    const y = rand(arena.y + 25, arena.y + arena.h - 25);
+    const y = arena.y + arena.h * ([0.22, 0.44, 0.68, 0.82, 0.36][sequenceIndex(0.78) % 5]);
     spawn("leg", { x: arena.x + arena.w + 45, y, vx: -360, vy: 0, r: 22, angle: Math.PI, delay: 0.32 });
   }
 }
