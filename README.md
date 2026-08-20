@@ -16,10 +16,10 @@ This is a fan-made practice project with original code and simple original visua
 - Asriel
 - Mettaton
 
-Each fight uses original pixel-style character art, 8-bit bullets, and an original browser-generated chiptune loop.
+Each fight uses original generated pixel-style PNG portraits, 8-bit bullets, and an original browser-generated chiptune loop.
 The BGM loops are original chiptune-style tracks tuned to each boss's mood and tempo; they do not copy Undertale's actual songs.
-Boss portraits use original fan-art tile sprites made from small square pixel pieces with recognizable character shapes, outfits, weapons, and poses.
-The fallback art now uses hand-authored pixel matrices for clearer silhouettes before falling back to older procedural tile shapes.
+Boss portraits use original fan-art pixel sprites made from small square pieces with recognizable character shapes, outfits, weapons, and poses.
+If a PNG fails to load, the fallback art uses hand-authored pixel matrices before falling back to older procedural tile shapes.
 Boss sprites also draw stronger signature cues over the pixel matrices, such as Sans's skull outline, Undyne's spear and armor, Asgore's horns, Omega Flowey's vines and monitor face, Asriel's wings, and Mettaton's pose.
 Those cues are built from single-color square blocks, so the characters stay closer to the pixel-piece look while becoming easier to recognize.
 Each boss also has an in-canvas nameplate so the selected character is always clear while the fallback art improves.
@@ -31,9 +31,9 @@ Normal mode is tuned for learning, with lower damage, slower attacks, and a bull
 
 Open `index.html` in a browser.
 
-## Optional Boss Images
+## Boss Images
 
-The game can use image files instead of the built-in tile sprites. Put authorized PNG files in `assets/bosses/` using names like `sans.png`, `undyne.png`, `omega.png`, and `mettaton.png`.
+The game loads the included original PNG portraits from `assets/bosses/`. They can be regenerated with `python3 tools/generate_boss_portraits.py`.
 
 Do not publish copied Undertale screenshots or sprites unless you have permission to use them.
 
