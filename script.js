@@ -327,6 +327,23 @@ const soulPhysics = {
   shotCooldown: 0.18,
   shotSpeed: -520,
 };
+const projectileHitboxes = {
+  arrow: { w: 46, h: 14 },
+  spear: { w: 46, h: 12 },
+  trident: { w: 64, h: 24 },
+  saber: { w: 66, h: 18 },
+  leg: { w: 60, h: 20 },
+  beam: { thickness: 15 },
+  vine: { thickness: 16 },
+  bone: { w: 16 },
+  box: { w: 24, h: 24 },
+  fire: { scale: 0.76 },
+  star: { scale: 0.78 },
+  diamond: { scale: 0.78 },
+  petal: { scale: 0.75 },
+  pellet: { scale: 0.72 },
+  bomb: { scale: 0.78 },
+};
 const waveTuning = {
   undyne: [
     { rate: 0.92, speed: 1.04, length: 10.5, cap: 18 },
@@ -1391,25 +1408,31 @@ function touching(b) {
   const p = state.player;
   if (state.heartMode === "green" && shieldBlocks(b)) return false;
   if (b.kind === "arrow") {
-    return Math.hypot(p.x - b.x, p.y - b.y) < p.r + 18;
+    return orientedRectCircle(b.x, b.y, b.angle || 0, projectileHitboxes.arrow.w, projectileHitboxes.arrow.h, p.x, p.y, p.r);
   }
   if (b.kind === "beam" || b.kind === "vine") {
     if (b.age < b.warn) return false;
-    return b.horizontal ? Math.abs(p.y - b.y) < 18 : Math.abs(p.x - b.x) < 18;
+    const thickness = projectileHitboxes[b.kind].thickness;
+    return b.horizontal ? Math.abs(p.y - b.y) < thickness : Math.abs(p.x - b.x) < thickness;
   }
   if (b.kind === "bone" || b.kind === "blueBone" || b.kind === "orangeBone") {
     const moving = playerIsTryingToMove();
     if (b.kind === "blueBone" && !moving) return false;
     if (b.kind === "orangeBone" && moving) return false;
-    return rectCircle(b.x - 9, b.y - b.h / 2, 18, b.h, p.x, p.y, p.r);
+    const width = projectileHitboxes.bone.w;
+    return rectCircle(b.x - width / 2, b.y - b.h / 2, width, b.h, p.x, p.y, p.r);
   }
-  if (b.kind === "leg" || b.kind === "saber") {
-    return rectCircle(b.x - 28, b.y - 10, 56, 20, p.x, p.y, p.r);
+  if (b.kind === "spear" || b.kind === "trident" || b.kind === "saber" || b.kind === "leg") {
+    const hitbox = projectileHitboxes[b.kind];
+    return orientedRectCircle(b.x, b.y, b.angle || 0, hitbox.w, hitbox.h, p.x, p.y, p.r);
   }
   if (b.kind === "box") {
-    return rectCircle(b.x - 14, b.y - 14, 28, 28, p.x, p.y, p.r);
+    const hitbox = projectileHitboxes.box;
+    return rectCircle(b.x - hitbox.w / 2, b.y - hitbox.h / 2, hitbox.w, hitbox.h, p.x, p.y, p.r);
   }
-  return Math.hypot(p.x - b.x, p.y - b.y) < p.r + b.r;
+  const profile = projectileHitboxes[b.kind];
+  const scale = profile?.scale || 0.82;
+  return Math.hypot(p.x - b.x, p.y - b.y) < p.r + (b.r || 10) * scale;
 }
 
 function playerIsTryingToMove() {
@@ -1428,6 +1451,16 @@ function shieldBlocks(b) {
   if (p.shieldDir === "left") return dx < 0 && Math.abs(dy) < 36;
   if (p.shieldDir === "right") return dx > 0 && Math.abs(dy) < 36;
   return false;
+}
+
+function orientedRectCircle(cx, cy, angle, w, h, px, py, pr) {
+  const cos = Math.cos(-angle);
+  const sin = Math.sin(-angle);
+  const dx = px - cx;
+  const dy = py - cy;
+  const localX = dx * cos - dy * sin;
+  const localY = dx * sin + dy * cos;
+  return rectCircle(-w / 2, -h / 2, w, h, localX, localY, pr);
 }
 
 function outside(b) {
@@ -2835,16 +2868,17 @@ function drawDelayedBulletWarning(b) {
   ctx.save();
   ctx.globalAlpha = 0.2 + Math.sin(state.t * 32) * 0.08;
   ctx.fillStyle = selectedBoss.color;
+  const lane = b.kind === "trident" ? 20 : b.kind === "saber" || b.kind === "leg" ? 18 : 14;
   if (b.kind === "arrow") {
     if (b.dir === "up" || b.dir === "down") {
-      ctx.fillRect(state.player.x - 8, arena.y, 16, arena.h);
+      ctx.fillRect(state.player.x - 7, arena.y, 14, arena.h);
     } else {
-      ctx.fillRect(arena.x, state.player.y - 8, arena.w, 16);
+      ctx.fillRect(arena.x, state.player.y - 7, arena.w, 14);
     }
   } else if (b.kind === "trident" || b.kind === "saber" || b.kind === "leg" || (b.kind === "spear" && Math.abs(b.vx || 0) > Math.abs(b.vy || 0))) {
-    ctx.fillRect(arena.x, b.y - 8, arena.w, 16);
+    ctx.fillRect(arena.x, b.y - lane / 2, arena.w, lane);
   } else if (b.kind === "spear") {
-    ctx.fillRect(b.x - 8, arena.y, 16, arena.h);
+    ctx.fillRect(b.x - lane / 2, arena.y, lane, arena.h);
   }
   ctx.restore();
 }
