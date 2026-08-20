@@ -1182,38 +1182,48 @@ function asgorePattern(dt) {
 }
 
 function disbeliefPattern(dt) {
-  if (every("bones", state.wave === 0 ? 0.46 : 0.36, dt)) {
+  const progress = attackProgress();
+  const boneInterval = state.wave === 0 ? 0.5 - progress * 0.1 : 0.4 - progress * 0.07;
+  if (every("bones", boneInterval, dt)) {
     const lanes = [0.28, 0.48, 0.68, 0.38, 0.58];
-    const interval = state.wave === 0 ? 0.46 : 0.36;
-    const gap = arena.y + arena.h * lanes[sequenceIndex(interval) % lanes.length];
-    const fromLeft = sequenceIndex(interval) % 2 === 0;
-    spawn("bone", { x: fromLeft ? arena.x - 30 : arena.x + arena.w + 30, y: gap - 74, vx: fromLeft ? 262 : -262, vy: 0, r: 16, h: 92 });
-    spawn("bone", { x: fromLeft ? arena.x - 30 : arena.x + arena.w + 30, y: gap + 74, vx: fromLeft ? 262 : -262, vy: 0, r: 16, h: 92 });
+    const index = sequenceIndex(boneInterval);
+    const gap = arena.y + arena.h * lanes[index % lanes.length];
+    const fromLeft = index % 2 === 0;
+    const speed = 248 + progress * 46;
+    const gapSize = state.wave === 0 ? 78 : 72;
+    spawn("bone", { x: fromLeft ? arena.x - 30 : arena.x + arena.w + 30, y: gap - gapSize, vx: fromLeft ? speed : -speed, vy: 0, r: 16, h: 86 });
+    spawn("bone", { x: fromLeft ? arena.x - 30 : arena.x + arena.w + 30, y: gap + gapSize, vx: fromLeft ? speed : -speed, vy: 0, r: 16, h: 86 });
   }
   if (state.wave >= 1) {
-    const xFrac = sequencedEvery("blue", 0.68, dt, [0.18, 0.35, 0.52, 0.7, 0.86]);
-    if (xFrac !== null) spawn("blueBone", { x: arena.x + arena.w * xFrac, y: arena.y - 28, vx: 0, vy: 258, r: 14, h: 58 });
+    const blueInterval = 0.78 - progress * 0.08;
+    const xFrac = sequencedEvery("blue", blueInterval, dt, [0.18, 0.35, 0.52, 0.7, 0.86]);
+    if (xFrac !== null) spawn("blueBone", { x: arena.x + arena.w * xFrac, y: arena.y - 28, vx: 0, vy: 268 + progress * 30, r: 14, h: 58 });
   }
-  if (state.wave === 2 && every("slam", 1.15, dt)) {
-    const gap = sequenceIndex(1.15) % 7;
-    spawnBoneWallFromBottom(gap, 7, 264, [58, 78, 68], 1);
+  const wallInterval = 1.22 - progress * 0.12;
+  if (state.wave === 2 && every("slam", wallInterval, dt)) {
+    const gap = sequenceIndex(wallInterval) % 7;
+    spawnBoneWallFromBottom(gap, 7, 272 + progress * 28, [54, 74, 64], 1);
   }
 }
 
 function bttPattern(dt) {
+  const progress = attackProgress();
   undynePattern(dt);
-  if (every("small-fire", 0.85, dt)) {
-    const side = sequenceIndex(0.85) % 4;
-    const lane = [0.22, 0.78, 0.38, 0.62, 0.5][sequenceIndex(0.85) % 5];
+  const fireInterval = 0.92 - progress * 0.14;
+  if (every("small-fire", fireInterval, dt)) {
+    const index = sequenceIndex(fireInterval);
+    const side = index % 4;
+    const lane = [0.22, 0.78, 0.38, 0.62, 0.5][index % 5];
     const x = side === 0 ? arena.x - 20 : side === 1 ? arena.x + arena.w + 20 : arena.x + arena.w * lane;
     const y = side === 2 ? arena.y - 20 : side === 3 ? arena.y + arena.h + 20 : arena.y + arena.h * lane;
     const a = Math.atan2(state.player.y - y, state.player.x - x);
-    spawn("fire", { x, y, vx: Math.cos(a) * 185, vy: Math.sin(a) * 185, r: 9 });
+    spawn("fire", { x, y, vx: Math.cos(a) * (186 + progress * 30), vy: Math.sin(a) * (186 + progress * 30), r: 9 });
   }
-  if (state.wave >= 1) spawnBlasterLine("blaster", 1.85, dt, 0.5);
-  if (state.wave === 2 && every("btt-bones", 0.72, dt)) {
-    const x = arena.x + arena.w * ([0.18, 0.38, 0.58, 0.78, 0.48][sequenceIndex(0.72) % 5]);
-    spawn("blueBone", { x, y: arena.y - 34, vx: 0, vy: 270, r: 15, h: 70 });
+  if (state.wave >= 1) spawnBlasterLine("blaster", 1.9 - progress * 0.18, dt, 0.5);
+  const bttBoneInterval = 0.78 - progress * 0.08;
+  if (state.wave === 2 && every("btt-bones", bttBoneInterval, dt)) {
+    const x = arena.x + arena.w * ([0.18, 0.38, 0.58, 0.78, 0.48][sequenceIndex(bttBoneInterval) % 5]);
+    spawn("blueBone", { x, y: arena.y - 34, vx: 0, vy: 280 + progress * 24, r: 15, h: 70 });
   }
 }
 
@@ -1313,27 +1323,30 @@ function spawnBoneWallFromTop(gap, count, speed, heights, orangeOffset = -1) {
 }
 
 function undyingPattern(dt) {
-  if (every("undying-aimed", 0.27, dt)) {
+  const progress = attackProgress();
+  const aimedInterval = state.heartMode === "green" ? 0.32 - progress * 0.06 : 0.3 - progress * 0.05;
+  if (every("undying-aimed", aimedInterval, dt)) {
     if (state.heartMode === "green") {
       const chords = ["up", "right", "left", "down", "up right", "left down", "right up", "down left", "up", "right left"];
-      const chord = chords[sequenceIndex(0.27) % chords.length];
-      spawnUndyneArrowChord(278, chord.split(" "), 0.07);
+      const chord = chords[sequenceIndex(aimedInterval) % chords.length];
+      spawnUndyneArrowChord(262 + progress * 52, chord.split(" "), 0.09 - progress * 0.025);
     }
     else {
-      const index = sequenceIndex(0.27);
+      const index = sequenceIndex(aimedInterval);
       const edge = index % 4;
       const lanes = [0.18, 0.34, 0.52, 0.7, 0.86, 0.42, 0.62];
       const lane = lanes[index % lanes.length];
       const x = edge === 0 ? arena.x - 36 : edge === 1 ? arena.x + arena.w + 36 : arena.x + arena.w * lane;
       const y = edge === 2 ? arena.y - 36 : edge === 3 ? arena.y + arena.h + 36 : arena.y + arena.h * lane;
       const a = Math.atan2(state.player.y - y, state.player.x - x);
-      spawn("spear", { x, y, vx: Math.cos(a) * 282, vy: Math.sin(a) * 282, r: 12, angle: a, delay: 0.14 });
+      spawn("spear", { x, y, vx: Math.cos(a) * (276 + progress * 38), vy: Math.sin(a) * (276 + progress * 38), r: 12, angle: a, delay: 0.16 });
     }
   }
-  if (state.wave >= 1 && every("undying-cross", 0.54, dt)) {
-    const index = sequenceIndex(0.54);
-    spawn("spear", { x: arena.x + arena.w * ([0.2, 0.42, 0.68, 0.84, 0.34, 0.58][index % 6]), y: arena.y - 35, vx: 0, vy: 286, r: 12, angle: Math.PI / 2, delay: 0.18 });
-    if (index % 3 !== 1) spawn("spear", { x: arena.x - 35, y: arena.y + arena.h * ([0.26, 0.52, 0.76][index % 3]), vx: 296, vy: 0, r: 12, angle: 0, delay: 0.22 });
+  const crossInterval = 0.58 - progress * 0.06;
+  if (state.wave >= 1 && every("undying-cross", crossInterval, dt)) {
+    const index = sequenceIndex(crossInterval);
+    spawn("spear", { x: arena.x + arena.w * ([0.2, 0.42, 0.68, 0.84, 0.34, 0.58][index % 6]), y: arena.y - 35, vx: 0, vy: 292 + progress * 26, r: 12, angle: Math.PI / 2, delay: 0.2 });
+    if (index % 3 !== 1) spawn("spear", { x: arena.x - 35, y: arena.y + arena.h * ([0.26, 0.52, 0.76][index % 3]), vx: 304 + progress * 26, vy: 0, r: 12, angle: 0, delay: 0.24 });
   }
 }
 

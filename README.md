@@ -48,6 +48,7 @@ Pattern sequencing now advances with the tuned spawn rate, so faster waves use t
 Attack timing is now repeatable per boss wave regardless of which action you choose, with per-wave bullet caps plus snappier blue-soul gravity/jumps and faster yellow-soul shots for closer practice feel.
 Undyne green-heart arrows and Sans bone waves now ramp during the enemy turn, and Asgore's fire rings/trident sweeps use faster movement with wider planned escape gaps.
 Omega Flowey, Asriel, and Mettaton waves now use late-turn pacing ramps, faster special attacks, and wider scripted gaps on ring, vine, curtain, and spotlight patterns.
+Disbelief Papyrus, Bad Time Trio, and Undyne the Undying now ramp their bone, fire, blaster, and spear layers during enemy turns so the mixed pressure builds closer to the real fight style while staying practiceable.
 Projectile collisions use sprite-matched hitboxes now, so high-speed spears, tridents, sabers, legs, beams, vines, bones, and round bullets are stricter to their visible shapes while staying readable.
 The Practice Wave selector can now start directly on any boss wave, making it easier to tune and rehearse wave-specific bullet speed, heart mode, arena shape, and pacing.
 Gameplay projectile spawns are scripted instead of random, so repeating a wave gives the same attack reads for better speed practice.
