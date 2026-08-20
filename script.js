@@ -28,6 +28,17 @@ const bossImagePaths = {
   mettaton: "assets/bosses/mettaton.png",
 };
 const bossImages = {};
+const bossImagePresentation = {
+  undyne: { maxW: 205, maxH: 188, y: -4 },
+  asgore: { maxW: 215, maxH: 190, y: -6 },
+  disbelief: { maxW: 190, maxH: 190, y: -4 },
+  btt: { maxW: 310, maxH: 156, y: 6 },
+  sans: { maxW: 185, maxH: 158, y: 8 },
+  undying: { maxW: 218, maxH: 192, y: -8 },
+  omega: { maxW: 286, maxH: 196, y: -4 },
+  asriel: { maxW: 260, maxH: 205, y: -10 },
+  mettaton: { maxW: 205, maxH: 198, y: -4 },
+};
 
 const bosses = [
   {
@@ -1031,15 +1042,28 @@ function drawBossImage(id) {
   const entry = bossImages[id];
   if (!entry || !entry.ok || !entry.image) return false;
   const image = entry.image;
-  const maxW = id === "omega" ? 245 : id === "btt" ? 260 : 170;
-  const maxH = id === "omega" ? 155 : 175;
+  const presentation = bossImagePresentation[id] || { maxW: 190, maxH: 180, y: 0 };
+  const maxW = presentation.maxW;
+  const maxH = presentation.maxH;
   const scale = Math.min(maxW / image.naturalWidth, maxH / image.naturalHeight);
   const w = Math.round(image.naturalWidth * scale);
   const h = Math.round(image.naturalHeight * scale);
+  const y = Math.round((presentation.y || 0) - h / 2);
   ctx.imageSmoothingEnabled = false;
-  ctx.drawImage(image, -w / 2, -h / 2, w, h);
+  drawPixelImageSilhouette(image, -w / 2, y, w, h);
+  ctx.drawImage(image, -w / 2, y, w, h);
   ctx.imageSmoothingEnabled = true;
   return true;
+}
+
+function drawPixelImageSilhouette(image, x, y, w, h) {
+  ctx.save();
+  ctx.globalAlpha = 0.9;
+  ctx.filter = "brightness(0)";
+  for (const [dx, dy] of [[-3, 0], [3, 0], [0, -3], [0, 3], [-3, -3], [3, -3], [-3, 3], [3, 3]]) {
+    ctx.drawImage(image, x + dx, y + dy, w, h);
+  }
+  ctx.restore();
 }
 
 const matrixColors = {
