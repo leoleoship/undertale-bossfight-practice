@@ -19,6 +19,7 @@ This is a fan-made practice project with original code and simple original visua
 Each fight uses original generated pixel-style PNG portraits, 8-bit bullets, and an original browser-generated chiptune loop.
 The BGM loops are original chiptune-style tracks tuned to each boss's mood and tempo; they do not copy Undertale's actual songs.
 Boss portraits use original fan-art pixel sprites made from small square pieces with recognizable character shapes, outfits, weapons, and poses.
+Portraits now place faces, shirts, armor panels, robes, and chest emblems more deliberately so the characters read better at battle size and roster-thumbnail size.
 The boss select cards also show these portraits as pixel thumbnails so the roster is recognizable before the fight starts.
 In battle, each portrait has boss-specific sizing and a pixel outline so large bosses, short bosses, and trio characters keep their intended silhouettes.
 The battle stage also draws boss-specific pixel cues behind portraits, including bones, spears, tridents, flames, vines, eyes, wings, stars, and Mettaton-style lights.
@@ -35,6 +36,7 @@ Bullet patterns are boss-themed for practice: bones and blaster lanes, spear shi
 Patterns are inspired by the recognizable mechanics from the boss fights, but they are retimed and simplified for practice.
 Several fights use scripted lane/sequenced attacks to feel closer to their source mechanics, such as Undyne's directional shield arrows, Sans-style bone lanes and beams, Asgore trident/fire sweeps, and Mettaton spotlight/bomb lanes.
 Omega Flowey and Asriel also use more staged lane patterns, with vine grids, pellet bursts with gaps, star curtains, saber sweeps, and ring attacks with readable safe spaces.
+Mettaton yellow-heart waves now reward shooting bombs with cross blasts, Omega Flowey's finale adds corner spiral pellets and vine rakes with safe lanes, and Asriel's finale adds shocker-style beam columns with planned escape gaps.
 Large weapon attacks now show short lane warnings before moving, making tridents, sabers, spears, and leg sweeps feel more deliberate.
 Undyne-style green-heart turns use square-box shield reads with multi-direction arrow chords and warning lanes.
 Boss waves also adjust the battle box shape for closer practice feel, including low corridor boxes, narrow cage boxes, wide final-phase boxes, and tall yellow-heart boxes.

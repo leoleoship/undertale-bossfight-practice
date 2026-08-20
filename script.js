@@ -939,6 +939,16 @@ function updateShots(dt) {
             warn: 0.08,
             life: 0.45,
           });
+          spawn("beam", {
+            x: arena.x,
+            y: b.y,
+            vx: 0,
+            vy: 0,
+            r: 24,
+            horizontal: true,
+            warn: 0.08,
+            life: 0.32,
+          });
         }
         b.y = arena.y - 200;
         shot.hit = true;
@@ -1443,6 +1453,26 @@ function omegaPattern(dt) {
       const a = (Math.PI * 2 * i) / 12 + t * 0.45;
       spawn("pellet", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * (162 + progress * 18), vy: Math.sin(a) * (162 + progress * 18), r: 8, angle: a, spin: -2.5 });
     }
+  }
+  if (state.wave === 2 && every("omega-spiral", 0.34 - progress * 0.05, dt)) {
+    const index = sequenceIndex(0.34 - progress * 0.05);
+    const origin = [
+      [arena.x + 28, arena.y + 28],
+      [arena.x + arena.w - 28, arena.y + 28],
+      [arena.x + arena.w - 28, arena.y + arena.h - 28],
+      [arena.x + 28, arena.y + arena.h - 28],
+    ][Math.floor(index / 5) % 4];
+    const angle = t * 1.9 + index * 0.82;
+    spawn("pellet", { x: origin[0], y: origin[1], vx: Math.cos(angle) * (126 + progress * 34), vy: Math.sin(angle) * (126 + progress * 34), r: 7, angle, spin: -2.7 });
+  }
+  if (state.wave === 2 && every("omega-vine-rake", 1.42 - progress * 0.12, dt)) {
+    const index = sequenceIndex(1.42 - progress * 0.12);
+    const safe = index % 4;
+    for (let i = 0; i < 4; i++) {
+      if (i === safe) continue;
+      const y = arena.y + arena.h * ([0.22, 0.42, 0.62, 0.82][i]);
+      spawn("vine", { x: arena.x, y, vx: 0, vy: 0, r: 24, horizontal: true, warn: intensityRange(0.6, 0.44), life: 0.82 });
+    }
   } else if (state.wave >= 1 && every("omega-pellet-lanes", pelletLaneInterval, dt)) {
     const index = sequenceIndex(pelletLaneInterval);
     const fromLeft = index % 2 === 0;
@@ -1485,6 +1515,30 @@ function asrielPattern(dt) {
       spawn("diamond", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 174, vy: Math.sin(a) * 174, r: 10, spin: -4 });
     }
   }
+  if (state.wave === 2 && every("asriel-shocker", 1.48 - progress * 0.14, dt)) {
+    const index = sequenceIndex(1.48 - progress * 0.14);
+    const safeColumn = index % 5;
+    for (let i = 0; i < 5; i++) {
+      if (i === safeColumn || i === (safeColumn + 1) % 5) continue;
+      spawn("beam", {
+        x: arena.x + arena.w * (0.14 + i * 0.18),
+        y: arena.y,
+        vx: 0,
+        vy: 0,
+        r: 24,
+        horizontal: false,
+        warn: intensityRange(0.7, 0.52),
+        life: 0.88,
+      });
+    }
+    if (index % 2 === 1) {
+      const safeRow = [0.28, 0.62, 0.44][index % 3];
+      for (const row of [0.26, 0.48, 0.7]) {
+        if (Math.abs(row - safeRow) < 0.08) continue;
+        spawn("beam", { x: arena.x, y: arena.y + arena.h * row, vx: 0, vy: 0, r: 24, horizontal: true, warn: intensityRange(0.78, 0.58), life: 0.84 });
+      }
+    }
+  }
 }
 
 function mettatonPattern(dt) {
@@ -1512,10 +1566,19 @@ function mettatonPattern(dt) {
   }
   if (state.wave >= 1 && every("mettaton-bombs", bombInterval, dt)) {
     const index = sequenceIndex(bombInterval);
-    const kind = index % 3 === 0 ? "box" : "bomb";
-    const lanes = [0.18, 0.38, 0.58, 0.78];
+    const kind = index % 4 === 1 ? "box" : "bomb";
+    const lanes = [0.18, 0.34, 0.5, 0.66, 0.82];
     const x = arena.x + arena.w * lanes[index % lanes.length];
-    spawn(kind, { x, y: arena.y - 24, vx: Math.sin(t * 5) * 54, vy: 210 + (index % 3) * 24, r: 13, spin: 5 });
+    const sway = kind === "bomb" ? Math.sin(t * 5) * 46 : Math.sin(t * 3 + index) * 26;
+    spawn(kind, { x, y: arena.y - 24, vx: sway, vy: (kind === "bomb" ? 204 : 184) + (index % 3) * 22 + progress * 22, r: 13, spin: 5 });
+  }
+  if (state.wave === 1 && every("mettaton-box-wall", 1.22 - progress * 0.08, dt)) {
+    const gap = sequenceIndex(1.22 - progress * 0.08) % 5;
+    for (let i = 0; i < 5; i++) {
+      if (i === gap || i === (gap + 1) % 5) continue;
+      const x = arena.x + arena.w * (0.14 + i * 0.18);
+      spawn("box", { x, y: arena.y - 24, vx: 0, vy: 176 + progress * 26, r: 13, spin: 4 });
+    }
   }
   if (state.wave === 2 && every("mettaton-rush", legInterval, dt)) {
     const y = arena.y + arena.h * ([0.22, 0.44, 0.68, 0.82, 0.36][sequenceIndex(legInterval) % 5]);
