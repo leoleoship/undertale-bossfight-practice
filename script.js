@@ -1339,27 +1339,31 @@ function undyingPattern(dt) {
 
 function omegaPattern(dt) {
   const t = patternClock();
-  if (state.wave === 0 && every("omega-petal", 0.32, dt)) {
+  const progress = attackProgress();
+  const petalInterval = 0.36 - progress * 0.08;
+  const pelletLaneInterval = 0.5 - progress * 0.05;
+  if (state.wave === 0 && every("omega-petal", petalInterval, dt)) {
     const lanes = [0.18, 0.34, 0.5, 0.66, 0.82, 0.42, 0.58];
-    const index = sequenceIndex(0.32);
+    const index = sequenceIndex(petalInterval);
     const x = arena.x + arena.w * lanes[index % lanes.length];
-    spawn("petal", { x, y: arena.y - 26, vx: Math.sin(t * 5) * 34, vy: 188, r: 12, angle: Math.PI / 2, spin: 2.2 });
+    spawn("petal", { x, y: arena.y - 26, vx: Math.sin(t * 5) * (28 + progress * 18), vy: 196 + progress * 36, r: 12, angle: Math.PI / 2, spin: 2.2 });
     if (index % 3 === 0) {
       const side = x < arena.x + arena.w / 2 ? arena.x + arena.w + 26 : arena.x - 26;
       const toward = Math.atan2(state.player.y - arena.y - arena.h * 0.5, state.player.x - side);
-      spawn("petal", { x: side, y: arena.y + arena.h * 0.5, vx: Math.cos(toward) * 152, vy: Math.sin(toward) * 152, r: 12, angle: toward, spin: 2.2 });
+      spawn("petal", { x: side, y: arena.y + arena.h * 0.5, vx: Math.cos(toward) * 166, vy: Math.sin(toward) * 166, r: 12, angle: toward, spin: 2.2 });
     }
   }
-  if (state.wave === 0 && every("omega-burst", 1.65, dt)) {
-    const skip = sequenceIndex(1.65) % 14;
+  if (state.wave === 0 && every("omega-burst", 1.55, dt)) {
+    const skip = sequenceIndex(1.55) % 14;
     for (let i = 0; i < 14; i++) {
-      if (i === skip || i === (skip + 1) % 14 || i === (skip + 13) % 14) continue;
+      if (i === skip || i === (skip + 1) % 14 || i === (skip + 13) % 14 || i === (skip + 2) % 14) continue;
       const a = (Math.PI * 2 * i) / 14 - t * 0.28;
-      spawn("pellet", { x: arena.x + arena.w / 2, y: arena.y + arena.h * 0.44, vx: Math.cos(a) * 134, vy: Math.sin(a) * 134, r: 7, angle: a, spin: -2.1 });
+      spawn("pellet", { x: arena.x + arena.w / 2, y: arena.y + arena.h * 0.44, vx: Math.cos(a) * 148, vy: Math.sin(a) * 148, r: 7, angle: a, spin: -2.1 });
     }
   }
   if (state.wave >= 1) {
-    const vine = sequencedEvery("omega-vine", 0.82, dt, ["v25", "h38", "v75", "h62", "v50"]);
+    const vineInterval = 0.92 - progress * 0.14;
+    const vine = sequencedEvery("omega-vine", vineInterval, dt, ["v25", "h38", "v75", "h62", "v50", "h50"]);
     if (vine) {
       const horizontal = vine[0] === "h";
       const n = Number(vine.slice(1)) / 100;
@@ -1370,89 +1374,95 @@ function omegaPattern(dt) {
         vy: 0,
         r: 24,
         horizontal,
-        warn: 0.56,
-        life: 1.1,
+        warn: 0.52,
+        life: 0.92,
       });
     }
   }
-  if (state.wave === 2 && every("omega-ring", 1.2, dt)) {
-    const skip = sequenceIndex(1.2) % 12;
+  if (state.wave === 2 && every("omega-ring", 1.16, dt)) {
+    const skip = sequenceIndex(1.16) % 12;
     for (let i = 0; i < 12; i++) {
-      if (i === skip || i === (skip + 1) % 12) continue;
+      if (i === skip || i === (skip + 1) % 12 || i === (skip + 11) % 12) continue;
       const a = (Math.PI * 2 * i) / 12 + t * 0.45;
-      spawn("pellet", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 152, vy: Math.sin(a) * 152, r: 8, angle: a, spin: -2.5 });
+      spawn("pellet", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * (162 + progress * 18), vy: Math.sin(a) * (162 + progress * 18), r: 8, angle: a, spin: -2.5 });
     }
-  } else if (state.wave >= 1 && every("omega-pellet-lanes", 0.5, dt)) {
-    const index = sequenceIndex(0.5);
+  } else if (state.wave >= 1 && every("omega-pellet-lanes", pelletLaneInterval, dt)) {
+    const index = sequenceIndex(pelletLaneInterval);
     const fromLeft = index % 2 === 0;
     const y = arena.y + arena.h * ([0.25, 0.45, 0.65, 0.35, 0.75][index % 5]);
-    spawn("pellet", { x: fromLeft ? arena.x - 18 : arena.x + arena.w + 18, y, vx: fromLeft ? 168 : -168, vy: 0, r: 8, angle: fromLeft ? 0 : Math.PI, spin: -2.5 });
+    spawn("pellet", { x: fromLeft ? arena.x - 18 : arena.x + arena.w + 18, y, vx: fromLeft ? 182 : -182, vy: 0, r: 8, angle: fromLeft ? 0 : Math.PI, spin: -2.5 });
   }
 }
 
 function asrielPattern(dt) {
   const t = patternClock();
-  if (every("asriel-starfall", state.wave === 0 ? 0.3 : 0.4, dt)) {
+  const progress = attackProgress();
+  const starInterval = state.wave === 0 ? 0.32 - progress * 0.06 : 0.42 - progress * 0.06;
+  if (every("asriel-starfall", starInterval, dt)) {
     const lanes = [0.16, 0.3, 0.44, 0.58, 0.72, 0.86, 0.38, 0.66];
-    const interval = state.wave === 0 ? 0.3 : 0.4;
-    const index = sequenceIndex(interval);
+    const index = sequenceIndex(starInterval);
     const x = arena.x + arena.w * lanes[index % lanes.length];
-    spawn("star", { x, y: arena.y - 24, vx: index % 2 ? 42 : -42, vy: state.wave === 0 ? 198 : 228, r: 12, spin: 3.2 });
+    spawn("star", { x, y: arena.y - 24, vx: index % 2 ? 46 : -46, vy: (state.wave === 0 ? 208 : 238) + progress * 28, r: 12, spin: 3.2 });
   }
-  if (state.wave === 0 && every("asriel-star-curtain", 1.35, dt)) {
-    const gap = sequenceIndex(1.35) % 6;
+  if (state.wave === 0 && every("asriel-star-curtain", 1.28, dt)) {
+    const gap = sequenceIndex(1.28) % 6;
     for (let i = 0; i < 6; i++) {
       if (i === gap) continue;
       const x = arena.x + 34 + i * ((arena.w - 68) / 5);
-      spawn("star", { x, y: arena.y - 26, vx: i % 2 ? 28 : -28, vy: 178, r: 10, spin: 3.5, delay: i * 0.055 });
+      spawn("star", { x, y: arena.y - 26, vx: i % 2 ? 30 : -30, vy: 188, r: 10, spin: 3.5, delay: i * 0.055 });
     }
   }
   if (state.wave >= 1) {
-    const lane = sequencedEvery("asriel-saber", 0.92, dt, [0.24, 0.72, 0.42, 0.58]);
+    const saberInterval = 0.98 - progress * 0.12;
+    const lane = sequencedEvery("asriel-saber", saberInterval, dt, [0.24, 0.72, 0.42, 0.58]);
     if (lane !== null) {
-      const fromLeft = sequenceIndex(0.92) % 2 === 0;
-      spawn("saber", { x: fromLeft ? arena.x - 58 : arena.x + arena.w + 58, y: arena.y + arena.h * lane, vx: fromLeft ? 450 : -450, vy: 0, r: 22, angle: fromLeft ? 0 : Math.PI, delay: 0.32 });
+      const fromLeft = sequenceIndex(saberInterval) % 2 === 0;
+      spawn("saber", { x: fromLeft ? arena.x - 58 : arena.x + arena.w + 58, y: arena.y + arena.h * lane, vx: fromLeft ? 470 : -470, vy: 0, r: 22, angle: fromLeft ? 0 : Math.PI, delay: 0.36 });
     }
   }
-  if (state.wave === 2 && every("asriel-hope", 1.15, dt)) {
-    const skip = sequenceIndex(1.15) % 8;
+  if (state.wave === 2 && every("asriel-hope", 1.12, dt)) {
+    const skip = sequenceIndex(1.12) % 8;
     for (let i = 0; i < 8; i++) {
-      if (i === skip) continue;
+      if (i === skip || i === (skip + 1) % 8) continue;
       const a = (Math.PI * 2 * i) / 8 - t * 0.55;
-      spawn("diamond", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 162, vy: Math.sin(a) * 162, r: 10, spin: -4 });
+      spawn("diamond", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 174, vy: Math.sin(a) * 174, r: 10, spin: -4 });
     }
   }
 }
 
 function mettatonPattern(dt) {
   const t = patternClock();
-  if (every("mettaton-spot", 0.78, dt)) {
+  const progress = attackProgress();
+  const spotInterval = state.wave === 2 ? 0.92 : 0.82 - progress * 0.08;
+  const bombInterval = 0.46 - progress * 0.08;
+  const legInterval = 0.72 - progress * 0.08;
+  if (every("mettaton-spot", spotInterval, dt)) {
     const lanes = [0.2, 0.42, 0.64, 0.82, 0.36];
     spawn("beam", {
-      x: arena.x + arena.w * lanes[sequenceIndex(0.78) % lanes.length],
+      x: arena.x + arena.w * lanes[sequenceIndex(spotInterval) % lanes.length],
       y: arena.y,
       vx: 0,
       vy: 0,
       r: 24,
       horizontal: false,
-      warn: 0.46,
-      life: 1.0,
+      warn: 0.5,
+      life: 0.9,
     });
   }
-  if (state.wave === 0 && every("mettaton-sweeping-spot", 1.64, dt)) {
-    const y = arena.y + arena.h * ([0.28, 0.5, 0.72, 0.42][sequenceIndex(1.64) % 4]);
-    spawn("beam", { x: arena.x, y, vx: 0, vy: 0, r: 24, horizontal: true, warn: 0.58, life: 0.95 });
+  if (state.wave === 0 && every("mettaton-sweeping-spot", 1.5, dt)) {
+    const y = arena.y + arena.h * ([0.28, 0.5, 0.72, 0.42][sequenceIndex(1.5) % 4]);
+    spawn("beam", { x: arena.x, y, vx: 0, vy: 0, r: 24, horizontal: true, warn: 0.6, life: 0.9 });
   }
-  if (state.wave >= 1 && every("mettaton-bombs", 0.4, dt)) {
-    const index = sequenceIndex(0.4);
+  if (state.wave >= 1 && every("mettaton-bombs", bombInterval, dt)) {
+    const index = sequenceIndex(bombInterval);
     const kind = index % 3 === 0 ? "box" : "bomb";
     const lanes = [0.18, 0.38, 0.58, 0.78];
     const x = arena.x + arena.w * lanes[index % lanes.length];
-    spawn(kind, { x, y: arena.y - 24, vx: Math.sin(t * 5) * 48, vy: 198 + (index % 3) * 22, r: 13, spin: 5 });
+    spawn(kind, { x, y: arena.y - 24, vx: Math.sin(t * 5) * 54, vy: 210 + (index % 3) * 24, r: 13, spin: 5 });
   }
-  if (state.wave === 2 && every("mettaton-rush", 0.66, dt)) {
-    const y = arena.y + arena.h * ([0.22, 0.44, 0.68, 0.82, 0.36][sequenceIndex(0.66) % 5]);
-    spawn("leg", { x: arena.x + arena.w + 45, y, vx: -398, vy: 0, r: 22, angle: Math.PI, delay: 0.28 });
+  if (state.wave === 2 && every("mettaton-rush", legInterval, dt)) {
+    const y = arena.y + arena.h * ([0.22, 0.44, 0.68, 0.82, 0.36][sequenceIndex(legInterval) % 5]);
+    spawn("leg", { x: arena.x + arena.w + 45, y, vx: -420, vy: 0, r: 22, angle: Math.PI, delay: 0.34 });
   }
 }
 
