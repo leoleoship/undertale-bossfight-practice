@@ -44,16 +44,27 @@ const bossImagePresentation = {
   asriel: { maxW: 260, maxH: 205, y: -10 },
   mettaton: { maxW: 205, maxH: 198, y: -4 },
 };
+const bossStagePlacement = {
+  undyne: { x: -18, y: 132, bob: 2 },
+  asgore: { x: -12, y: 128, bob: 1 },
+  disbelief: { x: -28, y: 135, bob: 1.5 },
+  btt: { x: 0, y: 132, bob: 1 },
+  sans: { x: -34, y: 143, bob: 0.8 },
+  undying: { x: -14, y: 127, bob: 1.8 },
+  omega: { x: 12, y: 126, bob: 2.4 },
+  asriel: { x: 0, y: 122, bob: 2.2 },
+  mettaton: { x: -8, y: 130, bob: 2 },
+};
 const bossDialogues = {
-  undyne: ["* En garde!", "* Block this pattern!", "* Spears close in!"],
-  asgore: ["* The king readies his trident.", "* Flames part around you.", "* One more sweep."],
-  disbelief: ["* Another bone puzzle.", "* Blue means patience.", "* The pattern tightens."],
-  btt: ["* Three attacks overlap.", "* Bones first. Spears next.", "* The hall gets crowded."],
-  sans: ["* let's start simple.", "* gravity's doing its thing.", "* here come the beams."],
-  undying: ["* The heroine raises her spear!", "* Shield high!", "* No mercy in this pattern!"],
-  omega: ["* The screen laughs silently.", "* Vines mark the lanes.", "* The SOULs answer back."],
-  asriel: ["* Stars fall into place.", "* A blade of light crosses.", "* Hold onto hope."],
-  mettaton: ["* Lights! Camera!", "* Shoot the bombs, darling.", "* Ratings are climbing!"],
+  undyne: ["* Spears from the front!", "* Keep your guard moving!", "* A spinning spear path closes in!"],
+  asgore: ["* Fire gathers at both sides.", "* The trident chooses a lane.", "* Flames fall, but leave a gap."],
+  disbelief: ["* Bones rise in paired lanes.", "* Blue bones test your patience.", "* Bone walls climb from below."],
+  btt: ["* Three rhythms overlap.", "* A blaster line joins the rush.", "* Bones, spears, and fire share the box."],
+  sans: ["* short bones first.", "* blue bones want you still.", "* beams mark the hall."],
+  undying: ["* The heroine aims four ways.", "* Shield reads get faster.", "* Red-heart spears cross the box."],
+  omega: ["* Petals fall in fixed lanes.", "* Vines cage the screen.", "* Pellet rings leave thin exits."],
+  asriel: ["* Stars descend in curtains.", "* Sabers sweep across the box.", "* Hope opens a small path."],
+  mettaton: ["* Spotlights mark your mark!", "* Shoot the bombs, darling!", "* Legs sweep the stage edge!"],
 };
 const commandDialogues = {
   fight: {
@@ -64,6 +75,8 @@ const commandDialogues = {
     mettaton: "* Violence? How dramatic!",
     omega: "* The screen shudders.",
     asriel: "* Your attack fades away.",
+    disbelief: "* He tightens his grip.",
+    btt: "* All three brace at once.",
   },
   act: {
     sans: "* you try talking. nice.",
@@ -74,6 +87,7 @@ const commandDialogues = {
     mettaton: "* A bold performance choice!",
     omega: "* The vines twitch.",
     asriel: "* A memory answers back.",
+    btt: "* You watch for the first cue.",
   },
   item: {
     sans: "* snack break, huh?",
@@ -82,6 +96,9 @@ const commandDialogues = {
     mettaton: "* Product placement!",
     omega: "* The screen flickers hungrily.",
     asriel: "* Hold onto that hope.",
+    disbelief: "* He waits while you recover.",
+    btt: "* No one gives you much time.",
+    undying: "* Heal. Then block.",
   },
   spare: {
     sans: "* sparing already?",
@@ -92,6 +109,7 @@ const commandDialogues = {
     mettaton: "* The audience gasps!",
     omega: "* Mercy is swallowed by static.",
     asriel: "* The feeling reaches him.",
+    btt: "* The attacks don't stop yet.",
   },
 };
 
@@ -598,6 +616,10 @@ function sequencedEvery(key, interval, dt, sequence) {
   return sequence[index];
 }
 
+function sequenceIndex(interval) {
+  return Math.floor(attackTime() / interval);
+}
+
 function getAttackLeadIn() {
   if (state.phase !== "enemy") return 0;
   if (selectedBoss.id === "sans") return 0.45;
@@ -858,13 +880,18 @@ function runPattern(dt) {
 
 function undynePattern(dt) {
   if (state.wave === 0) {
-    const dir = sequencedEvery("spear-rain", 0.5, dt, ["up", "left", "right", "up", "down", "right", "left", "down"]);
-    if (dir) spawnUndyneArrow(190, dir);
+    const chord = sequencedEvery("spear-rain", 0.72, dt, ["up", "left right", "down", "right up", "left", "down right", "up left"]);
+    if (chord) spawnUndyneArrowChord(182, chord.split(" "), 0.14);
   }
-  if (state.wave === 1 && every("cross-lances", 0.64, dt)) {
-    const fromLeft = Math.random() > 0.5;
-    spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: rand(arena.y + 20, arena.y + arena.h - 20), vx: fromLeft ? 265 : -265, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI, delay: 0.24 });
-    if (Math.random() > 0.35) spawn("spear", { x: rand(arena.x + 20, arena.x + arena.w - 20), y: arena.y - 35, vx: 0, vy: 235, r: 13, angle: Math.PI / 2, delay: 0.24 });
+  if (state.wave === 1 && every("cross-lances", 0.62, dt)) {
+    const index = sequenceIndex(0.62);
+    const lane = [0.18, 0.38, 0.62, 0.82, 0.5, 0.28, 0.72][index % 7];
+    const fromLeft = index % 2 === 0;
+    spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: arena.y + arena.h * lane, vx: fromLeft ? 250 : -250, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI, delay: 0.28 });
+    if (index % 3 !== 1) {
+      const x = arena.x + arena.w * ([0.22, 0.5, 0.78, 0.36, 0.64][index % 5]);
+      spawn("spear", { x, y: arena.y - 35, vx: 0, vy: 220, r: 13, angle: Math.PI / 2, delay: 0.34 });
+    }
   }
   if (state.wave === 2 && every("cyclone", 0.34, dt)) {
     const angle = state.t * 3.2;
@@ -873,11 +900,15 @@ function undynePattern(dt) {
     const x = arena.x + arena.w / 2 + Math.cos(angle) * radiusX;
     const y = arena.y + arena.h / 2 + Math.sin(angle) * radiusY;
     const toward = Math.atan2(state.player.y - y, state.player.x - x);
-    spawn("spear", { x, y, vx: Math.cos(toward) * 220, vy: Math.sin(toward) * 220, r: 12, angle: toward });
+    spawn("spear", { x, y, vx: Math.cos(toward) * 220, vy: Math.sin(toward) * 220, r: 12, angle: toward, delay: 0.18 });
   }
 }
 
-function spawnUndyneArrow(speed, forcedDir = null) {
+function spawnUndyneArrowChord(speed, dirs, step = 0.14) {
+  dirs.forEach((dir, index) => spawnUndyneArrow(speed, dir, index * step));
+}
+
+function spawnUndyneArrow(speed, forcedDir = null, delay = 0) {
   const p = state.player;
   const specs = {
     up: { x: p.x, y: arena.y - 36, vx: 0, vy: speed, angle: Math.PI / 2, dir: "up" },
@@ -886,14 +917,16 @@ function spawnUndyneArrow(speed, forcedDir = null) {
     left: { x: arena.x - 36, y: p.y, vx: speed, vy: 0, angle: 0, dir: "left" },
   };
   const dir = forcedDir || ["up", "right", "down", "left"][Math.floor(rand(0, 4))];
-  spawn("arrow", { ...specs[dir], r: 13 });
+  spawn("arrow", { ...specs[dir], r: 13, delay });
 }
 
 function asgorePattern(dt) {
   const t = attackTime();
   if (state.wave === 0 && every("embers", 0.34, dt)) {
-    const side = Math.random() > 0.5 ? -1 : 1;
-    spawn("fire", { x: arena.x + arena.w / 2 + side * 245, y: rand(arena.y, arena.y + arena.h), vx: -side * rand(135, 205), vy: Math.sin(state.t * 2) * 45, r: rand(9, 15) });
+    const index = sequenceIndex(0.34);
+    const side = index % 2 === 0 ? -1 : 1;
+    const y = arena.y + arena.h * ([0.18, 0.74, 0.36, 0.58, 0.26, 0.82][index % 6]);
+    spawn("fire", { x: arena.x + arena.w / 2 + side * 245, y, vx: -side * (135 + (index % 3) * 22), vy: Math.sin(t * 2 + index) * 38, r: 10 + (index % 3) * 2 });
   }
   if (state.wave >= 1) {
     const lane = sequencedEvery("sweep", 1.22, dt, [0.22, 0.5, 0.78, 0.36, 0.64]);
@@ -911,8 +944,9 @@ function asgorePattern(dt) {
       spawn("fire", { x, y: arena.y - 28, vx: 0, vy: 170, r: 9 });
     }
   } else if (state.wave >= 1 && every("side-embers", 0.58, dt)) {
-    const y = rand(arena.y + 20, arena.y + arena.h - 20);
-    const fromLeft = Math.random() > 0.5;
+    const index = sequenceIndex(0.58);
+    const y = arena.y + arena.h * ([0.24, 0.48, 0.76, 0.36, 0.64][index % 5]);
+    const fromLeft = index % 2 === 0;
     spawn("fire", { x: fromLeft ? arena.x - 24 : arena.x + arena.w + 24, y, vx: fromLeft ? 165 : -165, vy: 0, r: 10 });
   }
 }
@@ -922,7 +956,7 @@ function disbeliefPattern(dt) {
   if (every("bones", state.wave === 0 ? 0.52 : 0.42, dt)) {
     const lanes = [0.28, 0.48, 0.68, 0.38, 0.58];
     const gap = arena.y + arena.h * lanes[Math.floor(t / 0.52) % lanes.length];
-    const fromLeft = Math.random() > 0.5;
+    const fromLeft = sequenceIndex(state.wave === 0 ? 0.52 : 0.42) % 2 === 0;
     spawn("bone", { x: fromLeft ? arena.x - 30 : arena.x + arena.w + 30, y: gap - 74, vx: fromLeft ? 235 : -235, vy: 0, r: 16, h: 92 });
     spawn("bone", { x: fromLeft ? arena.x - 30 : arena.x + arena.w + 30, y: gap + 74, vx: fromLeft ? 235 : -235, vy: 0, r: 16, h: 92 });
   }
@@ -940,15 +974,16 @@ function disbeliefPattern(dt) {
 function bttPattern(dt) {
   undynePattern(dt);
   if (every("small-fire", 0.85, dt)) {
-    const side = Math.floor(rand(0, 4));
-    const x = side === 0 ? arena.x - 20 : side === 1 ? arena.x + arena.w + 20 : rand(arena.x, arena.x + arena.w);
-    const y = side === 2 ? arena.y - 20 : side === 3 ? arena.y + arena.h + 20 : rand(arena.y, arena.y + arena.h);
+    const side = sequenceIndex(0.85) % 4;
+    const lane = [0.22, 0.78, 0.38, 0.62, 0.5][sequenceIndex(0.85) % 5];
+    const x = side === 0 ? arena.x - 20 : side === 1 ? arena.x + arena.w + 20 : arena.x + arena.w * lane;
+    const y = side === 2 ? arena.y - 20 : side === 3 ? arena.y + arena.h + 20 : arena.y + arena.h * lane;
     const a = Math.atan2(state.player.y - y, state.player.x - x);
     spawn("fire", { x, y, vx: Math.cos(a) * 185, vy: Math.sin(a) * 185, r: 9 });
   }
   if (state.wave >= 1) spawnBlasterLine("blaster", 1.85, dt, 0.5);
   if (state.wave === 2 && every("btt-bones", 0.72, dt)) {
-    const x = rand(arena.x + 20, arena.x + arena.w - 20);
+    const x = arena.x + arena.w * ([0.18, 0.38, 0.58, 0.78, 0.48][sequenceIndex(0.72) % 5]);
     spawn("blueBone", { x, y: arena.y - 34, vx: 0, vy: 270, r: 15, h: 70 });
   }
 }
@@ -981,7 +1016,7 @@ function sansPattern(dt) {
     if (state.wave >= 1) spawn("bone", { x: arena.x - 28, y: arena.y + h / 2, vx: 220, vy: 0, r: 14, h: Math.max(46, h * 0.72) });
   }
   if (state.wave >= 1) {
-    const xFrac = sequencedEvery("sans-blue", 0.86, dt, [0.22, 0.44, 0.66, 0.82, 0.34]);
+    const xFrac = sequencedEvery("sans-blue", 0.86, dt, [0.2, 0.42, 0.64, 0.82, 0.34, 0.56]);
     if (xFrac !== null) spawn("blueBone", { x: arena.x + arena.w * xFrac, y: arena.y - 34, vx: 0, vy: 255, r: 14, h: 70 });
   }
   if (state.wave === 2) {
@@ -1010,8 +1045,9 @@ function undyingPattern(dt) {
   const t = attackTime();
   if (every("undying-aimed", 0.32, dt)) {
     if (state.heartMode === "green") {
-      const dirs = ["up", "right", "left", "down", "up", "left", "right", "down"];
-      spawnUndyneArrow(235, dirs[Math.floor(t / 0.32) % dirs.length]);
+      const chords = ["up", "right", "left", "down", "up right", "left down", "up", "right left"];
+      const chord = chords[Math.floor(t / 0.32) % chords.length];
+      spawnUndyneArrowChord(222, chord.split(" "), 0.1);
     }
     else {
       const edge = Math.floor(rand(0, 4));
@@ -1022,8 +1058,9 @@ function undyingPattern(dt) {
     }
   }
   if (state.wave >= 1 && every("undying-cross", 0.68, dt)) {
-    spawn("spear", { x: rand(arena.x, arena.x + arena.w), y: arena.y - 35, vx: 0, vy: 275, r: 12, angle: Math.PI / 2 });
-    if (Math.random() > 0.4) spawn("spear", { x: arena.x - 35, y: rand(arena.y, arena.y + arena.h), vx: 285, vy: 0, r: 12, angle: 0 });
+    const index = sequenceIndex(0.68);
+    spawn("spear", { x: arena.x + arena.w * ([0.22, 0.42, 0.68, 0.84, 0.34][index % 5]), y: arena.y - 35, vx: 0, vy: 255, r: 12, angle: Math.PI / 2, delay: 0.18 });
+    if (index % 3 !== 1) spawn("spear", { x: arena.x - 35, y: arena.y + arena.h * ([0.28, 0.52, 0.76][index % 3]), vx: 265, vy: 0, r: 12, angle: 0, delay: 0.24 });
   }
 }
 
@@ -1199,8 +1236,9 @@ function drawBackdrop() {
 }
 
 function drawBoss() {
+  const placement = bossStagePlacement[selectedBoss.id] || { x: 0, y: 130, bob: 2 };
   ctx.save();
-  ctx.translate(canvas.width / 2, 130 + Math.sin(state.t * 4) * 2);
+  ctx.translate(canvas.width / 2 + placement.x, placement.y + Math.sin(state.t * 4) * placement.bob);
   drawBossStageCues(selectedBoss.id);
   if (!drawBossImage(selectedBoss.id)) {
     drawTileBoss(selectedBoss.id);
@@ -1365,16 +1403,18 @@ function drawBossSpeechBox() {
 }
 
 function getSpeechBoxPlacement(id) {
-  if (id === "omega" || id === "asriel") return { x: -382, y: -124, w: 256, h: 78, tail: "right" };
-  if (id === "btt") return { x: 116, y: -112, w: 270, h: 76, tail: "left" };
-  if (id === "sans") return { x: 112, y: -118, w: 250, h: 74, tail: "left-low" };
-  if (id === "mettaton") return { x: 118, y: -120, w: 250, h: 76, tail: "left" };
-  return { x: 118, y: -126, w: 256, h: 76, tail: "left" };
+  if (id === "omega") return { x: -390, y: -136, w: 270, h: 82, tail: "right-low" };
+  if (id === "asriel") return { x: -388, y: -132, w: 274, h: 82, tail: "right" };
+  if (id === "btt") return { x: 124, y: -116, w: 282, h: 78, tail: "left" };
+  if (id === "sans") return { x: 96, y: -118, w: 250, h: 74, tail: "left-low" };
+  if (id === "mettaton") return { x: 126, y: -120, w: 252, h: 78, tail: "left" };
+  if (id === "asgore") return { x: 124, y: -132, w: 268, h: 80, tail: "left-low" };
+  return { x: 124, y: -126, w: 260, h: 78, tail: "left" };
 }
 
 function drawSpeechTail(box) {
-  const right = box.tail === "right";
-  const low = box.tail === "left-low";
+  const right = box.tail === "right" || box.tail === "right-low";
+  const low = box.tail === "left-low" || box.tail === "right-low";
   const anchorX = right ? box.x + box.w - 18 : box.x + 18;
   const tipX = right ? box.x + box.w + 14 : box.x - 12;
   const baseY = box.y + box.h - (low ? 12 : 4);
@@ -2424,7 +2464,13 @@ function drawDelayedBulletWarning(b) {
   ctx.save();
   ctx.globalAlpha = 0.2 + Math.sin(state.t * 32) * 0.08;
   ctx.fillStyle = selectedBoss.color;
-  if (b.kind === "trident" || b.kind === "saber" || b.kind === "leg" || (b.kind === "spear" && Math.abs(b.vx || 0) > Math.abs(b.vy || 0))) {
+  if (b.kind === "arrow") {
+    if (b.dir === "up" || b.dir === "down") {
+      ctx.fillRect(state.player.x - 8, arena.y, 16, arena.h);
+    } else {
+      ctx.fillRect(arena.x, state.player.y - 8, arena.w, 16);
+    }
+  } else if (b.kind === "trident" || b.kind === "saber" || b.kind === "leg" || (b.kind === "spear" && Math.abs(b.vx || 0) > Math.abs(b.vy || 0))) {
     ctx.fillRect(arena.x, b.y - 8, arena.w, 16);
   } else if (b.kind === "spear") {
     ctx.fillRect(b.x - 8, arena.y, 16, arena.h);

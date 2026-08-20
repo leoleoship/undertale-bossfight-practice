@@ -35,6 +35,7 @@ Patterns are inspired by the recognizable mechanics from the boss fights, but th
 Several fights use scripted lane/sequenced attacks to feel closer to their source mechanics, such as Undyne's directional shield arrows, Sans-style bone lanes and beams, Asgore trident/fire sweeps, and Mettaton spotlight/bomb lanes.
 Omega Flowey and Asriel also use more staged lane patterns, with vine grids, pellet bursts with gaps, star curtains, saber sweeps, and ring attacks with readable safe spaces.
 Large weapon attacks now show short lane warnings before moving, making tridents, sabers, spears, and leg sweeps feel more deliberate.
+Undyne-style green-heart turns use square-box shield reads with multi-direction arrow chords and warning lanes.
 Sans and Disbelief include blue/orange bone rules: stop for blue attacks and move through orange attacks.
 Normal mode is tuned for learning, with lower damage, slower attacks, and a bullet cap so waves stay dodgeable.
 
