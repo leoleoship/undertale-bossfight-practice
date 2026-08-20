@@ -339,6 +339,8 @@ const projectileHitboxes = {
   bone: { w: 16 },
   box: { w: 24, h: 24 },
   fire: { scale: 0.76 },
+  blueFire: { scale: 0.76 },
+  orangeFire: { scale: 0.76 },
   star: { scale: 0.78 },
   diamond: { scale: 0.78 },
   petal: { scale: 0.75 },
@@ -648,6 +650,7 @@ function renderRoster() {
   for (const boss of bosses) {
     const card = document.createElement("button");
     card.className = `boss-card${boss.id === selectedBoss.id ? " active" : ""}`;
+    card.dataset.boss = boss.id;
     card.innerHTML = `
       <div class="boss-thumb" style="--boss-color:${boss.color}">
         <img src="${bossImagePaths[boss.id]}" alt="" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';" />
@@ -1095,9 +1098,9 @@ function runPattern(dt) {
 function undynePattern(dt) {
   if (state.wave === 0) {
     const progress = attackIntensity();
-    const interval = 0.56 - progress * 0.18;
-    const arrowSpeed = 216 + progress * 76;
-    const chordStep = 0.13 - progress * 0.045;
+    const interval = 0.6 - progress * 0.2;
+    const arrowSpeed = 224 + progress * 86;
+    const chordStep = 0.12 - progress * 0.05;
     const chord = sequencedEvery("spear-rain", interval, dt, [
       "up",
       "left",
@@ -1106,11 +1109,12 @@ function undynePattern(dt) {
       "left",
       "up",
       "up right",
-      "left down",
+      "down left",
+      "right",
       "up",
       "right left",
       "down",
-      "up left",
+      "left up",
     ]);
     if (chord) spawnUndyneArrowChord(arrowSpeed, chord.split(" "), chordStep);
   }
@@ -1154,18 +1158,21 @@ function spawnUndyneArrow(speed, forcedDir = null, delay = 0) {
 
 function asgorePattern(dt) {
   const t = patternClock();
+  const progress = attackIntensity();
   if (state.wave === 0 && every("embers", 0.3, dt)) {
     const index = sequenceIndex(0.3);
     const side = index % 2 === 0 ? -1 : 1;
     const y = arena.y + arena.h * ([0.18, 0.74, 0.36, 0.58, 0.26, 0.82][index % 6]);
-    spawn("fire", { x: arena.x + arena.w / 2 + side * 245, y, vx: -side * (150 + (index % 3) * 24), vy: Math.sin(t * 2 + index) * 34, r: 10 + (index % 3) * 2 });
+    const kind = index % 5 === 1 ? "blueFire" : index % 5 === 3 ? "orangeFire" : "fire";
+    spawn(kind, { x: arena.x + arena.w / 2 + side * 245, y, vx: -side * (150 + (index % 3) * 24), vy: Math.sin(t * 2 + index) * 34, r: 10 + (index % 3) * 2 });
   }
   if (state.wave === 0 && every("fire-ring", 1.4, dt)) {
     const skip = sequenceIndex(1.4) % 10;
     for (let i = 0; i < 10; i++) {
       if (i === skip || i === (skip + 1) % 10 || i === (skip + 9) % 10) continue;
       const a = (Math.PI * 2 * i) / 10 + t * 0.35;
-      spawn("fire", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 146, vy: Math.sin(a) * 146, r: 9 });
+      const kind = i % 4 === 0 ? "blueFire" : i % 4 === 2 ? "orangeFire" : "fire";
+      spawn(kind, { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 146, vy: Math.sin(a) * 146, r: 9 });
     }
   }
   if (state.wave >= 1) {
@@ -1182,13 +1189,15 @@ function asgorePattern(dt) {
     for (let i = 0; i < 8; i++) {
       const x = arena.x + 24 + i * ((arena.w - 48) / 7);
       if (Math.abs(x - gap) < 42) continue;
-      spawn("fire", { x, y: arena.y - 28, vx: 0, vy: 196, r: 9 });
+      const kind = i % 5 === 0 ? "blueFire" : i % 5 === 3 ? "orangeFire" : "fire";
+      spawn(kind, { x, y: arena.y - 28, vx: 0, vy: 196, r: 9 });
     }
   } else if (state.wave >= 1 && every("side-embers", 0.5, dt)) {
     const index = sequenceIndex(0.5);
     const y = arena.y + arena.h * ([0.24, 0.48, 0.76, 0.36, 0.64][index % 5]);
     const fromLeft = index % 2 === 0;
-    spawn("fire", { x: fromLeft ? arena.x - 24 : arena.x + arena.w + 24, y, vx: fromLeft ? 184 : -184, vy: 0, r: 10 });
+    const kind = index % 4 === 1 ? "blueFire" : index % 4 === 3 ? "orangeFire" : "fire";
+    spawn(kind, { x: fromLeft ? arena.x - 24 : arena.x + arena.w + 24, y, vx: fromLeft ? 184 + progress * 18 : -184 - progress * 18, vy: 0, r: 10 });
   }
 }
 
@@ -1288,6 +1297,18 @@ function sansPattern(dt) {
     const xFrac = sequencedEvery("sans-blue", 0.8, dt, [0.2, 0.42, 0.64, 0.82, 0.34, 0.56]);
     if (xFrac !== null) spawn("blueBone", { x: arena.x + arena.w * xFrac, y: arena.y - 34, vx: 0, vy: 288, r: 14, h: 70 });
   }
+  if (state.wave >= 1 && every("sans-slam", 1.42 - progress * 0.1, dt)) {
+    const slam = sequenceIndex(1.42 - progress * 0.1) % 4;
+    const pushX = slam === 0 ? arena.x + state.player.r : slam === 1 ? arena.x + arena.w - state.player.r : state.player.x;
+    const pushY = slam === 2 ? arena.y + state.player.r : arena.y + arena.h - state.player.r;
+    state.player.x = clamp(pushX, arena.x + state.player.r, arena.x + arena.w - state.player.r);
+    state.player.y = clamp(pushY, arena.y + state.player.r, arena.y + arena.h - state.player.r);
+    state.player.vy = slam === 2 ? 120 : 0;
+    state.effects.push({ x: state.player.x, y: state.player.y, age: 0, block: false });
+    const gap = [2, 5, 1, 6][slam];
+    if (slam < 2) spawnBoneWallFromTop(gap, 8, 250 + progress * 24, [42, 68, 54], 2);
+    else spawnBoneWallFromBottom(gap, 8, 260 + progress * 22, [46, 76, 58], 1);
+  }
   if (state.wave === 2) {
     const xFrac = sequencedEvery("sans-orange", 1.08, dt, [0.16, 0.5, 0.84, 0.36]);
     if (xFrac !== null) spawn("orangeBone", { x: arena.x + arena.w * xFrac, y: arena.y - 34, vx: 0, vy: 268, r: 14, h: 64 });
@@ -1335,12 +1356,24 @@ function spawnBoneWallFromTop(gap, count, speed, heights, orangeOffset = -1) {
 
 function undyingPattern(dt) {
   const progress = attackIntensity();
-  const aimedInterval = state.heartMode === "green" ? 0.32 - progress * 0.06 : 0.3 - progress * 0.05;
+  const aimedInterval = state.heartMode === "green" ? 0.34 - progress * 0.08 : 0.3 - progress * 0.05;
   if (every("undying-aimed", aimedInterval, dt)) {
     if (state.heartMode === "green") {
-      const chords = ["up", "right", "left", "down", "up right", "left down", "right up", "down left", "up", "right left"];
+      const chords = [
+        "up",
+        "right",
+        "left",
+        "down",
+        "up right",
+        "left down",
+        "right up",
+        "down left",
+        "up right down",
+        "left up right",
+        "down left up",
+      ];
       const chord = chords[sequenceIndex(aimedInterval) % chords.length];
-      spawnUndyneArrowChord(262 + progress * 52, chord.split(" "), 0.09 - progress * 0.025);
+      spawnUndyneArrowChord(268 + progress * 62, chord.split(" "), Math.max(0.045, 0.09 - progress * 0.035));
     }
     else {
       const index = sequenceIndex(aimedInterval);
@@ -1518,6 +1551,8 @@ function touching(b) {
   }
   const profile = projectileHitboxes[b.kind];
   const scale = profile?.scale || 0.82;
+  if (b.kind === "blueFire" && !playerIsTryingToMove()) return false;
+  if (b.kind === "orangeFire" && playerIsTryingToMove()) return false;
   return Math.hypot(p.x - b.x, p.y - b.y) < p.r + (b.r || 10) * scale;
 }
 
@@ -2780,8 +2815,8 @@ function getNarrationText() {
 }
 
 function drawSoulRuleHint() {
-  const hasBlue = state.bullets.some((b) => b.kind === "blueBone");
-  const hasOrange = state.bullets.some((b) => b.kind === "orangeBone");
+  const hasBlue = state.bullets.some((b) => b.kind === "blueBone" || b.kind === "blueFire");
+  const hasOrange = state.bullets.some((b) => b.kind === "orangeBone" || b.kind === "orangeFire");
   if (!hasBlue && !hasOrange) return;
   ctx.save();
   ctx.font = "bold 13px Courier New";
@@ -2827,10 +2862,10 @@ function drawBullets() {
       ctx.fillRect(12, -9, 8, 18);
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(20, -3, 12, 6);
-    } else if (b.kind === "fire") {
+    } else if (b.kind === "fire" || b.kind === "blueFire" || b.kind === "orangeFire") {
       ctx.fillStyle = "#111118";
       ctx.fillRect(-b.r, -b.r, b.r * 2, b.r * 2);
-      ctx.fillStyle = "#ff7a1a";
+      ctx.fillStyle = b.kind === "blueFire" ? "#57d6ff" : b.kind === "orangeFire" ? "#ff9f1c" : "#ff7a1a";
       ctx.fillRect(-b.r + 2, -b.r + 4, b.r * 2 - 4, b.r * 2 - 6);
       ctx.fillRect(-b.r / 2, -b.r - 4, b.r, b.r);
       ctx.fillStyle = "#ffd166";
