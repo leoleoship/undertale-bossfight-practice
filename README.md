@@ -21,6 +21,7 @@ The BGM loops are original chiptune-style tracks tuned to each boss's mood and t
 Boss portraits use original fan-art tile sprites made from small square pixel pieces with recognizable character shapes, outfits, weapons, and poses.
 The fallback art now uses hand-authored pixel matrices for clearer silhouettes before falling back to older procedural tile shapes.
 Boss sprites also draw stronger signature cues over the pixel matrices, such as Sans's skull outline, Undyne's spear and armor, Asgore's horns, Omega Flowey's vines and monitor face, Asriel's wings, and Mettaton's pose.
+Those cues are built from single-color square blocks, so the characters stay closer to the pixel-piece look while becoming easier to recognize.
 Each boss also has an in-canvas nameplate so the selected character is always clear while the fallback art improves.
 Bullet patterns are boss-themed for practice: bones and blaster lanes, spear shields, fire/trident pressure, petals and vines, stars/sabers, and Mettaton-style bombs/legs.
 Patterns are inspired by the recognizable mechanics from the boss fights, but they are retimed and simplified for practice.

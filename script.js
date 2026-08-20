@@ -1287,16 +1287,139 @@ function drawMatrixSprite(rows, x, y, size) {
 function drawBossSignature(id) {
   ctx.save();
   ctx.translate(0, -4);
-  ctx.globalAlpha = 0.96;
-  if (id === "sans") drawSansPortrait(0.6);
-  else if (id === "disbelief") drawPapyrusPortrait(0.6);
-  else if (id === "btt") drawTrioPortrait(0.52);
-  else if (id === "undyne") drawUndynePortrait(0.58, false);
-  else if (id === "undying") drawUndynePortrait(0.58, true);
-  else if (id === "asgore") drawAsgorePortrait(0.58);
-  else if (id === "omega") drawOmegaPortrait(0.58);
-  else if (id === "asriel") drawAsrielPortrait(0.58);
-  else if (id === "mettaton") drawMettatonPortrait(0.58);
+  drawPixelBossCues(id);
+  ctx.globalAlpha = 0.52;
+  if (id === "sans") drawSansPortrait(0.58);
+  else if (id === "disbelief") drawPapyrusPortrait(0.58);
+  else if (id === "btt") drawTrioPortrait(0.5);
+  else if (id === "undyne") drawUndynePortrait(0.56, false);
+  else if (id === "undying") drawUndynePortrait(0.56, true);
+  else if (id === "asgore") drawAsgorePortrait(0.56);
+  else if (id === "omega") drawOmegaPortrait(0.56);
+  else if (id === "asriel") drawAsrielPortrait(0.56);
+  else if (id === "mettaton") drawMettatonPortrait(0.56);
+  ctx.restore();
+}
+
+function cueBlock(x, y, w, h, color = "#ffffff") {
+  px(x, y, w, h, "#050507");
+  px(x + 2, y + 2, Math.max(2, w - 4), Math.max(2, h - 4), color);
+}
+
+function cueLine(x1, y1, x2, y2, color = "#ffffff", size = 8) {
+  const steps = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) / size;
+  for (let i = 0; i <= steps; i++) {
+    const t = steps === 0 ? 0 : i / steps;
+    cueBlock(Math.round(x1 + (x2 - x1) * t), Math.round(y1 + (y2 - y1) * t), size, size, color);
+  }
+}
+
+function drawBlasterCue(x, y, scale = 1) {
+  const s = 6 * scale;
+  cueBlock(x - 5 * s, y - 3 * s, 8 * s, 6 * s);
+  cueBlock(x - 6 * s, y - 1 * s, 2 * s, 3 * s);
+  cueBlock(x - 2 * s, y - 1 * s, 2 * s, 2 * s, "#050507");
+  cueBlock(x + 2 * s, y - 1 * s, 2 * s, 2 * s, "#050507");
+  cueBlock(x + 3 * s, y - 4 * s, 4 * s, 2 * s);
+  cueBlock(x + 3 * s, y + 2 * s, 4 * s, 2 * s);
+  cueBlock(x + 7 * s, y - 2 * s, 2 * s, 4 * s);
+}
+
+function drawTridentCue(x, y, color = "#ffd166") {
+  cueLine(x, y + 66, x, y - 64, color, 7);
+  cueLine(x - 22, y - 40, x - 22, y - 70, color, 7);
+  cueLine(x + 22, y - 40, x + 22, y - 70, color, 7);
+  cueLine(x - 22, y - 40, x, y - 58, color, 7);
+  cueLine(x + 22, y - 40, x, y - 58, color, 7);
+}
+
+function drawSpearCue(x1, y1, x2, y2, color) {
+  cueLine(x1, y1, x2, y2, color, 7);
+  cueBlock(x2 - 8, y2 - 8, 18, 18);
+  cueBlock(x2 - 4, y2 - 4, 10, 10, color);
+}
+
+function drawPixelBossCues(id) {
+  ctx.save();
+  ctx.globalAlpha = 1;
+  if (id === "sans") {
+    drawBlasterCue(118, -68, 0.74);
+    cueLine(-112, 76, 112, 76, "#ffffff", 8);
+    for (let x = -110; x <= 100; x += 24) cueBlock(x, 67, 18, 18);
+    cueBlock(-45, -24, 18, 70, "#57d6ff");
+    cueBlock(27, -24, 18, 70, "#57d6ff");
+    cueBlock(11, -76, 9, 9, "#57d6ff");
+  } else if (id === "disbelief") {
+    cueLine(-28, -122, 86, -150, "#ffd166", 6);
+    cueBlock(78, -158, 24, 24, "#ffd166");
+    cueLine(-92, 82, -150, 130, "#ffffff", 8);
+    cueLine(-118, 128, -176, 124, "#ffffff", 8);
+    cueBlock(-58, -24, 116, 18);
+    cueBlock(-34, -2, 68, 60, "#050507");
+    cueBlock(-24, -54, 48, 12, "#ff3855");
+  } else if (id === "btt") {
+    ctx.save();
+    ctx.scale(0.72, 0.72);
+    ctx.translate(-132, 20);
+    drawPixelBossCues("disbelief");
+    ctx.translate(132, 16);
+    drawPixelBossCues("sans");
+    ctx.translate(136, -24);
+    drawPixelBossCues("undying");
+    ctx.restore();
+  } else if (id === "undyne" || id === "undying") {
+    const accent = id === "undying" ? "#80ed99" : "#57d6ff";
+    drawSpearCue(-140, 84, -92, -106, accent);
+    cueLine(-74, -120, -138, -148, accent, 7);
+    cueLine(-66, -110, -132, -124, accent, 7);
+    cueBlock(-64, -42, 128, 20);
+    cueBlock(-44, -8, 88, 64, id === "undying" ? "#80ed99" : "#2f8de4");
+    cueBlock(-20, 10, 40, 24, "#050507");
+    if (id === "undying") {
+      cueBlock(-18, -6, 36, 22, "#ff3855");
+      cueLine(-78, -20, 78, -20, "#80ed99", 7);
+    }
+  } else if (id === "asgore") {
+    cueLine(-52, -92, -112, -156, "#f6d28a", 8);
+    cueLine(-38, -104, -76, -164, "#f6d28a", 8);
+    cueLine(52, -92, 112, -156, "#f6d28a", 8);
+    cueLine(38, -104, 76, -164, "#f6d28a", 8);
+    drawTridentCue(124, -4, "#ffd166");
+    cueBlock(-72, -26, 144, 92);
+    cueBlock(-46, -12, 92, 70, "#050507");
+    cueLine(0, -26, 0, 66, "#ffd166", 8);
+  } else if (id === "omega") {
+    cueBlock(-92, -126, 184, 34);
+    cueBlock(-52, -154, 104, 30);
+    cueBlock(-76, -82, 34, 28, "#050507");
+    cueBlock(42, -82, 34, 28, "#050507");
+    cueLine(-128, 8, -194, 112, "#80ed99", 9);
+    cueLine(128, 8, 194, 112, "#80ed99", 9);
+    cueLine(-86, 58, -166, 150, "#80ed99", 9);
+    cueLine(86, 58, 166, 150, "#80ed99", 9);
+    cueBlock(-34, 28, 68, 82, "#ff7a1a");
+    cueBlock(-14, 54, 28, 44, "#050507");
+  } else if (id === "asriel") {
+    cueLine(-60, -108, -104, -160, "#ffffff", 8);
+    cueLine(60, -108, 104, -160, "#ffffff", 8);
+    cueLine(-58, -28, -146, 28, "#ffffff", 8);
+    cueLine(-70, -8, -168, 72, "#ffffff", 8);
+    cueLine(58, -28, 146, 28, "#ffffff", 8);
+    cueLine(70, -8, 168, 72, "#ffffff", 8);
+    cueBlock(-58, -28, 116, 90, "#c77dff");
+    cueBlock(-16, 2, 32, 46);
+  } else if (id === "mettaton") {
+    cueLine(-26, -132, -74, -168, "#ffffff", 7);
+    cueBlock(-58, -150, 54, 20);
+    cueLine(-104, -48, -184, -48, "#ffffff", 7);
+    cueLine(104, -48, 184, -48, "#ffffff", 7);
+    cueBlock(-54, -46, 108, 88);
+    cueBlock(-20, -20, 40, 40, "#ff8bd1");
+    cueLine(-44, 38, -78, 136, "#ffffff", 8);
+    cueLine(44, 38, 78, 136, "#ffffff", 8);
+    cueBlock(-96, 126, 48, 16);
+    cueBlock(48, 126, 48, 16);
+  }
   ctx.restore();
 }
 
