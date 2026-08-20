@@ -313,9 +313,56 @@ const heartColors = {
 };
 
 const difficulty = {
-  normal: { damage: 5, rate: 0.62, speed: 0.82, cap: 24 },
-  hard: { damage: 8, rate: 0.9, speed: 1 },
-  insane: { damage: 11, rate: 1.15, speed: 1.12 },
+  normal: { damage: 4, rate: 0.78, speed: 0.94, cap: 30 },
+  hard: { damage: 7, rate: 1, speed: 1.05, cap: 38 },
+  insane: { damage: 10, rate: 1.18, speed: 1.18, cap: 48 },
+};
+const waveTuning = {
+  undyne: [
+    { rate: 0.92, speed: 1.04, length: 10.5 },
+    { rate: 0.84, speed: 1.0, length: 11.5 },
+    { rate: 1.04, speed: 1.08, length: 10.5 },
+  ],
+  asgore: [
+    { rate: 0.78, speed: 0.92, length: 12.5 },
+    { rate: 0.86, speed: 0.98, length: 12 },
+    { rate: 0.95, speed: 1.02, length: 12.5 },
+  ],
+  disbelief: [
+    { rate: 0.98, speed: 1.06, length: 10.5 },
+    { rate: 1.08, speed: 1.1, length: 10.5 },
+    { rate: 1.12, speed: 1.14, length: 11 },
+  ],
+  btt: [
+    { rate: 0.9, speed: 1.02, length: 11 },
+    { rate: 1.02, speed: 1.08, length: 11 },
+    { rate: 1.16, speed: 1.14, length: 11.5 },
+  ],
+  sans: [
+    { rate: 1.1, speed: 1.12, length: 9.5 },
+    { rate: 1.18, speed: 1.18, length: 9.5 },
+    { rate: 1.24, speed: 1.22, length: 10 },
+  ],
+  undying: [
+    { rate: 1.18, speed: 1.12, length: 9.8 },
+    { rate: 1.28, speed: 1.18, length: 9.8 },
+    { rate: 1.08, speed: 1.14, length: 10.5 },
+  ],
+  omega: [
+    { rate: 1.02, speed: 0.98, length: 12 },
+    { rate: 1.08, speed: 1.0, length: 12 },
+    { rate: 1.16, speed: 1.06, length: 12.5 },
+  ],
+  asriel: [
+    { rate: 0.96, speed: 1.0, length: 12 },
+    { rate: 1.04, speed: 1.08, length: 11.5 },
+    { rate: 1.08, speed: 1.05, length: 12 },
+  ],
+  mettaton: [
+    { rate: 0.9, speed: 0.98, length: 12 },
+    { rate: 1.02, speed: 1.04, length: 11.5 },
+    { rate: 1.1, speed: 1.12, length: 10.5 },
+  ],
 };
 
 let selectedBoss = bosses[0];
@@ -531,6 +578,8 @@ function makeState() {
     turn: 1,
     mercy: 0,
     pressure: 1,
+    rateMult: 1,
+    speedMult: 1,
     enemyTurnLength: 12,
     heartMode: "red",
     message: "Choose an action.",
@@ -625,6 +674,10 @@ function resetGame(autoStart = true) {
   state.running = autoStart;
   state.phase = autoStart ? "menu" : "ready";
   state.heartMode = selectedBoss.heartModes[0];
+  const tuning = getWaveTuning(selectedBoss.id, 0);
+  state.rateMult = tuning.rate;
+  state.speedMult = tuning.speed;
+  state.enemyTurnLength = tuning.length;
   applyArenaLayout(state.heartMode);
   state.player.x = arena.x + arena.w / 2;
   state.player.y = arena.y + arena.h / 2;
@@ -661,7 +714,7 @@ function spawn(kind, data) {
 function every(key, interval, dt) {
   state.spawnTimers[key] = (state.spawnTimers[key] || 0) - dt;
   if (state.spawnTimers[key] <= 0) {
-    state.spawnTimers[key] += interval / (difficulty[difficultyKey].rate * state.pressure);
+    state.spawnTimers[key] += interval / (difficulty[difficultyKey].rate * state.pressure * state.rateMult);
     return true;
   }
   return false;
@@ -699,6 +752,10 @@ function startEnemyTurn(message, pressure = 1, command = null) {
   state.spawnTimers = {};
   state.wave = (state.turn - 1) % selectedBoss.waves.length;
   state.heartMode = selectedBoss.heartModes[state.wave];
+  const tuning = getWaveTuning(selectedBoss.id, state.wave);
+  state.rateMult = tuning.rate;
+  state.speedMult = tuning.speed;
+  state.enemyTurnLength = tuning.length;
   applyArenaLayout(state.heartMode);
   state.player.x = arena.x + arena.w / 2;
   state.player.y = state.heartMode === "blue" ? arena.y + arena.h - state.player.r : arena.y + arena.h / 2;
@@ -717,6 +774,10 @@ function endEnemyTurn() {
   state.spawnTimers = {};
   state.wave = (state.turn - 1) % selectedBoss.waves.length;
   state.heartMode = selectedBoss.heartModes[state.wave];
+  const tuning = getWaveTuning(selectedBoss.id, state.wave);
+  state.rateMult = tuning.rate;
+  state.speedMult = tuning.speed;
+  state.enemyTurnLength = tuning.length;
   applyArenaLayout(state.heartMode);
   state.player.x = arena.x + arena.w / 2;
   state.player.y = state.heartMode === "blue" ? arena.y + arena.h - state.player.r : arena.y + arena.h / 2;
@@ -760,6 +821,10 @@ function chooseCommand(command) {
 
 function getPlayerCommandMessage(command) {
   return playerCommandMessages[command]?.[selectedBoss.id] || `* ${selectedBoss.name} prepares the next attack.`;
+}
+
+function getWaveTuning(id, wave) {
+  return waveTuning[id]?.[wave] || { rate: 1, speed: 1, length: 12 };
 }
 
 function firePlayerShot() {
@@ -829,8 +894,9 @@ function update(dt) {
       b.delay = Math.max(0, b.delay - dt);
       continue;
     }
-    b.x += (b.vx || 0) * dt * d.speed * state.pressure;
-    b.y += (b.vy || 0) * dt * d.speed * state.pressure;
+    const bulletSpeed = d.speed * state.pressure * state.speedMult;
+    b.x += (b.vx || 0) * dt * bulletSpeed;
+    b.y += (b.vy || 0) * dt * bulletSpeed;
     if (b.spin) b.angle = (b.angle || 0) + b.spin * dt;
 
     if (state.heartMode === "green" && shieldBlocks(b)) {
@@ -1343,6 +1409,7 @@ function draw() {
   drawSoulRuleHint();
   drawAttackLeadInCue();
   drawSoulModeCallout();
+  drawPacingHint();
   drawBullets();
   drawShots();
   drawEffects();
@@ -2581,6 +2648,20 @@ function drawSoulRuleHint() {
   ctx.strokeRect(arena.x + arena.w / 2 - w / 2, arena.y + 10, w, 24);
   ctx.fillStyle = "#ffffff";
   ctx.fillText(text, arena.x + arena.w / 2, arena.y + 22);
+  ctx.restore();
+}
+
+function drawPacingHint() {
+  if (!state.running || state.phase === "ready") return;
+  ctx.save();
+  ctx.font = "bold 12px Courier New";
+  ctx.textAlign = "right";
+  ctx.textBaseline = "middle";
+  const text = `${Math.round(state.speedMult * 100)}% SPD / ${Math.round(state.rateMult * 100)}% RATE`;
+  const x = arena.x + arena.w - 10;
+  const y = arena.y + arena.h + 12;
+  ctx.fillStyle = selectedBoss.color;
+  ctx.fillText(text, x, y);
   ctx.restore();
 }
 

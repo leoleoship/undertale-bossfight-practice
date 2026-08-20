@@ -42,6 +42,7 @@ Player commands now mirror Undertale-style action narration inside the canvas be
 Enemy turns now show colored soul-mode transition callouts and wave-specific boss speech before each attack pattern.
 Sans and Disbelief include blue/orange bone rules: stop for blue attacks and move through orange attacks.
 Normal mode is tuned for learning, with lower damage, slower attacks, and a bullet cap so waves stay dodgeable.
+Bullet speed and spawn rate now use boss-and-wave-specific pacing profiles, with a small in-canvas speed/rate readout for practice tuning.
 
 ## Run Locally
 
