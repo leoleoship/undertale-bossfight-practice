@@ -622,6 +622,12 @@ function update(dt) {
     b.y += (b.vy || 0) * dt * d.speed * state.pressure;
     if (b.spin) b.angle = (b.angle || 0) + b.spin * dt;
 
+    if (state.heartMode === "green" && shieldBlocks(b)) {
+      b.hit = true;
+      state.effects.push({ x: state.player.x, y: state.player.y, age: 0, block: true });
+      continue;
+    }
+
     if (b.kind === "arrow" && state.heartMode === "green" && arrowReachedSoul(b)) {
       if (state.player.shieldDir === b.dir) {
         b.hit = true;
@@ -994,7 +1000,10 @@ function drawBackdrop() {
 function drawBoss() {
   ctx.save();
   ctx.translate(canvas.width / 2, 130 + Math.sin(state.t * 4) * 2);
-  if (!drawBossImage(selectedBoss.id)) drawTileBoss(selectedBoss.id);
+  if (!drawBossImage(selectedBoss.id)) {
+    drawTileBoss(selectedBoss.id);
+    drawBossSignature(selectedBoss.id);
+  }
   drawBossNameplate();
   ctx.restore();
 }
@@ -1273,6 +1282,22 @@ function drawMatrixSprite(rows, x, y, size) {
       ctx.fillRect(Math.round(x + col * size), Math.round(y + row * size), Math.ceil(size), Math.ceil(size));
     }
   }
+}
+
+function drawBossSignature(id) {
+  ctx.save();
+  ctx.translate(0, -4);
+  ctx.globalAlpha = 0.96;
+  if (id === "sans") drawSansPortrait(0.6);
+  else if (id === "disbelief") drawPapyrusPortrait(0.6);
+  else if (id === "btt") drawTrioPortrait(0.52);
+  else if (id === "undyne") drawUndynePortrait(0.58, false);
+  else if (id === "undying") drawUndynePortrait(0.58, true);
+  else if (id === "asgore") drawAsgorePortrait(0.58);
+  else if (id === "omega") drawOmegaPortrait(0.58);
+  else if (id === "asriel") drawAsrielPortrait(0.58);
+  else if (id === "mettaton") drawMettatonPortrait(0.58);
+  ctx.restore();
 }
 
 const tile = 5;
@@ -1859,16 +1884,35 @@ function drawEffects() {
     ctx.strokeStyle = e.block ? "#80ed99" : "#ff3855";
     ctx.lineWidth = 4;
     ctx.strokeRect(e.x - size / 2, e.y - size / 2, size, size);
+    if (e.block) {
+      ctx.font = "bold 12px Courier New";
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#80ed99";
+      ctx.fillText("BLOCK", e.x, e.y - 36 - e.age * 18);
+    }
   }
   ctx.restore();
 }
 
 function drawShield(dir) {
+  const plates = {
+    up: [-32, -48, 64, 12, 0, -58, 0],
+    down: [-32, 40, 64, 12, 0, 62, Math.PI],
+    left: [-50, -28, 12, 64, -62, 0, -Math.PI / 2],
+    right: [40, -28, 12, 64, 62, 0, Math.PI / 2],
+  };
+  const plate = plates[dir] || plates.up;
+  ctx.fillStyle = "#050507";
+  ctx.fillRect(plate[0] - 3, plate[1] - 3, plate[2] + 6, plate[3] + 6);
   ctx.fillStyle = "#80ed99";
-  if (dir === "up") ctx.fillRect(-24, -42, 48, 8);
-  if (dir === "down") ctx.fillRect(-24, 36, 48, 8);
-  if (dir === "left") ctx.fillRect(-42, -20, 8, 48);
-  if (dir === "right") ctx.fillRect(36, -20, 8, 48);
+  ctx.fillRect(plate[0], plate[1], plate[2], plate[3]);
+  ctx.save();
+  ctx.translate(plate[4], plate[5]);
+  ctx.rotate(plate[6]);
+  ctx.fillStyle = "#80ed99";
+  ctx.fillRect(-8, -8, 16, 8);
+  ctx.fillRect(-4, -14, 8, 8);
+  ctx.restore();
 }
 
 function drawPixelHeart(x, y, size, color) {
