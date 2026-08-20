@@ -901,21 +901,225 @@ function drawBackdrop() {
 function drawBoss() {
   ctx.save();
   ctx.translate(canvas.width / 2, 130 + Math.sin(state.t * 4) * 2);
-  if (selectedBoss.id === "sans") drawSansPortrait(1.15);
-  else if (selectedBoss.id === "disbelief") drawPapyrusPortrait(1.04);
-  else if (selectedBoss.id === "btt") drawTrioPortrait(0.78);
-  else if (selectedBoss.id === "undyne") drawUndynePortrait(1, false);
-  else if (selectedBoss.id === "undying") drawUndynePortrait(1.03, true);
-  else if (selectedBoss.id === "asgore") drawAsgorePortrait(0.95);
-  else if (selectedBoss.id === "omega") drawOmegaPortrait(0.82);
-  else if (selectedBoss.id === "asriel") drawAsrielPortrait(0.96);
-  else if (selectedBoss.id === "mettaton") drawMettatonPortrait(1);
+  drawTileBoss(selectedBoss.id);
+  ctx.restore();
+}
+
+const tile = 5;
+
+function tileRect(x, y, w, h, color = "#ffffff") {
+  px(x * tile, y * tile, w * tile, h * tile, color);
+}
+
+function tileLine(x1, y1, x2, y2, color = "#ffffff") {
+  const steps = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1));
+  for (let i = 0; i <= steps; i++) {
+    const x = Math.round(x1 + ((x2 - x1) * i) / steps);
+    const y = Math.round(y1 + ((y2 - y1) * i) / steps);
+    tileRect(x, y, 1, 1, color);
+  }
+}
+
+function tileSkull(cx, y, wide = false, eyeColor = "#050507") {
+  const hw = wide ? 8 : 7;
+  tileRect(cx - hw + 1, y, hw * 2 - 2, 1);
+  tileRect(cx - hw, y + 1, hw * 2, 6);
+  tileRect(cx - hw + 2, y + 7, hw * 2 - 4, 3);
+  tileRect(cx - 5, y + 3, 3, 2, eyeColor);
+  tileRect(cx + 2, y + 3, 3, 2, eyeColor);
+  tileRect(cx - 1, y + 5, 2, 2, "#050507");
+  tileRect(cx - 4, y + 8, 8, 1, "#050507");
+  for (let x = -3; x <= 3; x += 2) tileRect(cx + x, y + 8, 1, 2);
+}
+
+function drawTileBoss(id) {
+  if (id === "sans") drawTileSans(1.1);
+  else if (id === "disbelief") drawTilePapyrus(1.04);
+  else if (id === "btt") drawTileTrio();
+  else if (id === "undyne") drawTileUndyne(false);
+  else if (id === "undying") drawTileUndyne(true);
+  else if (id === "asgore") drawTileAsgore();
+  else if (id === "omega") drawTileOmega();
+  else if (id === "asriel") drawTileAsriel();
+  else if (id === "mettaton") drawTileMettaton();
   else {
-    const sprite = bossSprites[selectedBoss.id];
+    const sprite = bossSprites[id];
     const scale = sprite[0].length > 14 ? 5 : 7;
     const w = sprite[0].length * scale;
     drawPixelSprite(sprite, -w / 2, -60, scale);
   }
+}
+
+function drawTileSans(scale = 1) {
+  ctx.save();
+  ctx.scale(scale, scale);
+  tileSkull(0, -23, true, "#050507");
+  tileRect(-8, -12, 16, 3);
+  tileRect(-11, -9, 4, 11);
+  tileRect(7, -9, 4, 11);
+  tileRect(-7, -9, 14, 11, "#57d6ff");
+  tileRect(-5, -8, 10, 10, "#050507");
+  tileRect(-2, -6, 4, 7);
+  tileRect(-10, 2, 7, 8);
+  tileRect(3, 2, 7, 8);
+  tileRect(-12, 10, 8, 2);
+  tileRect(4, 10, 8, 2);
+  tileRect(-14, -8, 3, 10);
+  tileRect(11, -8, 3, 10);
+  ctx.restore();
+}
+
+function drawTilePapyrus(scale = 1) {
+  ctx.save();
+  ctx.scale(scale, scale);
+  tileSkull(0, -25, false, "#050507");
+  tileLine(0, -24, 16, -28, "#ffd166");
+  tileRect(15, -29, 2, 2, "#ffd166");
+  tileRect(-5, -13, 10, 3);
+  tileRect(-10, -10, 20, 4);
+  tileRect(-7, -6, 14, 12);
+  tileRect(-4, -4, 8, 8, "#050507");
+  tileRect(-14, -8, 4, 7);
+  tileRect(10, -8, 4, 7);
+  tileLine(-14, -1, -23, 13);
+  tileLine(14, -1, 23, 13);
+  tileRect(-8, 6, 5, 12);
+  tileRect(3, 6, 5, 12);
+  tileRect(-11, 17, 8, 2);
+  tileRect(3, 17, 8, 2);
+  ctx.restore();
+}
+
+function drawTileTrio() {
+  ctx.save();
+  ctx.translate(-95, 4);
+  drawTilePapyrus(0.74);
+  ctx.translate(95, 9);
+  drawTileSans(0.74);
+  ctx.translate(95, -8);
+  drawTileUndyne(true, 0.72);
+  ctx.restore();
+}
+
+function drawTileUndyne(undying, scale = 1) {
+  ctx.save();
+  ctx.scale(scale, scale);
+  const accent = undying ? "#80ed99" : "#57d6ff";
+  tileRect(-7, -27, 14, 3, accent);
+  tileRect(-9, -24, 18, 8);
+  tileRect(-7, -22, 14, 6, "#050507");
+  tileRect(-6, -23, 4, 2);
+  tileRect(2, -23, 4, 2);
+  tileRect(-1, -20, 3, 2);
+  tileRect(-13, -20, 5, 5);
+  tileRect(8, -20, 5, 5);
+  tileRect(-14, -14, 28, 3);
+  tileRect(-9, -11, 18, 11);
+  tileRect(-5, -8, 10, 6, "#050507");
+  tileRect(-15, -10, 5, 12);
+  tileRect(10, -10, 5, 12);
+  tileRect(-17, 0, 5, 11);
+  tileRect(12, 0, 5, 11);
+  tileRect(-7, 0, 5, 15);
+  tileRect(2, 0, 5, 15);
+  tileRect(-10, 14, 8, 2);
+  tileRect(2, 14, 8, 2);
+  tileLine(-20, -7, -24, 16, accent);
+  tileLine(-25, 16, -17, 16, accent);
+  if (undying) {
+    tileRect(-12, -12, 24, 2, accent);
+    tileRect(-10, -3, 20, 2, accent);
+    tileRect(-4, -19, 8, 2, accent);
+  }
+  ctx.restore();
+}
+
+function drawTileAsgore(scale = 1) {
+  ctx.save();
+  ctx.scale(scale, scale);
+  tileLine(-9, -24, -17, -32);
+  tileLine(9, -24, 17, -32);
+  tileRect(-11, -25, 22, 8);
+  tileRect(-8, -19, 16, 5);
+  tileRect(-5, -22, 3, 2, "#050507");
+  tileRect(2, -22, 3, 2, "#050507");
+  tileRect(-2, -18, 4, 2, "#050507");
+  tileRect(-14, -12, 28, 5);
+  tileRect(-11, -7, 22, 16);
+  tileRect(-1, -5, 2, 13, "#ffd166");
+  tileRect(-17, -6, 5, 15);
+  tileRect(12, -6, 5, 15);
+  tileRect(-8, 9, 6, 10);
+  tileRect(2, 9, 6, 10);
+  tileRect(-11, 18, 9, 2);
+  tileRect(2, 18, 9, 2);
+  ctx.restore();
+}
+
+function drawTileOmega(scale = 1) {
+  ctx.save();
+  ctx.scale(scale, scale);
+  tileRect(-16, -25, 32, 4);
+  tileRect(-13, -30, 26, 6);
+  tileRect(-10, -22, 20, 10);
+  tileRect(-6, -19, 3, 3, "#050507");
+  tileRect(3, -19, 3, 3, "#050507");
+  tileRect(-5, -13, 10, 2, "#050507");
+  tileRect(-18, -24, 5, 4);
+  tileRect(13, -24, 5, 4);
+  tileRect(-6, -9, 12, 11, "#ff7a1a");
+  tileRect(-2, -5, 4, 5, "#050507");
+  for (let x = -13; x <= 13; x += 5) tileRect(x, -10, 2, 21, "#f6d28a");
+  tileLine(-20, -8, -31, 9, "#80ed99");
+  tileLine(20, -8, 31, 9, "#80ed99");
+  tileLine(-28, 9, -36, 16, "#80ed99");
+  tileLine(28, 9, 36, 16, "#80ed99");
+  ctx.restore();
+}
+
+function drawTileAsriel(scale = 1) {
+  ctx.save();
+  ctx.scale(scale, scale);
+  tileLine(-10, -24, -18, -31);
+  tileLine(10, -24, 18, -31);
+  tileRect(-11, -25, 22, 8);
+  tileRect(-8, -19, 16, 5);
+  tileRect(-5, -22, 3, 2, "#050507");
+  tileRect(2, -22, 3, 2, "#050507");
+  tileRect(-3, -18, 6, 2, "#050507");
+  tileLine(-15, -13, -27, -5);
+  tileLine(15, -13, 27, -5);
+  tileRect(-15, -11, 30, 4);
+  tileRect(-10, -7, 20, 14);
+  tileRect(-3, -3, 6, 6, "#050507");
+  tileRect(-18, -6, 5, 13);
+  tileRect(13, -6, 5, 13);
+  tileRect(-7, 7, 5, 12);
+  tileRect(2, 7, 5, 12);
+  tileRect(-10, 18, 8, 2);
+  tileRect(2, 18, 8, 2);
+  ctx.restore();
+}
+
+function drawTileMettaton(scale = 1) {
+  ctx.save();
+  ctx.scale(scale, scale);
+  tileRect(-8, -28, 11, 3);
+  tileLine(-8, -28, -14, -32);
+  tileRect(-11, -25, 22, 8);
+  tileRect(-9, -18, 18, 5);
+  tileRect(-5, -22, 3, 2, "#050507");
+  tileRect(2, -21, 3, 2, "#050507");
+  tileRect(-3, -17, 8, 1, "#050507");
+  tileRect(-20, -13, 40, 3);
+  tileRect(-12, -10, 24, 13);
+  tileRect(-3, -5, 6, 5, "#ff8bd1");
+  tileLine(-17, -9, -31, 12);
+  tileLine(17, -9, 31, 12);
+  tileRect(-9, 3, 5, 16);
+  tileRect(4, 3, 5, 16);
+  tileRect(-13, 18, 9, 2);
+  tileRect(4, 18, 9, 2);
   ctx.restore();
 }
 
