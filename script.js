@@ -13,7 +13,9 @@ const commandPanel = document.getElementById("commandPanel");
 const commandText = document.getElementById("commandText");
 const turnInfo = document.getElementById("turnInfo");
 
-const arena = { x: 250, y: 292, w: 460, h: 238 };
+const baseArena = { x: 250, y: 292, w: 460, h: 238 };
+const squareArena = { x: 361, y: 292, w: 238, h: 238 };
+const arena = { ...baseArena };
 const maxHp = 92;
 const pixel = 6;
 const bossImagePaths = {
@@ -38,6 +40,17 @@ const bossImagePresentation = {
   omega: { maxW: 286, maxH: 196, y: -4 },
   asriel: { maxW: 260, maxH: 205, y: -10 },
   mettaton: { maxW: 205, maxH: 198, y: -4 },
+};
+const bossDialogues = {
+  undyne: ["* Face me head-on!", "* Your shield better keep up.", "* Spears don't wait."],
+  asgore: ["* I will not look away.", "* Stand firm, human.", "* The trident lowers."],
+  disbelief: ["* I still believe in one last chance.", "* Hold still when the blue bones pass.", "* This puzzle has teeth."],
+  btt: ["* Three bad times line up.", "* Bones, spears, and blasters ready.", "* Don't blink now."],
+  sans: ["* ready for another bad time?", "* keep your feet where gravity puts 'em.", "* nice dodge. do it again."],
+  undying: ["* Heroes don't back down!", "* Raise your shield!", "* Determination burns brighter!"],
+  omega: ["* The screen smiles back.", "* Vines crawl across the box.", "* Your SOUL flickers."],
+  asriel: ["* Don't give up now.", "* Hope shines through the chaos.", "* Stars gather overhead."],
+  mettaton: ["* Smile for the ratings!", "* Drama! Danger! Glamour!", "* Legs, lights, action!"],
 };
 
 const bosses = [
@@ -467,11 +480,27 @@ function loadBossImage(id) {
   image.src = bossImagePaths[id];
 }
 
+function applyArenaLayout(heartMode = state?.heartMode || selectedBoss.heartModes[0]) {
+  const layout = usesSquareArena(selectedBoss.id, heartMode) ? squareArena : baseArena;
+  arena.x = layout.x;
+  arena.y = layout.y;
+  arena.w = layout.w;
+  arena.h = layout.h;
+}
+
+function usesSquareArena(id, heartMode) {
+  return (id === "undyne" || id === "undying") && heartMode === "green";
+}
+
 function resetGame(autoStart = true) {
+  applyArenaLayout(selectedBoss.heartModes[0]);
   state = makeState();
   state.running = autoStart;
   state.phase = autoStart ? "menu" : "ready";
   state.heartMode = selectedBoss.heartModes[0];
+  applyArenaLayout(state.heartMode);
+  state.player.x = arena.x + arena.w / 2;
+  state.player.y = arena.y + arena.h / 2;
   waveName.textContent = selectedBoss.waves[0];
   timeLeft.textContent = "MENU";
   syncHp();
@@ -521,6 +550,7 @@ function startEnemyTurn(message, pressure = 1) {
   state.spawnTimers = {};
   state.wave = (state.turn - 1) % selectedBoss.waves.length;
   state.heartMode = selectedBoss.heartModes[state.wave];
+  applyArenaLayout(state.heartMode);
   state.player.x = arena.x + arena.w / 2;
   state.player.y = state.heartMode === "blue" ? arena.y + arena.h - state.player.r : arena.y + arena.h / 2;
   state.player.vy = 0;
@@ -536,6 +566,10 @@ function endEnemyTurn() {
   state.bullets = [];
   state.shots = [];
   state.spawnTimers = {};
+  state.heartMode = selectedBoss.heartModes[(state.turn - 1) % selectedBoss.heartModes.length];
+  applyArenaLayout(state.heartMode);
+  state.player.x = arena.x + arena.w / 2;
+  state.player.y = state.heartMode === "blue" ? arena.y + arena.h - state.player.r : arena.y + arena.h / 2;
   state.message = `Turn ${state.turn}. Mercy: ${Math.min(100, state.mercy)}%.`;
   syncTurnUi();
 }
@@ -1019,6 +1053,7 @@ function drawBoss() {
     drawTileBoss(selectedBoss.id);
     drawBossSignature(selectedBoss.id);
   }
+  drawBossSpeechBox();
   drawBossNameplate();
   ctx.restore();
 }
@@ -1158,6 +1193,67 @@ function drawBossNameplate() {
   ctx.fillStyle = "#ffffff";
   ctx.fillText(text, 0, 95);
   ctx.restore();
+}
+
+function drawBossSpeechBox() {
+  const text = getBossSpeech();
+  const box = getSpeechBoxPlacement(selectedBoss.id);
+  ctx.save();
+  px(box.x, box.y, box.w, box.h, "#ffffff");
+  px(box.x + 4, box.y + 4, box.w - 8, box.h - 8, "#050507");
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.moveTo(box.x + 18, box.y + box.h - 4);
+  ctx.lineTo(box.x - 12, box.y + box.h + 14);
+  ctx.lineTo(box.x + 32, box.y + box.h - 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = "#050507";
+  ctx.beginPath();
+  ctx.moveTo(box.x + 22, box.y + box.h - 4);
+  ctx.lineTo(box.x - 1, box.y + box.h + 8);
+  ctx.lineTo(box.x + 34, box.y + box.h - 4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.font = "bold 15px Courier New";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+  ctx.fillStyle = "#ffffff";
+  drawWrappedSpeech(text, box.x + 14, box.y + 12, box.w - 28, 18, 3);
+  ctx.restore();
+}
+
+function getSpeechBoxPlacement(id) {
+  if (id === "omega" || id === "asriel") return { x: 126, y: -124, w: 256, h: 78 };
+  if (id === "btt") return { x: 116, y: -112, w: 270, h: 76 };
+  if (id === "sans") return { x: 112, y: -118, w: 250, h: 74 };
+  return { x: 118, y: -126, w: 256, h: 76 };
+}
+
+function getBossSpeech() {
+  if (state.over) return state.won ? "* The fight settles." : "* Stay determined.";
+  const lines = bossDialogues[selectedBoss.id] || ["* The boss watches you."];
+  if (state.phase === "ready") return lines[0];
+  if (state.phase === "menu") return lines[(state.turn - 1) % lines.length];
+  return lines[state.wave % lines.length];
+}
+
+function drawWrappedSpeech(text, x, y, maxWidth, lineHeight, maxLines) {
+  const words = text.split(" ");
+  let lineText = "";
+  let lineCount = 0;
+  for (const word of words) {
+    const test = lineText ? `${lineText} ${word}` : word;
+    if (ctx.measureText(test).width > maxWidth && lineText) {
+      ctx.fillText(lineText, x, y + lineCount * lineHeight);
+      lineCount++;
+      lineText = word;
+      if (lineCount >= maxLines) return;
+    } else {
+      lineText = test;
+    }
+  }
+  if (lineText && lineCount < maxLines) ctx.fillText(lineText, x, y + lineCount * lineHeight);
 }
 
 function drawBossImage(id) {
