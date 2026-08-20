@@ -68,6 +68,23 @@ const bossDialogues = {
   asriel: ["* Stars descend in curtains.", "* Sabers sweep across the box.", "* Hope opens a small path."],
   mettaton: ["* Spotlights mark your mark!", "* Shoot the bombs, darling!", "* Legs sweep the stage edge!"],
 };
+const bossWaveDialogues = {
+  undyne: ["* Green SOUL. Face the spear!", "* Red SOUL. Dodge the cross lances!", "* Back to guard. Read the spin!"],
+  asgore: ["* Flames bloom in a ring.", "* The trident sweeps across the box.", "* Fire falls in curtains."],
+  disbelief: ["* Blue SOUL. Jump the bone lanes.", "* Stay still when blue falls.", "* Yellow SOUL. Shoot through the wall."],
+  btt: ["* Three openings. One box.", "* Gravity pulls while beams charge.", "* Yellow SOUL. Watch every lane."],
+  sans: ["* Blue SOUL. The floor matters.", "* Stop for blue. Jump late.", "* Yellow SOUL. Beams cross the hall."],
+  undying: ["* Green SOUL. No running.", "* Shield up. The pattern doubles.", "* Red SOUL. Spears cross freely."],
+  omega: ["* Yellow SOUL. Petals fill the screen.", "* Vines cut the arena into cells.", "* Pellet rings leave one exit."],
+  asriel: ["* Red SOUL. Stars rain down.", "* Yellow SOUL. Fire into the light.", "* Blue SOUL. Hold through the ring."],
+  mettaton: ["* Yellow SOUL. Center your shots.", "* Bombs fall under the lights.", "* Red SOUL. Legs sweep the stage."],
+};
+const soulModeMessages = {
+  red: "* RED SOUL: move freely.",
+  blue: "* BLUE SOUL: gravity is on.",
+  green: "* GREEN SOUL: aim the shield.",
+  yellow: "* YELLOW SOUL: press SPACE to shoot.",
+};
 const commandDialogues = {
   fight: {
     sans: "* that the best swing you've got?",
@@ -1325,6 +1342,7 @@ function draw() {
   drawArenaModeDetails();
   drawSoulRuleHint();
   drawAttackLeadInCue();
+  drawSoulModeCallout();
   drawBullets();
   drawShots();
   drawEffects();
@@ -1548,12 +1566,17 @@ function drawSpeechTail(box) {
 function getBossSpeech() {
   if (state.over) return state.won ? "* The fight settles." : "* Stay determined.";
   const lines = bossDialogues[selectedBoss.id] || ["* The boss watches you."];
+  const waveLine = getWaveBossSpeech();
   if (state.phase === "ready") return lines[0];
-  if (state.phase === "menu") return lines[(state.turn - 1) % lines.length];
+  if (state.phase === "menu") return waveLine || lines[(state.turn - 1) % lines.length];
   if (state.phase === "enemy" && state.waveT < 1.15 && state.lastCommand) {
-    return commandDialogues[state.lastCommand]?.[selectedBoss.id] || lines[state.wave % lines.length];
+    return commandDialogues[state.lastCommand]?.[selectedBoss.id] || waveLine || lines[state.wave % lines.length];
   }
-  return lines[state.wave % lines.length];
+  return waveLine || lines[state.wave % lines.length];
+}
+
+function getWaveBossSpeech() {
+  return bossWaveDialogues[selectedBoss.id]?.[state.wave] || "";
 }
 
 function getVisibleSpeech(text) {
@@ -1563,21 +1586,27 @@ function getVisibleSpeech(text) {
 }
 
 function drawWrappedSpeech(text, x, y, maxWidth, lineHeight, maxLines) {
-  const words = text.split(" ");
-  let lineText = "";
   let lineCount = 0;
-  for (const word of words) {
-    const test = lineText ? `${lineText} ${word}` : word;
-    if (ctx.measureText(test).width > maxWidth && lineText) {
+  for (const paragraph of text.split("\n")) {
+    const words = paragraph.split(" ");
+    let lineText = "";
+    for (const word of words) {
+      const test = lineText ? `${lineText} ${word}` : word;
+      if (ctx.measureText(test).width > maxWidth && lineText) {
+        ctx.fillText(lineText, x, y + lineCount * lineHeight);
+        lineCount++;
+        lineText = word;
+        if (lineCount >= maxLines) return;
+      } else {
+        lineText = test;
+      }
+    }
+    if (lineText && lineCount < maxLines) {
       ctx.fillText(lineText, x, y + lineCount * lineHeight);
       lineCount++;
-      lineText = word;
-      if (lineCount >= maxLines) return;
-    } else {
-      lineText = test;
     }
+    if (lineCount >= maxLines) return;
   }
-  if (lineText && lineCount < maxLines) ctx.fillText(lineText, x, y + lineCount * lineHeight);
 }
 
 function drawBossImage(id) {
@@ -2479,6 +2508,30 @@ function drawAttackLeadInCue() {
   ctx.restore();
 }
 
+function drawSoulModeCallout() {
+  if (state.phase !== "enemy" || state.waveT > 1.05) return;
+  const text = soulModeMessages[state.heartMode];
+  if (!text) return;
+  ctx.save();
+  const color = heartColors[state.heartMode] || "#ffffff";
+  const alpha = clamp(1 - Math.max(0, state.waveT - 0.72) / 0.33, 0, 1);
+  ctx.globalAlpha = alpha;
+  ctx.font = "bold 20px Courier New";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const w = Math.min(arena.w - 20, ctx.measureText(text).width + 34);
+  const h = 42;
+  const x = arena.x + arena.w / 2 - w / 2;
+  const y = arena.y + 18;
+  px(x, y, w, h, "#050507");
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+  ctx.fillStyle = color;
+  ctx.fillText(text, arena.x + arena.w / 2, y + h / 2 + 1);
+  ctx.restore();
+}
+
 function drawNarrationBox() {
   if (state.over || state.phase === "ready") return;
   const text = getNarrationText();
@@ -2502,8 +2555,10 @@ function getNarrationBox() {
 
 function getNarrationText() {
   if (state.phase === "menu") {
-    return `* ${selectedBoss.name} blocks the way.`;
+    const soulLine = soulModeMessages[state.heartMode] || "";
+    return `* ${selectedBoss.name} blocks the way.${soulLine ? `\n${soulLine}` : ""}`;
   }
+  if (state.phase === "enemy" && state.waveT < 0.75) return soulModeMessages[state.heartMode] || state.message;
   if (state.phase === "enemy" && state.waveT < getAttackLeadIn() + 0.15) {
     return state.message;
   }
