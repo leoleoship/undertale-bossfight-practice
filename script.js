@@ -15,6 +15,9 @@ const turnInfo = document.getElementById("turnInfo");
 
 const baseArena = { x: 250, y: 292, w: 460, h: 238 };
 const squareArena = { x: 361, y: 292, w: 238, h: 238 };
+const compactArena = { x: 300, y: 314, w: 360, h: 194 };
+const tallArena = { x: 300, y: 278, w: 360, h: 260 };
+const wideArena = { x: 220, y: 300, w: 520, h: 220 };
 const arena = { ...baseArena };
 const maxHp = 92;
 const pixel = 6;
@@ -42,15 +45,15 @@ const bossImagePresentation = {
   mettaton: { maxW: 205, maxH: 198, y: -4 },
 };
 const bossDialogues = {
-  undyne: ["* Face me head-on!", "* Your shield better keep up.", "* Spears don't wait."],
-  asgore: ["* I will not look away.", "* Stand firm, human.", "* The trident lowers."],
-  disbelief: ["* I still believe in one last chance.", "* Hold still when the blue bones pass.", "* This puzzle has teeth."],
-  btt: ["* Three bad times line up.", "* Bones, spears, and blasters ready.", "* Don't blink now."],
-  sans: ["* ready for another bad time?", "* keep your feet where gravity puts 'em.", "* nice dodge. do it again."],
-  undying: ["* Heroes don't back down!", "* Raise your shield!", "* Determination burns brighter!"],
-  omega: ["* The screen smiles back.", "* Vines crawl across the box.", "* Your SOUL flickers."],
-  asriel: ["* Don't give up now.", "* Hope shines through the chaos.", "* Stars gather overhead."],
-  mettaton: ["* Smile for the ratings!", "* Drama! Danger! Glamour!", "* Legs, lights, action!"],
+  undyne: ["* En garde!", "* Block this pattern!", "* Spears close in!"],
+  asgore: ["* The king readies his trident.", "* Flames part around you.", "* One more sweep."],
+  disbelief: ["* Another bone puzzle.", "* Blue means patience.", "* The pattern tightens."],
+  btt: ["* Three attacks overlap.", "* Bones first. Spears next.", "* The hall gets crowded."],
+  sans: ["* let's start simple.", "* gravity's doing its thing.", "* here come the beams."],
+  undying: ["* The heroine raises her spear!", "* Shield high!", "* No mercy in this pattern!"],
+  omega: ["* The screen laughs silently.", "* Vines mark the lanes.", "* The SOULs answer back."],
+  asriel: ["* Stars fall into place.", "* A blade of light crosses.", "* Hold onto hope."],
+  mettaton: ["* Lights! Camera!", "* Shoot the bombs, darling.", "* Ratings are climbing!"],
 };
 
 const bosses = [
@@ -481,11 +484,20 @@ function loadBossImage(id) {
 }
 
 function applyArenaLayout(heartMode = state?.heartMode || selectedBoss.heartModes[0]) {
-  const layout = usesSquareArena(selectedBoss.id, heartMode) ? squareArena : baseArena;
+  const layout = getArenaLayout(selectedBoss.id, heartMode, state?.wave || 0);
   arena.x = layout.x;
   arena.y = layout.y;
   arena.w = layout.w;
   arena.h = layout.h;
+}
+
+function getArenaLayout(id, heartMode, wave = 0) {
+  if (usesSquareArena(id, heartMode)) return squareArena;
+  if (id === "sans" || id === "disbelief") return heartMode === "blue" ? compactArena : baseArena;
+  if (id === "omega" || id === "asriel") return wideArena;
+  if (id === "mettaton" && heartMode === "yellow") return tallArena;
+  if (id === "asgore" && wave === 2) return wideArena;
+  return baseArena;
 }
 
 function usesSquareArena(id, heartMode) {
@@ -540,6 +552,12 @@ function every(key, interval, dt) {
   return false;
 }
 
+function sequencedEvery(key, interval, dt, sequence) {
+  if (!every(key, interval, dt)) return null;
+  const index = Math.floor(state.waveT / interval) % sequence.length;
+  return sequence[index];
+}
+
 function startEnemyTurn(message, pressure = 1) {
   state.phase = "enemy";
   state.message = message;
@@ -566,7 +584,8 @@ function endEnemyTurn() {
   state.bullets = [];
   state.shots = [];
   state.spawnTimers = {};
-  state.heartMode = selectedBoss.heartModes[(state.turn - 1) % selectedBoss.heartModes.length];
+  state.wave = (state.turn - 1) % selectedBoss.waves.length;
+  state.heartMode = selectedBoss.heartModes[state.wave];
   applyArenaLayout(state.heartMode);
   state.player.x = arena.x + arena.w / 2;
   state.player.y = state.heartMode === "blue" ? arena.y + arena.h - state.player.r : arena.y + arena.h / 2;
@@ -777,8 +796,9 @@ function runPattern(dt) {
 }
 
 function undynePattern(dt) {
-  if (state.wave === 0 && every("spear-rain", 0.46, dt)) {
-    spawnUndyneArrow(190);
+  if (state.wave === 0) {
+    const dir = sequencedEvery("spear-rain", 0.5, dt, ["up", "left", "right", "up", "down", "right", "left", "down"]);
+    if (dir) spawnUndyneArrow(190, dir);
   }
   if (state.wave === 1 && every("cross-lances", 0.64, dt)) {
     const fromLeft = Math.random() > 0.5;
@@ -787,55 +807,69 @@ function undynePattern(dt) {
   }
   if (state.wave === 2 && every("cyclone", 0.34, dt)) {
     const angle = state.t * 3.2;
-    const x = arena.x + arena.w / 2 + Math.cos(angle) * 230;
-    const y = arena.y + arena.h / 2 + Math.sin(angle) * 165;
+    const radiusX = arena.w / 2 + 36;
+    const radiusY = arena.h / 2 + 36;
+    const x = arena.x + arena.w / 2 + Math.cos(angle) * radiusX;
+    const y = arena.y + arena.h / 2 + Math.sin(angle) * radiusY;
     const toward = Math.atan2(state.player.y - y, state.player.x - x);
     spawn("spear", { x, y, vx: Math.cos(toward) * 220, vy: Math.sin(toward) * 220, r: 12, angle: toward });
   }
 }
 
-function spawnUndyneArrow(speed) {
-  const side = Math.floor(rand(0, 4));
+function spawnUndyneArrow(speed, forcedDir = null) {
   const p = state.player;
-  const specs = [
-    { x: p.x, y: arena.y - 36, vx: 0, vy: speed, angle: Math.PI / 2, dir: "up" },
-    { x: arena.x + arena.w + 36, y: p.y, vx: -speed, vy: 0, angle: Math.PI, dir: "right" },
-    { x: p.x, y: arena.y + arena.h + 36, vx: 0, vy: -speed, angle: -Math.PI / 2, dir: "down" },
-    { x: arena.x - 36, y: p.y, vx: speed, vy: 0, angle: 0, dir: "left" },
-  ];
-  spawn("arrow", { ...specs[side], r: 13 });
+  const specs = {
+    up: { x: p.x, y: arena.y - 36, vx: 0, vy: speed, angle: Math.PI / 2, dir: "up" },
+    right: { x: arena.x + arena.w + 36, y: p.y, vx: -speed, vy: 0, angle: Math.PI, dir: "right" },
+    down: { x: p.x, y: arena.y + arena.h + 36, vx: 0, vy: -speed, angle: -Math.PI / 2, dir: "down" },
+    left: { x: arena.x - 36, y: p.y, vx: speed, vy: 0, angle: 0, dir: "left" },
+  };
+  const dir = forcedDir || ["up", "right", "down", "left"][Math.floor(rand(0, 4))];
+  spawn("arrow", { ...specs[dir], r: 13 });
 }
 
 function asgorePattern(dt) {
-  if (every("embers", 0.34, dt)) {
+  if (state.wave === 0 && every("embers", 0.34, dt)) {
     const side = Math.random() > 0.5 ? -1 : 1;
     spawn("fire", { x: arena.x + arena.w / 2 + side * 245, y: rand(arena.y, arena.y + arena.h), vx: -side * rand(135, 205), vy: Math.sin(state.t * 2) * 45, r: rand(9, 15) });
   }
-  if (state.wave >= 1 && every("sweep", 1.75, dt)) {
-    const y = rand(arena.y + 34, arena.y + arena.h - 34);
-    spawn("trident", { x: arena.x - 60, y, vx: 380, vy: 0, r: 22, angle: 0 });
-  }
-  if (state.wave === 2 && every("ring", 1.1, dt)) {
-    for (let i = 0; i < 18; i++) {
-      const a = (Math.PI * 2 * i) / 18 + state.t;
-      spawn("fire", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 145, vy: Math.sin(a) * 145, r: 8 });
+  if (state.wave >= 1) {
+    const lane = sequencedEvery("sweep", 1.22, dt, [0.22, 0.5, 0.78, 0.36, 0.64]);
+    if (lane !== null) {
+      const y = arena.y + arena.h * lane;
+      spawn("trident", { x: arena.x - 60, y, vx: 380, vy: 0, r: 22, angle: 0 });
+      if (state.wave === 2) spawn("trident", { x: arena.x + arena.w + 60, y: arena.y + arena.h * (1 - lane), vx: -380, vy: 0, r: 22, angle: Math.PI });
     }
+  }
+  if (state.wave === 2 && every("flame-curtain", 0.48, dt)) {
+    const gap = arena.x + arena.w * ([0.25, 0.5, 0.75, 0.4, 0.62][Math.floor(state.waveT / 0.48) % 5]);
+    for (let i = 0; i < 8; i++) {
+      const x = arena.x + 24 + i * ((arena.w - 48) / 7);
+      if (Math.abs(x - gap) < 42) continue;
+      spawn("fire", { x, y: arena.y - 28, vx: 0, vy: 170, r: 9 });
+    }
+  } else if (state.wave >= 1 && every("side-embers", 0.58, dt)) {
+    const y = rand(arena.y + 20, arena.y + arena.h - 20);
+    const fromLeft = Math.random() > 0.5;
+    spawn("fire", { x: fromLeft ? arena.x - 24 : arena.x + arena.w + 24, y, vx: fromLeft ? 165 : -165, vy: 0, r: 10 });
   }
 }
 
 function disbeliefPattern(dt) {
-  if (every("bones", state.wave === 0 ? 0.46 : 0.38, dt)) {
-    const gap = rand(arena.y + 70, arena.y + arena.h - 70);
+  if (every("bones", state.wave === 0 ? 0.52 : 0.42, dt)) {
+    const lanes = [0.28, 0.48, 0.68, 0.38, 0.58];
+    const gap = arena.y + arena.h * lanes[Math.floor(state.waveT / 0.52) % lanes.length];
     const fromLeft = Math.random() > 0.5;
-    spawn("bone", { x: fromLeft ? arena.x - 30 : arena.x + arena.w + 30, y: gap - 72, vx: fromLeft ? 235 : -235, vy: 0, r: 16, h: 86 });
-    spawn("bone", { x: fromLeft ? arena.x - 30 : arena.x + arena.w + 30, y: gap + 72, vx: fromLeft ? 235 : -235, vy: 0, r: 16, h: 86 });
+    spawn("bone", { x: fromLeft ? arena.x - 30 : arena.x + arena.w + 30, y: gap - 74, vx: fromLeft ? 235 : -235, vy: 0, r: 16, h: 92 });
+    spawn("bone", { x: fromLeft ? arena.x - 30 : arena.x + arena.w + 30, y: gap + 74, vx: fromLeft ? 235 : -235, vy: 0, r: 16, h: 92 });
   }
-  if (state.wave >= 1 && every("blue", 1.05, dt)) {
-    spawn("blueBone", { x: rand(arena.x + 15, arena.x + arena.w - 15), y: arena.y - 28, vx: 0, vy: 230, r: 14, h: 58 });
+  if (state.wave >= 1) {
+    const xFrac = sequencedEvery("blue", 0.82, dt, [0.18, 0.35, 0.52, 0.7, 0.86]);
+    if (xFrac !== null) spawn("blueBone", { x: arena.x + arena.w * xFrac, y: arena.y - 28, vx: 0, vy: 230, r: 14, h: 58 });
   }
-  if (state.wave === 2 && every("slam", 1.2, dt)) {
+  if (state.wave === 2 && every("slam", 1.15, dt)) {
     for (let i = 0; i < 7; i++) {
-      spawn("bone", { x: arena.x + i * 74, y: arena.y + arena.h + 34, vx: 0, vy: -250, r: 13, h: 74 });
+      spawn("bone", { x: arena.x + 26 + i * ((arena.w - 52) / 6), y: arena.y + arena.h + 34, vx: 0, vy: -250, r: 13, h: i % 2 ? 58 : 78 });
     }
   }
 }
@@ -876,24 +910,39 @@ function spawnBlaster(biasHorizontal = 0.5) {
 }
 
 function sansPattern(dt) {
-  if (every("sans-bones", state.wave === 0 ? 0.46 : 0.34, dt)) {
-    const h = rand(54, 116);
+  if (every("sans-bones", state.wave === 0 ? 0.5 : 0.38, dt)) {
+    const heights = [56, 92, 126, 74, 112, 64];
+    const h = heights[Math.floor(state.waveT / 0.5) % heights.length];
     spawn("bone", { x: arena.x + arena.w + 28, y: arena.y + arena.h - h / 2, vx: -220, vy: 0, r: 14, h });
-    if (state.wave === 0 && Math.random() > 0.55) {
-      spawn("bone", { x: arena.x - 28, y: arena.y + h / 2, vx: 220, vy: 0, r: 14, h: h * 0.8 });
+    if (state.wave >= 1) spawn("bone", { x: arena.x - 28, y: arena.y + h / 2, vx: 220, vy: 0, r: 14, h: Math.max(46, h * 0.72) });
+  }
+  if (state.wave >= 1) {
+    const xFrac = sequencedEvery("sans-blue", 0.86, dt, [0.22, 0.44, 0.66, 0.82, 0.34]);
+    if (xFrac !== null) spawn("blueBone", { x: arena.x + arena.w * xFrac, y: arena.y - 34, vx: 0, vy: 255, r: 14, h: 70 });
+  }
+  if (state.wave === 2) {
+    const beam = sequencedEvery("sans-beam", 1.1, dt, ["h", "v", "h", "v"]);
+    if (beam) {
+      spawn("beam", {
+        x: beam === "h" ? arena.x : arena.x + arena.w * ([0.28, 0.72][Math.floor(state.waveT / 1.1) % 2]),
+        y: beam === "h" ? arena.y + arena.h * ([0.34, 0.66][Math.floor(state.waveT / 1.1) % 2]) : arena.y,
+        vx: 0,
+        vy: 0,
+        r: 24,
+        horizontal: beam === "h",
+        warn: 0.48,
+        life: 1.0,
+      });
     }
-  }
-  if (state.wave >= 1 && every("sans-blue", 1.0, dt)) {
-    spawn("blueBone", { x: rand(arena.x + 20, arena.x + arena.w - 20), y: arena.y - 34, vx: 0, vy: 255, r: 14, h: 70 });
-  }
-  if (state.wave === 2 && every("sans-beam", 1.45, dt)) {
-    spawnBlaster(0.65);
   }
 }
 
 function undyingPattern(dt) {
   if (every("undying-aimed", 0.32, dt)) {
-    if (state.heartMode === "green") spawnUndyneArrow(235);
+    if (state.heartMode === "green") {
+      const dirs = ["up", "right", "left", "down", "up", "left", "right", "down"];
+      spawnUndyneArrow(235, dirs[Math.floor(state.waveT / 0.32) % dirs.length]);
+    }
     else {
       const edge = Math.floor(rand(0, 4));
       const x = edge === 0 ? arena.x - 36 : edge === 1 ? arena.x + arena.w + 36 : rand(arena.x, arena.x + arena.w);
@@ -954,9 +1003,10 @@ function asrielPattern(dt) {
 }
 
 function mettatonPattern(dt) {
-  if (every("mettaton-spot", 1.05, dt)) {
+  if (every("mettaton-spot", 0.92, dt)) {
+    const lanes = [0.2, 0.42, 0.64, 0.82, 0.36];
     spawn("beam", {
-      x: rand(arena.x + 25, arena.x + arena.w - 25),
+      x: arena.x + arena.w * lanes[Math.floor(state.waveT / 0.92) % lanes.length],
       y: arena.y,
       vx: 0,
       vy: 0,
@@ -967,8 +1017,10 @@ function mettatonPattern(dt) {
     });
   }
   if (state.wave >= 1 && every("mettaton-bombs", 0.48, dt)) {
-    const kind = Math.random() > 0.45 ? "bomb" : "box";
-    spawn(kind, { x: rand(arena.x, arena.x + arena.w), y: arena.y - 24, vx: Math.sin(state.t * 5) * 65, vy: rand(165, 235), r: 13, spin: 5 });
+    const kind = Math.floor(state.waveT / 0.48) % 3 === 0 ? "box" : "bomb";
+    const lanes = [0.18, 0.38, 0.58, 0.78];
+    const x = arena.x + arena.w * lanes[Math.floor(state.waveT / 0.48) % lanes.length];
+    spawn(kind, { x, y: arena.y - 24, vx: Math.sin(state.t * 5) * 45, vy: rand(165, 225), r: 13, spin: 5 });
   }
   if (state.wave === 2 && every("mettaton-rush", 0.78, dt)) {
     const y = rand(arena.y + 25, arena.y + arena.h - 25);
