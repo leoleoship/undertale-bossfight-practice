@@ -20,6 +20,7 @@ Each fight uses original generated pixel-style PNG portraits, 8-bit bullets, and
 The BGM loops are original chiptune-style tracks tuned to each boss's mood and tempo; they do not copy Undertale's actual songs.
 Boss portraits use original fan-art pixel sprites made from small square pieces with recognizable character shapes, outfits, weapons, and poses.
 Portraits now place faces, shirts, armor panels, robes, and chest emblems more deliberately so the characters read better at battle size and roster-thumbnail size.
+The latest portrait pass adds stronger facial features, teeth or mouth lines, costume seams, and centered shirt/core panels for clearer character reads.
 The boss select cards also show these portraits as pixel thumbnails so the roster is recognizable before the fight starts.
 In battle, each portrait has boss-specific sizing and a pixel outline so large bosses, short bosses, and trio characters keep their intended silhouettes.
 The battle stage also draws boss-specific pixel cues behind portraits, including bones, spears, tridents, flames, vines, eyes, wings, stars, and Mettaton-style lights.
@@ -47,6 +48,7 @@ Sans and Disbelief include blue/orange bone rules: stop for blue attacks and mov
 Asgore now includes blue/orange flame reads, Sans blue-heart waves include gravity slam beats, and Undyne-style shield turns use longer directional strings for closer practice flow.
 Normal mode is tuned for learning, with lower damage, slower attacks, and a bullet cap so waves stay dodgeable.
 Bullet speed and spawn rate now use boss-and-wave-specific pacing profiles, with a small in-canvas speed/rate readout for practice tuning.
+Several slower waves now use slightly faster bullet-speed profiles so attacks appear sooner and feel closer to the source fights while keeping the same safety caps.
 Dynamic wave ramps use staged opener/build/finale intensity, so attacks start readable and tighten toward the end instead of changing at one flat rate.
 Weapon warnings and hazard telegraphs also follow that intensity curve, giving longer reads at the start of a turn and quicker warnings during the finale.
 Pattern sequencing now advances with the tuned spawn rate, so faster waves use the intended ordered reads instead of repeating lanes; Sans, Undyne, Undying, Asgore, Omega, Asriel, Mettaton, and Disbelief patterns have tighter speeds and more source-style safe gaps.

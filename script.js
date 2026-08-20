@@ -349,14 +349,14 @@ const projectileHitboxes = {
 };
 const waveTuning = {
   undyne: [
-    { rate: 0.92, speed: 1.04, length: 10.5, cap: 18 },
-    { rate: 0.84, speed: 1.0, length: 11.5, cap: 24 },
-    { rate: 1.04, speed: 1.08, length: 10.5, cap: 22 },
+    { rate: 0.94, speed: 1.08, length: 10.5, cap: 18 },
+    { rate: 0.86, speed: 1.04, length: 11.5, cap: 24 },
+    { rate: 1.06, speed: 1.12, length: 10.5, cap: 22 },
   ],
   asgore: [
-    { rate: 0.78, speed: 0.92, length: 12.5, cap: 28 },
-    { rate: 0.86, speed: 0.98, length: 12, cap: 26 },
-    { rate: 0.95, speed: 1.02, length: 12.5, cap: 34 },
+    { rate: 0.8, speed: 0.98, length: 12.5, cap: 28 },
+    { rate: 0.88, speed: 1.04, length: 12, cap: 26 },
+    { rate: 0.98, speed: 1.08, length: 12.5, cap: 34 },
   ],
   disbelief: [
     { rate: 0.98, speed: 1.06, length: 10.5, cap: 24 },
@@ -379,19 +379,19 @@ const waveTuning = {
     { rate: 1.08, speed: 1.14, length: 10.5, cap: 30 },
   ],
   omega: [
-    { rate: 1.02, speed: 0.98, length: 12, cap: 36 },
-    { rate: 1.08, speed: 1.0, length: 12, cap: 34 },
-    { rate: 1.16, speed: 1.06, length: 12.5, cap: 40 },
+    { rate: 1.04, speed: 1.04, length: 12, cap: 36 },
+    { rate: 1.1, speed: 1.06, length: 12, cap: 34 },
+    { rate: 1.18, speed: 1.12, length: 12.5, cap: 40 },
   ],
   asriel: [
-    { rate: 0.96, speed: 1.0, length: 12, cap: 32 },
-    { rate: 1.04, speed: 1.08, length: 11.5, cap: 30 },
-    { rate: 1.08, speed: 1.05, length: 12, cap: 36 },
+    { rate: 0.98, speed: 1.06, length: 12, cap: 32 },
+    { rate: 1.06, speed: 1.12, length: 11.5, cap: 30 },
+    { rate: 1.1, speed: 1.12, length: 12, cap: 36 },
   ],
   mettaton: [
-    { rate: 0.9, speed: 0.98, length: 12, cap: 26 },
-    { rate: 1.02, speed: 1.04, length: 11.5, cap: 30 },
-    { rate: 1.1, speed: 1.12, length: 10.5, cap: 32 },
+    { rate: 0.92, speed: 1.04, length: 12, cap: 26 },
+    { rate: 1.04, speed: 1.1, length: 11.5, cap: 30 },
+    { rate: 1.12, speed: 1.16, length: 10.5, cap: 32 },
   ],
 };
 
@@ -1851,7 +1851,7 @@ function drawBossSpeechBox() {
 
 function getSpeechBoxPlacement(id) {
   if (id === "omega") return { x: 178, y: 32, w: 288, h: 92, tail: "right-low" };
-  if (id === "asriel") return { x: 186, y: 30, w: 292, h: 92, tail: "right" };
+  if (id === "asriel") return { x: 84, y: 34, w: 292, h: 92, tail: "right" };
   if (id === "btt") return { x: 586, y: 36, w: 300, h: 88, tail: "left-low" };
   if (id === "sans") return { x: 586, y: 36, w: 276, h: 86, tail: "left-low" };
   if (id === "mettaton") return { x: 592, y: 34, w: 284, h: 90, tail: "left" };
