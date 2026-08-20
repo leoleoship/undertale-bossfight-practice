@@ -16,6 +16,18 @@ const turnInfo = document.getElementById("turnInfo");
 const arena = { x: 250, y: 292, w: 460, h: 238 };
 const maxHp = 92;
 const pixel = 6;
+const bossImagePaths = {
+  undyne: "assets/bosses/undyne.png",
+  asgore: "assets/bosses/asgore.png",
+  disbelief: "assets/bosses/disbelief.png",
+  btt: "assets/bosses/btt.png",
+  sans: "assets/bosses/sans.png",
+  undying: "assets/bosses/undying.png",
+  omega: "assets/bosses/omega.png",
+  asriel: "assets/bosses/asriel.png",
+  mettaton: "assets/bosses/mettaton.png",
+};
+const bossImages = {};
 
 const bosses = [
   {
@@ -396,6 +408,7 @@ function makeState() {
 function selectBoss(boss) {
   selectedBoss = boss;
   bossName.textContent = boss.name;
+  loadBossImage(boss.id);
   if (music.playing) restartMusicForBoss();
   resetGame(false);
   renderRoster();
@@ -416,6 +429,19 @@ function renderRoster() {
     card.addEventListener("click", () => selectBoss(boss));
     roster.append(card);
   }
+}
+
+function loadBossImage(id) {
+  if (bossImages[id] || !bossImagePaths[id]) return;
+  const image = new Image();
+  image.onload = () => {
+    bossImages[id] = { image, ok: true };
+  };
+  image.onerror = () => {
+    bossImages[id] = { image: null, ok: false };
+  };
+  bossImages[id] = { image, ok: false };
+  image.src = bossImagePaths[id];
 }
 
 function resetGame(autoStart = true) {
@@ -901,8 +927,23 @@ function drawBackdrop() {
 function drawBoss() {
   ctx.save();
   ctx.translate(canvas.width / 2, 130 + Math.sin(state.t * 4) * 2);
-  drawTileBoss(selectedBoss.id);
+  if (!drawBossImage(selectedBoss.id)) drawTileBoss(selectedBoss.id);
   ctx.restore();
+}
+
+function drawBossImage(id) {
+  const entry = bossImages[id];
+  if (!entry || !entry.ok || !entry.image) return false;
+  const image = entry.image;
+  const maxW = id === "omega" ? 245 : id === "btt" ? 260 : 170;
+  const maxH = id === "omega" ? 155 : 175;
+  const scale = Math.min(maxW / image.naturalWidth, maxH / image.naturalHeight);
+  const w = Math.round(image.naturalWidth * scale);
+  const h = Math.round(image.naturalHeight * scale);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(image, -w / 2, -h / 2, w, h);
+  ctx.imageSmoothingEnabled = true;
+  return true;
 }
 
 const tile = 5;

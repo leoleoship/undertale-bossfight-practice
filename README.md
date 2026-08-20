@@ -25,6 +25,12 @@ Normal mode is tuned for learning, with lower damage, slower attacks, and a bull
 
 Open `index.html` in a browser.
 
+## Optional Boss Images
+
+The game can use image files instead of the built-in tile sprites. Put authorized PNG files in `assets/bosses/` using names like `sans.png`, `undyne.png`, `omega.png`, and `mettaton.png`.
+
+Do not publish copied Undertale screenshots or sprites unless you have permission to use them.
+
 ## Controls
 
 - Move: arrow keys or WASD
