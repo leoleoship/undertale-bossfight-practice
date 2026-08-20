@@ -190,7 +190,7 @@ p {
 
 .stage-wrap {
   display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
   gap: 12px;
   min-width: 0;
 }
@@ -264,6 +264,38 @@ canvas {
   gap: 8px;
 }
 
+.command-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 2px solid #33333d;
+  border-radius: 6px;
+  background: rgba(18, 18, 24, 0.94);
+}
+
+.command-panel.disabled {
+  opacity: 0.48;
+}
+
+.command-text {
+  min-height: 1.4em;
+  overflow-wrap: anywhere;
+  color: var(--text);
+}
+
+.commands {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(74px, 1fr));
+  gap: 8px;
+}
+
+.commands button {
+  min-height: 38px;
+  border-radius: 4px;
+}
+
 .touch-controls {
   display: none;
   place-items: center;
@@ -276,7 +308,7 @@ canvas {
 }
 
 .touch-controls button {
-  width: 54px;
+  width: 58px;
   height: 44px;
   border-radius: 4px;
   touch-action: none;
@@ -300,11 +332,19 @@ canvas {
 
   .hud {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .bottom-bar {
     gap: 10px;
+  }
+
+  .command-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .commands {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .actions {

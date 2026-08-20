@@ -21,7 +21,15 @@ Open `index.html` in a browser.
 
 - Move: arrow keys or WASD
 - Focus: Shift
+- Yellow heart shot: Space
 - Restart: R
+
+## Battle System
+
+- FIGHT, ACT, ITEM, and SPARE are available on each player turn.
+- Enemy turns use short bullet waves, then return to the command menu.
+- Items are Undertale-style healing items chosen to fit each boss practice.
+- Heart modes change by boss/wave: red is normal, blue uses gravity, green uses a directional shield, and yellow can shoot.
 
 ## GitHub Pages
 

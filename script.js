@@ -9,6 +9,9 @@ const hpText = document.getElementById("hpText");
 const startBtn = document.getElementById("startBtn");
 const restartBtn = document.getElementById("restartBtn");
 const difficultyEl = document.getElementById("difficulty");
+const commandPanel = document.getElementById("commandPanel");
+const commandText = document.getElementById("commandText");
+const turnInfo = document.getElementById("turnInfo");
 
 const arena = { x: 260, y: 174, w: 440, h: 310 };
 const maxHp = 92;
@@ -22,6 +25,13 @@ const bosses = [
     color: "#57d6ff",
     note: "Spears, side pressure, fast dodges",
     waves: ["Spear Rain", "Cross Lances", "Cyclone Guard"],
+    heartModes: ["green", "red", "green"],
+    acts: ["Challenge", "Plead", "Fake Out"],
+    items: [
+      { name: "Crab Apple", heal: 18 },
+      { name: "Cinnamon Bunny", heal: 22 },
+      { name: "Astronaut Food", heal: 21 },
+    ],
   },
   {
     id: "asgore",
@@ -30,6 +40,13 @@ const bosses = [
     color: "#ffd166",
     note: "Fire rings, trident sweeps, heavy reads",
     waves: ["Fire Rings", "Trident Sweep", "Royal Furnace"],
+    heartModes: ["red", "yellow", "red"],
+    acts: ["Talk", "Remember", "Stand Firm"],
+    items: [
+      { name: "Butterscotch Pie", heal: 60 },
+      { name: "Legendary Hero", heal: 40 },
+      { name: "Instant Noodles", heal: 45 },
+    ],
   },
   {
     id: "disbelief",
@@ -38,6 +55,13 @@ const bosses = [
     color: "#ffffff",
     note: "Bones, blue stops, sudden lanes",
     waves: ["Bone Lanes", "Blue Patience", "Final Rattle"],
+    heartModes: ["blue", "blue", "yellow"],
+    acts: ["Joke", "Endure", "Believe"],
+    items: [
+      { name: "Spaghetti", heal: 20 },
+      { name: "Snowman Piece", heal: 45 },
+      { name: "Bisicle", heal: 22 },
+    ],
   },
   {
     id: "btt",
@@ -46,8 +70,22 @@ const bosses = [
     color: "#c77dff",
     note: "Mixed AU pressure and layered attacks",
     waves: ["Triple Trouble", "Blaster Net", "Last Corridor"],
+    heartModes: ["red", "blue", "yellow"],
+    acts: ["Analyze", "Dodge Prep", "Hold On"],
+    items: [
+      { name: "Face Steak", heal: 60 },
+      { name: "Legendary Hero", heal: 40 },
+      { name: "Snowman Piece", heal: 45 },
+    ],
   },
 ];
+
+const heartColors = {
+  red: "#ff3855",
+  blue: "#4ea1ff",
+  green: "#80ed99",
+  yellow: "#ffd166",
+};
 
 const difficulty = {
   normal: { damage: 8, rate: 1, speed: 1 },
@@ -161,14 +199,32 @@ const spriteColors = {
 function makeState() {
   return {
     running: false,
+    phase: "ready",
     over: false,
     won: false,
     hp: maxHp,
     t: 0,
     waveT: 0,
     wave: 0,
-    player: { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, r: 8, inv: 0 },
+    turn: 1,
+    mercy: 0,
+    pressure: 1,
+    enemyTurnLength: 12,
+    heartMode: "red",
+    message: "Choose an action.",
+    itemIndex: 0,
+    shotTimer: 0,
+    player: {
+      x: arena.x + arena.w / 2,
+      y: arena.y + arena.h / 2,
+      r: 8,
+      inv: 0,
+      vy: 0,
+      grounded: false,
+      shieldDir: "up",
+    },
     bullets: [],
+    shots: [],
     effects: [],
     spawnTimers: {},
   };
@@ -202,9 +258,12 @@ function renderRoster() {
 function resetGame(autoStart = true) {
   state = makeState();
   state.running = autoStart;
+  state.phase = autoStart ? "menu" : "ready";
+  state.heartMode = selectedBoss.heartModes[0];
   waveName.textContent = selectedBoss.waves[0];
-  timeLeft.textContent = "60.0";
+  timeLeft.textContent = "MENU";
   syncHp();
+  syncTurnUi();
   if (autoStart && music.ctx) {
     restartMusicForBoss();
     startMusic();
@@ -216,6 +275,15 @@ function syncHp() {
   hpText.textContent = `${Math.max(0, Math.ceil(state.hp))} / ${maxHp}`;
 }
 
+function syncTurnUi() {
+  turnInfo.textContent = `${state.turn} / ${titleCase(state.heartMode)}`;
+  commandText.textContent = state.message;
+  commandPanel.classList.toggle("disabled", state.phase !== "menu");
+  commandPanel.querySelectorAll("button").forEach((button) => {
+    button.disabled = state.phase !== "menu" || state.over || !state.running;
+  });
+}
+
 function spawn(kind, data) {
   state.bullets.push({ kind, age: 0, hit: false, ...data });
 }
@@ -223,41 +291,123 @@ function spawn(kind, data) {
 function every(key, interval, dt) {
   state.spawnTimers[key] = (state.spawnTimers[key] || 0) - dt;
   if (state.spawnTimers[key] <= 0) {
-    state.spawnTimers[key] += interval / difficulty[difficultyKey].rate;
+    state.spawnTimers[key] += interval / (difficulty[difficultyKey].rate * state.pressure);
     return true;
   }
   return false;
+}
+
+function startEnemyTurn(message, pressure = 1) {
+  state.phase = "enemy";
+  state.message = message;
+  state.pressure = pressure;
+  state.waveT = 0;
+  state.bullets = [];
+  state.shots = [];
+  state.spawnTimers = {};
+  state.wave = (state.turn - 1) % selectedBoss.waves.length;
+  state.heartMode = selectedBoss.heartModes[state.wave];
+  state.player.x = arena.x + arena.w / 2;
+  state.player.y = state.heartMode === "blue" ? arena.y + arena.h - state.player.r : arena.y + arena.h / 2;
+  state.player.vy = 0;
+  state.player.grounded = state.heartMode === "blue";
+  waveName.textContent = selectedBoss.waves[state.wave];
+  syncTurnUi();
+}
+
+function endEnemyTurn() {
+  state.phase = "menu";
+  state.turn++;
+  state.waveT = 0;
+  state.bullets = [];
+  state.shots = [];
+  state.spawnTimers = {};
+  state.message = `Turn ${state.turn}. Mercy: ${Math.min(100, state.mercy)}%.`;
+  syncTurnUi();
+}
+
+function chooseCommand(command) {
+  if (!state.running || state.phase !== "menu" || state.over) return;
+  if (command === "fight") {
+    state.mercy = clamp(state.mercy + 18, 0, 100);
+    startEnemyTurn(`You attack. ${selectedBoss.name} gets serious.`, 1.14);
+  }
+  if (command === "act") {
+    const act = selectedBoss.acts[(state.turn - 1) % selectedBoss.acts.length];
+    state.mercy = clamp(state.mercy + 24, 0, 100);
+    startEnemyTurn(`${act}. ${selectedBoss.name} hesitates.`, 0.88);
+  }
+  if (command === "item") {
+    const item = selectedBoss.items[state.itemIndex % selectedBoss.items.length];
+    state.itemIndex++;
+    state.hp = clamp(state.hp + item.heal, 0, maxHp);
+    state.mercy = clamp(state.mercy + 8, 0, 100);
+    syncHp();
+    startEnemyTurn(`You used ${item.name}. +${item.heal} HP.`, 1);
+  }
+  if (command === "spare") {
+    if (state.mercy >= 100 || state.turn >= 6) {
+      state.over = true;
+      state.won = true;
+      state.running = false;
+      state.message = "You spared the boss.";
+      stopMusic();
+      syncTurnUi();
+      return;
+    }
+    state.mercy = clamp(state.mercy + 12, 0, 100);
+    startEnemyTurn("Not enough mercy yet.", 1.05);
+  }
+}
+
+function firePlayerShot() {
+  if (state.shotTimer > 0 || state.phase !== "enemy") return;
+  state.shotTimer = 0.22;
+  state.shots.push({ x: state.player.x, y: state.player.y - 22, vy: -420, hit: false });
+}
+
+function updateShots(dt) {
+  for (const shot of state.shots) {
+    shot.y += shot.vy * dt;
+    for (const b of state.bullets) {
+      if (b.kind === "beam" || shot.hit) continue;
+      if (Math.hypot(shot.x - b.x, shot.y - b.y) < (b.r || 18) + 5) {
+        b.y = arena.y - 200;
+        shot.hit = true;
+        state.mercy = clamp(state.mercy + 1, 0, 100);
+      }
+    }
+  }
 }
 
 function update(dt) {
   if (!state.running || state.over) return;
   const d = difficulty[difficultyKey];
   state.t += dt;
-  state.waveT += dt;
   state.player.inv = Math.max(0, state.player.inv - dt);
 
-  if (state.waveT > 20) {
-    state.wave = Math.min(2, state.wave + 1);
-    state.waveT = 0;
-    state.bullets = [];
-    state.spawnTimers = {};
-    waveName.textContent = selectedBoss.waves[state.wave];
+  if (state.phase === "menu") {
+    timeLeft.textContent = "MENU";
+    syncTurnUi();
+    return;
   }
 
-  if (state.t >= 60) {
-    state.over = true;
-    state.won = true;
-    state.running = false;
-    stopMusic();
+  state.waveT += dt;
+  state.shotTimer = Math.max(0, state.shotTimer - dt);
+
+  if (state.waveT >= state.enemyTurnLength) {
+    endEnemyTurn();
+    return;
   }
 
   movePlayer(dt);
+  updateShots(dt);
   runPattern(dt);
 
   for (const b of state.bullets) {
     b.age += dt;
-    b.x += (b.vx || 0) * dt * d.speed;
-    b.y += (b.vy || 0) * dt * d.speed;
+    b.x += (b.vx || 0) * dt * d.speed * state.pressure;
+    b.y += (b.vy || 0) * dt * d.speed * state.pressure;
     if (b.spin) b.angle = (b.angle || 0) + b.spin * dt;
     if (touching(b) && state.player.inv <= 0) {
       state.hp -= d.damage;
@@ -275,12 +425,14 @@ function update(dt) {
   state.effects.forEach((e) => (e.age += dt));
   state.effects = state.effects.filter((e) => e.age < 0.45);
   state.bullets = state.bullets.filter((b) => !outside(b));
-  timeLeft.textContent = Math.max(0, 60 - state.t).toFixed(1);
+  state.shots = state.shots.filter((s) => s.y > arena.y - 70 && !s.hit);
+  timeLeft.textContent = Math.max(0, state.enemyTurnLength - state.waveT).toFixed(1);
+  syncTurnUi();
 }
 
 function movePlayer(dt) {
   const slow = keys.has("Shift") ? 0.45 : 1;
-  const speed = 245 * slow;
+  const speed = (state.heartMode === "green" ? 150 : 245) * slow;
   const p = state.player;
   let dx = 0;
   let dy = 0;
@@ -288,9 +440,36 @@ function movePlayer(dt) {
   if (keys.has("ArrowRight") || keys.has("d")) dx += 1;
   if (keys.has("ArrowUp") || keys.has("w")) dy -= 1;
   if (keys.has("ArrowDown") || keys.has("s")) dy += 1;
+
+  if (state.heartMode === "green") {
+    if (Math.abs(dx) > Math.abs(dy)) p.shieldDir = dx < 0 ? "left" : "right";
+    else if (dy !== 0) p.shieldDir = dy < 0 ? "up" : "down";
+  }
+
+  if (state.heartMode === "blue") {
+    p.x = clamp(p.x + dx * speed * dt, arena.x + p.r, arena.x + arena.w - p.r);
+    p.vy += 760 * dt;
+    if (dy < 0 && p.grounded) {
+      p.vy = -365;
+      p.grounded = false;
+    }
+    p.y += p.vy * dt;
+    if (p.y >= arena.y + arena.h - p.r) {
+      p.y = arena.y + arena.h - p.r;
+      p.vy = 0;
+      p.grounded = true;
+    }
+    p.y = clamp(p.y, arena.y + p.r, arena.y + arena.h - p.r);
+    return;
+  }
+
+  if (state.heartMode === "yellow" && (keys.has(" ") || keys.has("Space"))) firePlayerShot();
+
   const len = Math.hypot(dx, dy) || 1;
   p.x = clamp(p.x + (dx / len) * speed * dt, arena.x + p.r, arena.x + arena.w - p.r);
   p.y = clamp(p.y + (dy / len) * speed * dt, arena.y + p.r, arena.y + arena.h - p.r);
+  p.vy = 0;
+  p.grounded = false;
 }
 
 function runPattern(dt) {
@@ -381,6 +560,7 @@ function bttPattern(dt) {
 
 function touching(b) {
   const p = state.player;
+  if (state.heartMode === "green" && shieldBlocks(b)) return false;
   if (b.kind === "beam") {
     if (b.age < b.warn) return false;
     return b.horizontal ? Math.abs(p.y - b.y) < 18 : Math.abs(p.x - b.x) < 18;
@@ -395,6 +575,19 @@ function touching(b) {
   return Math.hypot(p.x - b.x, p.y - b.y) < p.r + b.r;
 }
 
+function shieldBlocks(b) {
+  const p = state.player;
+  const dx = b.x - p.x;
+  const dy = b.y - p.y;
+  const close = Math.hypot(dx, dy) < 48;
+  if (!close) return false;
+  if (p.shieldDir === "up") return dy < 0 && Math.abs(dx) < 36;
+  if (p.shieldDir === "down") return dy > 0 && Math.abs(dx) < 36;
+  if (p.shieldDir === "left") return dx < 0 && Math.abs(dy) < 36;
+  if (p.shieldDir === "right") return dx > 0 && Math.abs(dy) < 36;
+  return false;
+}
+
 function outside(b) {
   if (b.kind === "beam") return b.age > b.life;
   return b.x < arena.x - 120 || b.x > arena.x + arena.w + 120 || b.y < arena.y - 120 || b.y > arena.y + arena.h + 120;
@@ -406,6 +599,7 @@ function draw() {
   drawBoss();
   drawArena();
   drawBullets();
+  drawShots();
   drawPlayer();
   drawOverlay();
 }
@@ -497,11 +691,30 @@ function drawPlayer() {
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.globalAlpha = p.inv > 0 ? 0.45 + Math.sin(state.t * 32) * 0.25 : 1;
-  drawPixelHeart(-12, -10, pixel);
+  drawPixelHeart(-12, -10, pixel, heartColors[state.heartMode]);
+  if (state.heartMode === "green") drawShield(p.shieldDir);
   ctx.restore();
 }
 
-function drawPixelHeart(x, y, size) {
+function drawShots() {
+  ctx.save();
+  ctx.fillStyle = "#ffd166";
+  for (const shot of state.shots) {
+    ctx.fillRect(shot.x - 3, shot.y - 12, 6, 18);
+    ctx.fillRect(shot.x - 8, shot.y - 6, 16, 6);
+  }
+  ctx.restore();
+}
+
+function drawShield(dir) {
+  ctx.fillStyle = "#80ed99";
+  if (dir === "up") ctx.fillRect(-18, -34, 36, 6);
+  if (dir === "down") ctx.fillRect(-18, 30, 36, 6);
+  if (dir === "left") ctx.fillRect(-34, -14, 6, 36);
+  if (dir === "right") ctx.fillRect(30, -14, 6, 36);
+}
+
+function drawPixelHeart(x, y, size, color) {
   const map = [
     ".XX.XX.",
     "XXXXXXX",
@@ -512,7 +725,7 @@ function drawPixelHeart(x, y, size) {
   ];
   ctx.fillStyle = "#111118";
   ctx.fillRect(x - 2, y - 2, map[0].length * size + 4, map.length * size + 4);
-  ctx.fillStyle = "#ff3855";
+  ctx.fillStyle = color;
   for (let row = 0; row < map.length; row++) {
     for (let col = 0; col < map[row].length; col++) {
       if (map[row][col] === "X") ctx.fillRect(x + col * size, y + row * size, size, size);
@@ -547,7 +760,7 @@ function drawOverlay() {
   ctx.fillText(state.won ? "PRACTICE CLEAR" : state.over ? "GAME OVER" : "READY?", arena.x + arena.w / 2, arena.y + 132);
   ctx.fillStyle = "#ffffff";
   ctx.font = "18px Courier New";
-  ctx.fillText("Press Start or R", arena.x + arena.w / 2, arena.y + 176);
+  ctx.fillText(state.message || "Press Start or R", arena.x + arena.w / 2, arena.y + 176);
   ctx.restore();
 }
 
@@ -563,6 +776,10 @@ function clamp(n, min, max) {
 
 function rand(min, max) {
   return Math.random() * (max - min) + min;
+}
+
+function titleCase(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
 function loop(now) {
@@ -674,14 +891,21 @@ document.querySelectorAll("[data-touch-key]").forEach((button) => {
 });
 
 startBtn.addEventListener("click", () => {
-  if (state.over) resetGame(true);
-  else state.running = true;
+  if (state.over || !state.running || state.phase === "ready") resetGame(true);
+  else state.phase = "menu";
   startMusic();
+  syncTurnUi();
 });
 
 restartBtn.addEventListener("click", () => {
   resetGame(true);
   startMusic();
+});
+
+commandPanel.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-command]");
+  if (!button) return;
+  chooseCommand(button.dataset.command);
 });
 
 difficultyEl.addEventListener("click", (event) => {
