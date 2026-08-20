@@ -188,6 +188,35 @@ p {
   gap: 6px;
 }
 
+.wave-practice {
+  display: grid;
+  gap: 7px;
+}
+
+.wave-practice button {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.wave-number {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.wave-soul {
+  width: 14px;
+  height: 14px;
+  justify-self: end;
+  background: var(--soul-color, var(--red));
+  transform: rotate(45deg);
+}
+
 .segmented button,
 .actions button {
   min-height: 38px;

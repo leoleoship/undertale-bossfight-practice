@@ -9,6 +9,7 @@ const hpText = document.getElementById("hpText");
 const startBtn = document.getElementById("startBtn");
 const restartBtn = document.getElementById("restartBtn");
 const difficultyEl = document.getElementById("difficulty");
+const wavePractice = document.getElementById("wavePractice");
 const commandPanel = document.getElementById("commandPanel");
 const commandText = document.getElementById("commandText");
 const turnInfo = document.getElementById("turnInfo");
@@ -394,6 +395,7 @@ const waveTuning = {
 
 let selectedBoss = bosses[0];
 let difficultyKey = "normal";
+let practiceWaveIndex = 0;
 let state = makeState();
 let keys = new Set();
 let lastTime = performance.now();
@@ -632,11 +634,13 @@ function makeState() {
 
 function selectBoss(boss) {
   selectedBoss = boss;
+  practiceWaveIndex = clamp(practiceWaveIndex, 0, boss.waves.length - 1);
   bossName.textContent = boss.name;
   loadBossImage(boss.id);
   if (music.playing) restartMusicForBoss();
   resetGame(false);
   renderRoster();
+  renderWavePractice();
 }
 
 function renderRoster() {
@@ -657,6 +661,30 @@ function renderRoster() {
     card.addEventListener("click", () => selectBoss(boss));
     roster.append(card);
   }
+}
+
+function renderWavePractice() {
+  wavePractice.innerHTML = "";
+  selectedBoss.waves.forEach((wave, index) => {
+    const mode = selectedBoss.heartModes[index];
+    const button = document.createElement("button");
+    button.className = index === practiceWaveIndex ? "active" : "";
+    button.dataset.wave = index;
+    button.style.setProperty("--soul-color", heartColors[mode] || "#ffffff");
+    button.innerHTML = `
+      <span class="wave-number">${index + 1}</span>
+      <span>${wave}</span>
+      <span class="wave-soul" aria-hidden="true"></span>
+    `;
+    button.addEventListener("click", () => selectPracticeWave(index));
+    wavePractice.append(button);
+  });
+}
+
+function selectPracticeWave(index) {
+  practiceWaveIndex = clamp(index, 0, selectedBoss.waves.length - 1);
+  resetGame(false);
+  renderWavePractice();
 }
 
 function loadBossImage(id) {
@@ -697,20 +725,24 @@ function usesSquareArena(id, heartMode) {
 }
 
 function resetGame(autoStart = true) {
-  applyArenaLayout(selectedBoss.heartModes[0]);
+  const wave = clamp(practiceWaveIndex, 0, selectedBoss.waves.length - 1);
+  applyArenaLayout(selectedBoss.heartModes[wave]);
   state = makeState();
   state.running = autoStart;
   state.phase = autoStart ? "menu" : "ready";
-  state.heartMode = selectedBoss.heartModes[0];
-  const tuning = getWaveTuning(selectedBoss.id, 0);
+  state.turn = wave + 1;
+  state.wave = wave;
+  state.heartMode = selectedBoss.heartModes[wave];
+  const tuning = getWaveTuning(selectedBoss.id, wave);
   state.rateMult = tuning.rate;
   state.speedMult = tuning.speed;
   state.waveCap = tuning.cap;
   state.enemyTurnLength = tuning.length;
   applyArenaLayout(state.heartMode);
   state.player.x = arena.x + arena.w / 2;
-  state.player.y = arena.y + arena.h / 2;
-  waveName.textContent = selectedBoss.waves[0];
+  state.player.y = state.heartMode === "blue" ? arena.y + arena.h - state.player.r : arena.y + arena.h / 2;
+  state.player.grounded = state.heartMode === "blue";
+  waveName.textContent = selectedBoss.waves[wave];
   timeLeft.textContent = "MENU";
   syncHp();
   syncTurnUi();

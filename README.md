@@ -46,6 +46,7 @@ Bullet speed and spawn rate now use boss-and-wave-specific pacing profiles, with
 Pattern sequencing now advances with the tuned spawn rate, so faster waves use the intended ordered reads instead of repeating lanes; Sans, Undyne, Undying, Asgore, Omega, Asriel, Mettaton, and Disbelief patterns have tighter speeds and more source-style safe gaps.
 Attack timing is now repeatable per boss wave regardless of which action you choose, with per-wave bullet caps plus snappier blue-soul gravity/jumps and faster yellow-soul shots for closer practice feel.
 Projectile collisions use sprite-matched hitboxes now, so high-speed spears, tridents, sabers, legs, beams, vines, bones, and round bullets are stricter to their visible shapes while staying readable.
+The Practice Wave selector can now start directly on any boss wave, making it easier to tune and rehearse wave-specific bullet speed, heart mode, arena shape, and pacing.
 
 ## Run Locally
 
