@@ -55,6 +55,45 @@ const bossDialogues = {
   asriel: ["* Stars fall into place.", "* A blade of light crosses.", "* Hold onto hope."],
   mettaton: ["* Lights! Camera!", "* Shoot the bombs, darling.", "* Ratings are climbing!"],
 };
+const commandDialogues = {
+  fight: {
+    sans: "* that the best swing you've got?",
+    undyne: "* Good! Fight like you mean it!",
+    undying: "* I won't fall to that!",
+    asgore: "* The king lowers his eyes.",
+    mettaton: "* Violence? How dramatic!",
+    omega: "* The screen shudders.",
+    asriel: "* Your attack fades away.",
+  },
+  act: {
+    sans: "* you try talking. nice.",
+    undyne: "* Words won't stop these spears!",
+    undying: "* Your resolve is noted!",
+    asgore: "* For a moment, he listens.",
+    disbelief: "* He wants to believe you.",
+    mettaton: "* A bold performance choice!",
+    omega: "* The vines twitch.",
+    asriel: "* A memory answers back.",
+  },
+  item: {
+    sans: "* snack break, huh?",
+    undyne: "* Heal up. You'll need it!",
+    asgore: "* The smell feels familiar.",
+    mettaton: "* Product placement!",
+    omega: "* The screen flickers hungrily.",
+    asriel: "* Hold onto that hope.",
+  },
+  spare: {
+    sans: "* sparing already?",
+    undyne: "* Not yet!",
+    undying: "* I refuse to yield!",
+    asgore: "* His grip tightens.",
+    disbelief: "* Mercy still matters.",
+    mettaton: "* The audience gasps!",
+    omega: "* Mercy is swallowed by static.",
+    asriel: "* The feeling reaches him.",
+  },
+};
 
 const bosses = [
   {
@@ -423,6 +462,7 @@ function makeState() {
     enemyTurnLength: 12,
     heartMode: "red",
     message: "Choose an action.",
+    lastCommand: null,
     itemIndex: 0,
     shotTimer: 0,
     player: {
@@ -558,9 +598,10 @@ function sequencedEvery(key, interval, dt, sequence) {
   return sequence[index];
 }
 
-function startEnemyTurn(message, pressure = 1) {
+function startEnemyTurn(message, pressure = 1, command = null) {
   state.phase = "enemy";
   state.message = message;
+  state.lastCommand = command;
   state.pressure = pressure;
   state.waveT = 0;
   state.bullets = [];
@@ -597,12 +638,12 @@ function chooseCommand(command) {
   if (!state.running || state.phase !== "menu" || state.over) return;
   if (command === "fight") {
     state.mercy = clamp(state.mercy + 18, 0, 100);
-    startEnemyTurn(`You attack. ${selectedBoss.name} gets serious.`, 1.14);
+    startEnemyTurn(`You attack. ${selectedBoss.name} gets serious.`, 1.14, "fight");
   }
   if (command === "act") {
     const act = selectedBoss.acts[(state.turn - 1) % selectedBoss.acts.length];
     state.mercy = clamp(state.mercy + 24, 0, 100);
-    startEnemyTurn(`${act}. ${selectedBoss.name} hesitates.`, 0.88);
+    startEnemyTurn(`${act}. ${selectedBoss.name} hesitates.`, 0.88, "act");
   }
   if (command === "item") {
     const item = selectedBoss.items[state.itemIndex % selectedBoss.items.length];
@@ -610,7 +651,7 @@ function chooseCommand(command) {
     state.hp = clamp(state.hp + item.heal, 0, maxHp);
     state.mercy = clamp(state.mercy + 8, 0, 100);
     syncHp();
-    startEnemyTurn(`You used ${item.name}. +${item.heal} HP.`, 1);
+    startEnemyTurn(`You used ${item.name}. +${item.heal} HP.`, 1, "item");
   }
   if (command === "spare") {
     if (state.mercy >= 100 || state.turn >= 6) {
@@ -623,7 +664,7 @@ function chooseCommand(command) {
       return;
     }
     state.mercy = clamp(state.mercy + 12, 0, 100);
-    startEnemyTurn("Not enough mercy yet.", 1.05);
+    startEnemyTurn("Not enough mercy yet.", 1.05, "spare");
   }
 }
 
@@ -685,6 +726,10 @@ function update(dt) {
 
   for (const b of state.bullets) {
     b.age += dt;
+    if (b.delay && b.delay > 0) {
+      b.delay = Math.max(0, b.delay - dt);
+      continue;
+    }
     b.x += (b.vx || 0) * dt * d.speed * state.pressure;
     b.y += (b.vy || 0) * dt * d.speed * state.pressure;
     if (b.spin) b.angle = (b.angle || 0) + b.spin * dt;
@@ -802,8 +847,8 @@ function undynePattern(dt) {
   }
   if (state.wave === 1 && every("cross-lances", 0.64, dt)) {
     const fromLeft = Math.random() > 0.5;
-    spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: rand(arena.y + 20, arena.y + arena.h - 20), vx: fromLeft ? 265 : -265, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI });
-    if (Math.random() > 0.35) spawn("spear", { x: rand(arena.x + 20, arena.x + arena.w - 20), y: arena.y - 35, vx: 0, vy: 235, r: 13, angle: Math.PI / 2 });
+    spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: rand(arena.y + 20, arena.y + arena.h - 20), vx: fromLeft ? 265 : -265, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI, delay: 0.24 });
+    if (Math.random() > 0.35) spawn("spear", { x: rand(arena.x + 20, arena.x + arena.w - 20), y: arena.y - 35, vx: 0, vy: 235, r: 13, angle: Math.PI / 2, delay: 0.24 });
   }
   if (state.wave === 2 && every("cyclone", 0.34, dt)) {
     const angle = state.t * 3.2;
@@ -837,8 +882,8 @@ function asgorePattern(dt) {
     const lane = sequencedEvery("sweep", 1.22, dt, [0.22, 0.5, 0.78, 0.36, 0.64]);
     if (lane !== null) {
       const y = arena.y + arena.h * lane;
-      spawn("trident", { x: arena.x - 60, y, vx: 380, vy: 0, r: 22, angle: 0 });
-      if (state.wave === 2) spawn("trident", { x: arena.x + arena.w + 60, y: arena.y + arena.h * (1 - lane), vx: -380, vy: 0, r: 22, angle: Math.PI });
+      spawn("trident", { x: arena.x - 60, y, vx: 380, vy: 0, r: 22, angle: 0, delay: 0.42 });
+      if (state.wave === 2) spawn("trident", { x: arena.x + arena.w + 60, y: arena.y + arena.h * (1 - lane), vx: -380, vy: 0, r: 22, angle: Math.PI, delay: 0.42 });
     }
   }
   if (state.wave === 2 && every("flame-curtain", 0.48, dt)) {
@@ -1010,7 +1055,7 @@ function asrielPattern(dt) {
     const lane = sequencedEvery("asriel-saber", 1.05, dt, [0.24, 0.72, 0.42, 0.58]);
     if (lane !== null) {
       const fromLeft = Math.floor(state.waveT / 1.05) % 2 === 0;
-      spawn("saber", { x: fromLeft ? arena.x - 58 : arena.x + arena.w + 58, y: arena.y + arena.h * lane, vx: fromLeft ? 410 : -410, vy: 0, r: 22, angle: fromLeft ? 0 : Math.PI });
+      spawn("saber", { x: fromLeft ? arena.x - 58 : arena.x + arena.w + 58, y: arena.y + arena.h * lane, vx: fromLeft ? 410 : -410, vy: 0, r: 22, angle: fromLeft ? 0 : Math.PI, delay: 0.36 });
     }
   }
   if (state.wave === 2 && every("asriel-hope", 1.15, dt)) {
@@ -1045,7 +1090,7 @@ function mettatonPattern(dt) {
   }
   if (state.wave === 2 && every("mettaton-rush", 0.78, dt)) {
     const y = rand(arena.y + 25, arena.y + arena.h - 25);
-    spawn("leg", { x: arena.x + arena.w + 45, y, vx: -360, vy: 0, r: 22, angle: Math.PI });
+    spawn("leg", { x: arena.x + arena.w + 45, y, vx: -360, vy: 0, r: 22, angle: Math.PI, delay: 0.32 });
   }
 }
 
@@ -1319,6 +1364,9 @@ function getBossSpeech() {
   const lines = bossDialogues[selectedBoss.id] || ["* The boss watches you."];
   if (state.phase === "ready") return lines[0];
   if (state.phase === "menu") return lines[(state.turn - 1) % lines.length];
+  if (state.phase === "enemy" && state.waveT < 1.15 && state.lastCommand) {
+    return commandDialogues[state.lastCommand]?.[selectedBoss.id] || lines[state.wave % lines.length];
+  }
   return lines[state.wave % lines.length];
 }
 
@@ -2183,8 +2231,10 @@ function drawArena() {
 function drawBullets() {
   for (const b of state.bullets) {
     ctx.save();
+    drawDelayedBulletWarning(b);
     ctx.translate(b.x, b.y);
     ctx.rotate(b.angle || 0);
+    if (b.delay && b.delay > 0) ctx.globalAlpha = 0.45 + Math.sin(state.t * 28) * 0.18;
     if (b.kind === "spear" || b.kind === "arrow") {
       ctx.fillStyle = "#111118";
       ctx.fillRect(-22, -8, 42, 16);
@@ -2306,6 +2356,19 @@ function drawBullets() {
     }
     ctx.restore();
   }
+}
+
+function drawDelayedBulletWarning(b) {
+  if (!b.delay || b.delay <= 0) return;
+  ctx.save();
+  ctx.globalAlpha = 0.2 + Math.sin(state.t * 32) * 0.08;
+  ctx.fillStyle = selectedBoss.color;
+  if (b.kind === "trident" || b.kind === "saber" || b.kind === "leg" || (b.kind === "spear" && Math.abs(b.vx || 0) > Math.abs(b.vy || 0))) {
+    ctx.fillRect(arena.x, b.y - 8, arena.w, 16);
+  } else if (b.kind === "spear") {
+    ctx.fillRect(b.x - 8, arena.y, 16, arena.h);
+  }
+  ctx.restore();
 }
 
 function drawPlayer() {

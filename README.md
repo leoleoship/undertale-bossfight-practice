@@ -23,6 +23,7 @@ The boss select cards also show these portraits as pixel thumbnails so the roste
 In battle, each portrait has boss-specific sizing and a pixel outline so large bosses, short bosses, and trio characters keep their intended silhouettes.
 The battle stage also draws boss-specific pixel cues behind portraits, including bones, spears, tridents, flames, vines, eyes, wings, stars, and Mettaton-style lights.
 Bosses speak through an Undertale-style speech box with original boss-flavored lines that change by turn and wave.
+Boss speech also reacts briefly to FIGHT, ACT, ITEM, and SPARE before the enemy attack starts.
 Undyne and Undyne the Undying use a square battle box during green-heart shield turns.
 If a PNG fails to load, the fallback art uses hand-authored pixel matrices before falling back to older procedural tile shapes.
 Boss sprites also draw stronger signature cues over the pixel matrices, such as Sans's skull outline, Undyne's spear and armor, Asgore's horns, Omega Flowey's vines and monitor face, Asriel's wings, and Mettaton's pose.
@@ -32,6 +33,7 @@ Bullet patterns are boss-themed for practice: bones and blaster lanes, spear shi
 Patterns are inspired by the recognizable mechanics from the boss fights, but they are retimed and simplified for practice.
 Several fights use scripted lane/sequenced attacks to feel closer to their source mechanics, such as Undyne's directional shield arrows, Sans-style bone lanes and beams, Asgore trident/fire sweeps, and Mettaton spotlight/bomb lanes.
 Omega Flowey and Asriel also use more staged lane patterns, with vine grids, pellet bursts with gaps, star curtains, saber sweeps, and ring attacks with readable safe spaces.
+Large weapon attacks now show short lane warnings before moving, making tridents, sabers, spears, and leg sweeps feel more deliberate.
 Normal mode is tuned for learning, with lower damage, slower attacks, and a bullet cap so waves stay dodgeable.
 
 ## Run Locally
