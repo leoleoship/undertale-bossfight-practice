@@ -821,6 +821,10 @@ function attackIntensity() {
   return 0.8 + ((p - 0.72) / 0.28) * 0.2;
 }
 
+function intensityRange(start, end) {
+  return start + (end - start) * attackIntensity();
+}
+
 function startEnemyTurn(message, pressure = 1, command = null) {
   state.phase = "enemy";
   state.message = message;
@@ -1114,21 +1118,21 @@ function undynePattern(dt) {
     const index = sequenceIndex(0.62);
     const lane = [0.18, 0.36, 0.64, 0.82, 0.5, 0.28, 0.72][index % 7];
     const fromLeft = index % 2 === 0;
-    spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: arena.y + arena.h * lane, vx: fromLeft ? 304 : -304, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI, delay: 0.3 });
+    spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: arena.y + arena.h * lane, vx: fromLeft ? 304 : -304, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI, delay: intensityRange(0.34, 0.24) });
     if (index % 3 !== 1) {
       const x = arena.x + arena.w * ([0.24, 0.5, 0.76, 0.38, 0.62][index % 5]);
-      spawn("spear", { x, y: arena.y - 35, vx: 0, vy: 266, r: 13, angle: Math.PI / 2, delay: 0.38 });
+      spawn("spear", { x, y: arena.y - 35, vx: 0, vy: 266, r: 13, angle: Math.PI / 2, delay: intensityRange(0.42, 0.3) });
     }
   }
-  if (state.wave === 2 && every("cyclone", 0.34 - attackProgress() * 0.06, dt)) {
+  if (state.wave === 2 && every("cyclone", 0.34 - attackIntensity() * 0.06, dt)) {
     const angle = patternClock() * 3.2;
     const radiusX = arena.w / 2 + 36;
     const radiusY = arena.h / 2 + 36;
     const x = arena.x + arena.w / 2 + Math.cos(angle) * radiusX;
     const y = arena.y + arena.h / 2 + Math.sin(angle) * radiusY;
     const toward = Math.atan2(state.player.y - y, state.player.x - x);
-    const speed = 232 + attackProgress() * 46;
-    spawn("spear", { x, y, vx: Math.cos(toward) * speed, vy: Math.sin(toward) * speed, r: 12, angle: toward, delay: 0.2 });
+    const speed = 232 + attackIntensity() * 46;
+    spawn("spear", { x, y, vx: Math.cos(toward) * speed, vy: Math.sin(toward) * speed, r: 12, angle: toward, delay: intensityRange(0.24, 0.16) });
   }
 }
 
@@ -1169,8 +1173,8 @@ function asgorePattern(dt) {
     const lane = sequencedEvery("sweep", interval, dt, [0.24, 0.5, 0.76, 0.36, 0.64]);
     if (lane !== null) {
       const y = arena.y + arena.h * lane;
-      spawn("trident", { x: arena.x - 60, y, vx: 440, vy: 0, r: 22, angle: 0, delay: 0.44 });
-      if (state.wave === 2) spawn("trident", { x: arena.x + arena.w + 60, y: arena.y + arena.h * (1 - lane), vx: -440, vy: 0, r: 22, angle: Math.PI, delay: 0.44 });
+      spawn("trident", { x: arena.x - 60, y, vx: 440, vy: 0, r: 22, angle: 0, delay: intensityRange(0.5, 0.34) });
+      if (state.wave === 2) spawn("trident", { x: arena.x + arena.w + 60, y: arena.y + arena.h * (1 - lane), vx: -440, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.5, 0.34) });
     }
   }
   if (state.wave === 2 && every("flame-curtain", 0.42, dt)) {
@@ -1247,8 +1251,8 @@ function spawnBlasterLine(key, interval, dt, biasHorizontal = 0.5) {
     vy: 0,
     r: 24,
     horizontal,
-    warn: 0.52,
-    life: 1.0,
+    warn: intensityRange(0.58, 0.44),
+    life: 0.96,
   });
 }
 
@@ -1264,8 +1268,8 @@ function spawnBlaster(biasHorizontal = 0.5) {
     vy: 0,
     r: 24,
     horizontal,
-    warn: 0.5,
-    life: 1.0,
+    warn: intensityRange(0.56, 0.42),
+    life: 0.96,
   });
 }
 
@@ -1299,8 +1303,8 @@ function sansPattern(dt) {
         vy: 0,
         r: 24,
         horizontal: beam === "h",
-        warn: 0.44,
-        life: 1.0,
+        warn: intensityRange(0.5, 0.38),
+        life: 0.96,
       });
     }
   }
@@ -1346,14 +1350,14 @@ function undyingPattern(dt) {
       const x = edge === 0 ? arena.x - 36 : edge === 1 ? arena.x + arena.w + 36 : arena.x + arena.w * lane;
       const y = edge === 2 ? arena.y - 36 : edge === 3 ? arena.y + arena.h + 36 : arena.y + arena.h * lane;
       const a = Math.atan2(state.player.y - y, state.player.x - x);
-      spawn("spear", { x, y, vx: Math.cos(a) * (276 + progress * 38), vy: Math.sin(a) * (276 + progress * 38), r: 12, angle: a, delay: 0.16 });
+      spawn("spear", { x, y, vx: Math.cos(a) * (276 + progress * 38), vy: Math.sin(a) * (276 + progress * 38), r: 12, angle: a, delay: intensityRange(0.22, 0.14) });
     }
   }
   const crossInterval = 0.58 - progress * 0.06;
   if (state.wave >= 1 && every("undying-cross", crossInterval, dt)) {
     const index = sequenceIndex(crossInterval);
-    spawn("spear", { x: arena.x + arena.w * ([0.2, 0.42, 0.68, 0.84, 0.34, 0.58][index % 6]), y: arena.y - 35, vx: 0, vy: 292 + progress * 26, r: 12, angle: Math.PI / 2, delay: 0.2 });
-    if (index % 3 !== 1) spawn("spear", { x: arena.x - 35, y: arena.y + arena.h * ([0.26, 0.52, 0.76][index % 3]), vx: 304 + progress * 26, vy: 0, r: 12, angle: 0, delay: 0.24 });
+    spawn("spear", { x: arena.x + arena.w * ([0.2, 0.42, 0.68, 0.84, 0.34, 0.58][index % 6]), y: arena.y - 35, vx: 0, vy: 292 + progress * 26, r: 12, angle: Math.PI / 2, delay: intensityRange(0.26, 0.18) });
+    if (index % 3 !== 1) spawn("spear", { x: arena.x - 35, y: arena.y + arena.h * ([0.26, 0.52, 0.76][index % 3]), vx: 304 + progress * 26, vy: 0, r: 12, angle: 0, delay: intensityRange(0.3, 0.2) });
   }
 }
 
@@ -1394,8 +1398,8 @@ function omegaPattern(dt) {
         vy: 0,
         r: 24,
         horizontal,
-        warn: 0.52,
-        life: 0.92,
+        warn: intensityRange(0.62, 0.44),
+        life: 0.9,
       });
     }
   }
@@ -1437,7 +1441,7 @@ function asrielPattern(dt) {
     const lane = sequencedEvery("asriel-saber", saberInterval, dt, [0.24, 0.72, 0.42, 0.58]);
     if (lane !== null) {
       const fromLeft = sequenceIndex(saberInterval) % 2 === 0;
-      spawn("saber", { x: fromLeft ? arena.x - 58 : arena.x + arena.w + 58, y: arena.y + arena.h * lane, vx: fromLeft ? 470 : -470, vy: 0, r: 22, angle: fromLeft ? 0 : Math.PI, delay: 0.36 });
+      spawn("saber", { x: fromLeft ? arena.x - 58 : arena.x + arena.w + 58, y: arena.y + arena.h * lane, vx: fromLeft ? 470 : -470, vy: 0, r: 22, angle: fromLeft ? 0 : Math.PI, delay: intensityRange(0.42, 0.28) });
     }
   }
   if (state.wave === 2 && every("asriel-hope", 1.12, dt)) {
@@ -1465,13 +1469,13 @@ function mettatonPattern(dt) {
       vy: 0,
       r: 24,
       horizontal: false,
-      warn: 0.5,
+      warn: intensityRange(0.58, 0.44),
       life: 0.9,
     });
   }
   if (state.wave === 0 && every("mettaton-sweeping-spot", 1.5, dt)) {
     const y = arena.y + arena.h * ([0.28, 0.5, 0.72, 0.42][sequenceIndex(1.5) % 4]);
-    spawn("beam", { x: arena.x, y, vx: 0, vy: 0, r: 24, horizontal: true, warn: 0.6, life: 0.9 });
+    spawn("beam", { x: arena.x, y, vx: 0, vy: 0, r: 24, horizontal: true, warn: intensityRange(0.68, 0.52), life: 0.9 });
   }
   if (state.wave >= 1 && every("mettaton-bombs", bombInterval, dt)) {
     const index = sequenceIndex(bombInterval);
@@ -1482,7 +1486,7 @@ function mettatonPattern(dt) {
   }
   if (state.wave === 2 && every("mettaton-rush", legInterval, dt)) {
     const y = arena.y + arena.h * ([0.22, 0.44, 0.68, 0.82, 0.36][sequenceIndex(legInterval) % 5]);
-    spawn("leg", { x: arena.x + arena.w + 45, y, vx: -420, vy: 0, r: 22, angle: Math.PI, delay: 0.34 });
+    spawn("leg", { x: arena.x + arena.w + 45, y, vx: -420, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.4, 0.28) });
   }
 }
 
