@@ -709,6 +709,7 @@ function applyArenaLayout(heartMode = state?.heartMode || selectedBoss.heartMode
 }
 
 function getArenaLayout(id, heartMode, wave = 0) {
+  if (id === "undyne") return squareArena;
   if (usesSquareArena(id, heartMode)) return squareArena;
   if (id === "sans") return wave === 2 ? lowWideArena : compactArena;
   if (id === "disbelief") return heartMode === "blue" ? compactArena : wideArena;
@@ -1102,7 +1103,7 @@ function undynePattern(dt) {
     }
   }
   if (state.wave === 2 && every("cyclone", 0.28, dt)) {
-    const angle = state.t * 3.2;
+    const angle = patternClock() * 3.2;
     const radiusX = arena.w / 2 + 36;
     const radiusY = arena.h / 2 + 36;
     const x = arena.x + arena.w / 2 + Math.cos(angle) * radiusX;
@@ -1129,7 +1130,7 @@ function spawnUndyneArrow(speed, forcedDir = null, delay = 0) {
 }
 
 function asgorePattern(dt) {
-  const t = attackTime();
+  const t = patternClock();
   if (state.wave === 0 && every("embers", 0.3, dt)) {
     const index = sequenceIndex(0.3);
     const side = index % 2 === 0 ? -1 : 1;
@@ -1168,7 +1169,6 @@ function asgorePattern(dt) {
 }
 
 function disbeliefPattern(dt) {
-  const t = attackTime();
   if (every("bones", state.wave === 0 ? 0.46 : 0.36, dt)) {
     const lanes = [0.28, 0.48, 0.68, 0.38, 0.58];
     const interval = state.wave === 0 ? 0.46 : 0.36;
@@ -1240,7 +1240,6 @@ function spawnBlaster(biasHorizontal = 0.5) {
 }
 
 function sansPattern(dt) {
-  const t = attackTime();
   if (every("sans-bones", state.wave === 0 ? 0.42 : 0.34, dt)) {
     const heights = [44, 74, 112, 56, 132, 84, 48, 104];
     const index = sequenceIndex(state.wave === 0 ? 0.42 : 0.34);
@@ -1298,7 +1297,6 @@ function spawnBoneWallFromTop(gap, count, speed, heights, orangeOffset = -1) {
 }
 
 function undyingPattern(dt) {
-  const t = attackTime();
   if (every("undying-aimed", 0.27, dt)) {
     if (state.heartMode === "green") {
       const chords = ["up", "right", "left", "down", "up right", "left down", "right up", "down left", "up", "right left"];
@@ -1324,7 +1322,7 @@ function undyingPattern(dt) {
 }
 
 function omegaPattern(dt) {
-  const t = attackTime();
+  const t = patternClock();
   if (state.wave === 0 && every("omega-petal", 0.32, dt)) {
     const lanes = [0.18, 0.34, 0.5, 0.66, 0.82, 0.42, 0.58];
     const index = sequenceIndex(0.32);
@@ -1377,7 +1375,7 @@ function omegaPattern(dt) {
 }
 
 function asrielPattern(dt) {
-  const t = attackTime();
+  const t = patternClock();
   if (every("asriel-starfall", state.wave === 0 ? 0.3 : 0.4, dt)) {
     const lanes = [0.16, 0.3, 0.44, 0.58, 0.72, 0.86, 0.38, 0.66];
     const interval = state.wave === 0 ? 0.3 : 0.4;
@@ -1411,7 +1409,7 @@ function asrielPattern(dt) {
 }
 
 function mettatonPattern(dt) {
-  const t = attackTime();
+  const t = patternClock();
   if (every("mettaton-spot", 0.78, dt)) {
     const lanes = [0.2, 0.42, 0.64, 0.82, 0.36];
     spawn("beam", {
@@ -1510,6 +1508,7 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackdrop();
   drawBoss();
+  drawBossSpeechBox();
   drawArena();
   drawArenaModeDetails();
   drawSoulRuleHint();
@@ -1545,7 +1544,6 @@ function drawBoss() {
     drawTileBoss(selectedBoss.id);
     drawBossSignature(selectedBoss.id);
   }
-  drawBossSpeechBox();
   drawBossNameplate();
   ctx.restore();
 }
@@ -1693,45 +1691,38 @@ function drawBossSpeechBox() {
   const box = getSpeechBoxPlacement(selectedBoss.id);
   ctx.save();
   px(box.x, box.y, box.w, box.h, "#ffffff");
-  px(box.x + 4, box.y + 4, box.w - 8, box.h - 8, "#050507");
+  px(box.x + 4, box.y + 4, box.w - 8, box.h - 8, "#ffffff");
   drawSpeechTail(box);
-  ctx.font = "bold 15px Courier New";
+  ctx.font = "bold 17px Courier New";
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
-  ctx.fillStyle = "#ffffff";
-  drawWrappedSpeech(visibleText, box.x + 14, box.y + 12, box.w - 28, 18, 3);
+  ctx.fillStyle = "#050507";
+  drawWrappedSpeech(visibleText, box.x + 18, box.y + 15, box.w - 36, 21, 3);
   ctx.restore();
 }
 
 function getSpeechBoxPlacement(id) {
-  if (id === "omega") return { x: -390, y: -136, w: 270, h: 82, tail: "right-low" };
-  if (id === "asriel") return { x: -388, y: -132, w: 274, h: 82, tail: "right" };
-  if (id === "btt") return { x: 124, y: -116, w: 282, h: 78, tail: "left" };
-  if (id === "sans") return { x: 96, y: -118, w: 250, h: 74, tail: "left-low" };
-  if (id === "mettaton") return { x: 126, y: -120, w: 252, h: 78, tail: "left" };
-  if (id === "asgore") return { x: 124, y: -132, w: 268, h: 80, tail: "left-low" };
-  return { x: 124, y: -126, w: 260, h: 78, tail: "left" };
+  if (id === "omega") return { x: 178, y: 32, w: 288, h: 92, tail: "right-low" };
+  if (id === "asriel") return { x: 186, y: 30, w: 292, h: 92, tail: "right" };
+  if (id === "btt") return { x: 586, y: 36, w: 300, h: 88, tail: "left-low" };
+  if (id === "sans") return { x: 586, y: 36, w: 276, h: 86, tail: "left-low" };
+  if (id === "mettaton") return { x: 592, y: 34, w: 284, h: 90, tail: "left" };
+  if (id === "asgore") return { x: 592, y: 30, w: 292, h: 92, tail: "left-low" };
+  return { x: 586, y: 32, w: 292, h: 90, tail: "left" };
 }
 
 function drawSpeechTail(box) {
   const right = box.tail === "right" || box.tail === "right-low";
   const low = box.tail === "left-low" || box.tail === "right-low";
   const anchorX = right ? box.x + box.w - 18 : box.x + 18;
-  const tipX = right ? box.x + box.w + 14 : box.x - 12;
+  const tipX = right ? box.x + box.w + 24 : box.x - 22;
   const baseY = box.y + box.h - (low ? 12 : 4);
-  const tipY = box.y + box.h + (low ? 22 : 14);
+  const tipY = box.y + box.h + (low ? 30 : 18);
   ctx.fillStyle = "#ffffff";
   ctx.beginPath();
   ctx.moveTo(anchorX, baseY);
   ctx.lineTo(tipX, tipY);
   ctx.lineTo(anchorX + (right ? -14 : 14), baseY);
-  ctx.closePath();
-  ctx.fill();
-  ctx.fillStyle = "#050507";
-  ctx.beginPath();
-  ctx.moveTo(anchorX + (right ? -4 : 4), baseY);
-  ctx.lineTo(tipX + (right ? -8 : 8), tipY - 6);
-  ctx.lineTo(anchorX + (right ? -16 : 16), baseY);
   ctx.closePath();
   ctx.fill();
 }

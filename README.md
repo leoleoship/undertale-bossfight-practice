@@ -23,9 +23,10 @@ The boss select cards also show these portraits as pixel thumbnails so the roste
 In battle, each portrait has boss-specific sizing and a pixel outline so large bosses, short bosses, and trio characters keep their intended silhouettes.
 The battle stage also draws boss-specific pixel cues behind portraits, including bones, spears, tridents, flames, vines, eyes, wings, stars, and Mettaton-style lights.
 Bosses speak through an Undertale-style speech box with original boss-flavored lines that change by turn and wave.
+The boss speech is now drawn as a separate white pixel bubble near the character portrait, with a pointer aimed back at the boss.
 Boss speech also reacts briefly to FIGHT, ACT, ITEM, and SPARE before the enemy attack starts.
 Enemy turns include a short speech lead-in before bullets spawn, so attacks begin after the dialogue beat instead of instantly.
-Undyne and Undyne the Undying use a square battle box during green-heart shield turns.
+Undyne uses a square battle box for every practice wave, and Undyne the Undying keeps a square box during green-heart shield turns.
 If a PNG fails to load, the fallback art uses hand-authored pixel matrices before falling back to older procedural tile shapes.
 Boss sprites also draw stronger signature cues over the pixel matrices, such as Sans's skull outline, Undyne's spear and armor, Asgore's horns, Omega Flowey's vines and monitor face, Asriel's wings, and Mettaton's pose.
 Those cues are built from single-color square blocks, so the characters stay closer to the pixel-piece look while becoming easier to recognize.
@@ -48,6 +49,7 @@ Attack timing is now repeatable per boss wave regardless of which action you cho
 Projectile collisions use sprite-matched hitboxes now, so high-speed spears, tridents, sabers, legs, beams, vines, bones, and round bullets are stricter to their visible shapes while staying readable.
 The Practice Wave selector can now start directly on any boss wave, making it easier to tune and rehearse wave-specific bullet speed, heart mode, arena shape, and pacing.
 Gameplay projectile spawns are scripted instead of random, so repeating a wave gives the same attack reads for better speed practice.
+Continuous projectile motion uses the same tuned pattern clock as spawn sequencing, keeping rings, sways, and rotating attacks aligned with each boss wave's speed profile.
 
 ## Run Locally
 
