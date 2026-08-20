@@ -317,51 +317,61 @@ const difficulty = {
   hard: { damage: 7, rate: 1, speed: 1.05, cap: 38 },
   insane: { damage: 10, rate: 1.18, speed: 1.18, cap: 48 },
 };
+const soulPhysics = {
+  redSpeed: 248,
+  yellowSpeed: 236,
+  blueSpeed: 218,
+  focusMult: 0.45,
+  gravity: 980,
+  jump: -420,
+  shotCooldown: 0.18,
+  shotSpeed: -520,
+};
 const waveTuning = {
   undyne: [
-    { rate: 0.92, speed: 1.04, length: 10.5 },
-    { rate: 0.84, speed: 1.0, length: 11.5 },
-    { rate: 1.04, speed: 1.08, length: 10.5 },
+    { rate: 0.92, speed: 1.04, length: 10.5, cap: 18 },
+    { rate: 0.84, speed: 1.0, length: 11.5, cap: 24 },
+    { rate: 1.04, speed: 1.08, length: 10.5, cap: 22 },
   ],
   asgore: [
-    { rate: 0.78, speed: 0.92, length: 12.5 },
-    { rate: 0.86, speed: 0.98, length: 12 },
-    { rate: 0.95, speed: 1.02, length: 12.5 },
+    { rate: 0.78, speed: 0.92, length: 12.5, cap: 28 },
+    { rate: 0.86, speed: 0.98, length: 12, cap: 26 },
+    { rate: 0.95, speed: 1.02, length: 12.5, cap: 34 },
   ],
   disbelief: [
-    { rate: 0.98, speed: 1.06, length: 10.5 },
-    { rate: 1.08, speed: 1.1, length: 10.5 },
-    { rate: 1.12, speed: 1.14, length: 11 },
+    { rate: 0.98, speed: 1.06, length: 10.5, cap: 24 },
+    { rate: 1.08, speed: 1.1, length: 10.5, cap: 28 },
+    { rate: 1.12, speed: 1.14, length: 11, cap: 32 },
   ],
   btt: [
-    { rate: 0.9, speed: 1.02, length: 11 },
-    { rate: 1.02, speed: 1.08, length: 11 },
-    { rate: 1.16, speed: 1.14, length: 11.5 },
+    { rate: 0.9, speed: 1.02, length: 11, cap: 28 },
+    { rate: 1.02, speed: 1.08, length: 11, cap: 32 },
+    { rate: 1.16, speed: 1.14, length: 11.5, cap: 36 },
   ],
   sans: [
-    { rate: 1.1, speed: 1.12, length: 9.5 },
-    { rate: 1.18, speed: 1.18, length: 9.5 },
-    { rate: 1.24, speed: 1.22, length: 10 },
+    { rate: 1.1, speed: 1.12, length: 9.5, cap: 24 },
+    { rate: 1.18, speed: 1.18, length: 9.5, cap: 28 },
+    { rate: 1.24, speed: 1.22, length: 10, cap: 34 },
   ],
   undying: [
-    { rate: 1.18, speed: 1.12, length: 9.8 },
-    { rate: 1.28, speed: 1.18, length: 9.8 },
-    { rate: 1.08, speed: 1.14, length: 10.5 },
+    { rate: 1.18, speed: 1.12, length: 9.8, cap: 22 },
+    { rate: 1.28, speed: 1.18, length: 9.8, cap: 24 },
+    { rate: 1.08, speed: 1.14, length: 10.5, cap: 30 },
   ],
   omega: [
-    { rate: 1.02, speed: 0.98, length: 12 },
-    { rate: 1.08, speed: 1.0, length: 12 },
-    { rate: 1.16, speed: 1.06, length: 12.5 },
+    { rate: 1.02, speed: 0.98, length: 12, cap: 36 },
+    { rate: 1.08, speed: 1.0, length: 12, cap: 34 },
+    { rate: 1.16, speed: 1.06, length: 12.5, cap: 40 },
   ],
   asriel: [
-    { rate: 0.96, speed: 1.0, length: 12 },
-    { rate: 1.04, speed: 1.08, length: 11.5 },
-    { rate: 1.08, speed: 1.05, length: 12 },
+    { rate: 0.96, speed: 1.0, length: 12, cap: 32 },
+    { rate: 1.04, speed: 1.08, length: 11.5, cap: 30 },
+    { rate: 1.08, speed: 1.05, length: 12, cap: 36 },
   ],
   mettaton: [
-    { rate: 0.9, speed: 0.98, length: 12 },
-    { rate: 1.02, speed: 1.04, length: 11.5 },
-    { rate: 1.1, speed: 1.12, length: 10.5 },
+    { rate: 0.9, speed: 0.98, length: 12, cap: 26 },
+    { rate: 1.02, speed: 1.04, length: 11.5, cap: 30 },
+    { rate: 1.1, speed: 1.12, length: 10.5, cap: 32 },
   ],
 };
 
@@ -580,6 +590,7 @@ function makeState() {
     pressure: 1,
     rateMult: 1,
     speedMult: 1,
+    waveCap: 30,
     enemyTurnLength: 12,
     heartMode: "red",
     message: "Choose an action.",
@@ -677,6 +688,7 @@ function resetGame(autoStart = true) {
   const tuning = getWaveTuning(selectedBoss.id, 0);
   state.rateMult = tuning.rate;
   state.speedMult = tuning.speed;
+  state.waveCap = tuning.cap;
   state.enemyTurnLength = tuning.length;
   applyArenaLayout(state.heartMode);
   state.player.x = arena.x + arena.w / 2;
@@ -706,7 +718,8 @@ function syncTurnUi() {
 }
 
 function spawn(kind, data) {
-  const cap = difficulty[difficultyKey].cap || (difficultyKey === "hard" ? 34 : 46);
+  const difficultyCap = difficulty[difficultyKey].cap || (difficultyKey === "hard" ? 34 : 46);
+  const cap = Math.min(difficultyCap, state.waveCap || difficultyCap);
   if (state.bullets.length >= cap && kind !== "beam" && kind !== "vine") return;
   state.bullets.push({ kind, age: 0, hit: false, ...data });
 }
@@ -714,7 +727,7 @@ function spawn(kind, data) {
 function every(key, interval, dt) {
   state.spawnTimers[key] = (state.spawnTimers[key] || 0) - dt;
   if (state.spawnTimers[key] <= 0) {
-    state.spawnTimers[key] += interval / (difficulty[difficultyKey].rate * state.pressure * state.rateMult);
+    state.spawnTimers[key] += interval / (difficulty[difficultyKey].rate * state.rateMult);
     return true;
   }
   return false;
@@ -728,7 +741,7 @@ function sequencedEvery(key, interval, dt, sequence) {
 
 function patternClock() {
   const d = difficulty[difficultyKey];
-  return attackTime() * d.rate * state.pressure * state.rateMult;
+  return attackTime() * d.rate * state.rateMult;
 }
 
 function sequenceIndex(interval) {
@@ -760,6 +773,7 @@ function startEnemyTurn(message, pressure = 1, command = null) {
   const tuning = getWaveTuning(selectedBoss.id, state.wave);
   state.rateMult = tuning.rate;
   state.speedMult = tuning.speed;
+  state.waveCap = tuning.cap;
   state.enemyTurnLength = tuning.length;
   applyArenaLayout(state.heartMode);
   state.player.x = arena.x + arena.w / 2;
@@ -782,6 +796,7 @@ function endEnemyTurn() {
   const tuning = getWaveTuning(selectedBoss.id, state.wave);
   state.rateMult = tuning.rate;
   state.speedMult = tuning.speed;
+  state.waveCap = tuning.cap;
   state.enemyTurnLength = tuning.length;
   applyArenaLayout(state.heartMode);
   state.player.x = arena.x + arena.w / 2;
@@ -829,13 +844,13 @@ function getPlayerCommandMessage(command) {
 }
 
 function getWaveTuning(id, wave) {
-  return waveTuning[id]?.[wave] || { rate: 1, speed: 1, length: 12 };
+  return waveTuning[id]?.[wave] || { rate: 1, speed: 1, length: 12, cap: 30 };
 }
 
 function firePlayerShot() {
   if (state.shotTimer > 0 || state.phase !== "enemy") return;
-  state.shotTimer = 0.22;
-  state.shots.push({ x: state.player.x, y: state.player.y - 22, vy: -420, hit: false });
+  state.shotTimer = soulPhysics.shotCooldown;
+  state.shots.push({ x: state.player.x, y: state.player.y - 22, vy: soulPhysics.shotSpeed, hit: false });
 }
 
 function updateShots(dt) {
@@ -899,7 +914,7 @@ function update(dt) {
       b.delay = Math.max(0, b.delay - dt);
       continue;
     }
-    const bulletSpeed = d.speed * state.pressure * state.speedMult;
+    const bulletSpeed = d.speed * state.speedMult;
     b.x += (b.vx || 0) * dt * bulletSpeed;
     b.y += (b.vy || 0) * dt * bulletSpeed;
     if (b.spin) b.angle = (b.angle || 0) + b.spin * dt;
@@ -952,8 +967,7 @@ function arrowReachedSoul(b) {
 }
 
 function movePlayer(dt) {
-  const slow = keys.has("Shift") ? 0.45 : 1;
-  const speed = 245 * slow;
+  const slow = keys.has("Shift") ? soulPhysics.focusMult : 1;
   const p = state.player;
   let dx = 0;
   let dy = 0;
@@ -973,10 +987,11 @@ function movePlayer(dt) {
   }
 
   if (state.heartMode === "blue") {
-    p.x = clamp(p.x + dx * speed * dt, arena.x + p.r, arena.x + arena.w - p.r);
-    p.vy += 760 * dt;
+    const blueSpeed = soulPhysics.blueSpeed * slow;
+    p.x = clamp(p.x + dx * blueSpeed * dt, arena.x + p.r, arena.x + arena.w - p.r);
+    p.vy += soulPhysics.gravity * dt;
     if (dy < 0 && p.grounded) {
-      p.vy = -365;
+      p.vy = soulPhysics.jump;
       p.grounded = false;
     }
     p.y += p.vy * dt;
@@ -991,6 +1006,7 @@ function movePlayer(dt) {
 
   if (state.heartMode === "yellow" && (keys.has(" ") || keys.has("Space"))) firePlayerShot();
 
+  const speed = (state.heartMode === "yellow" ? soulPhysics.yellowSpeed : soulPhysics.redSpeed) * slow;
   const len = Math.hypot(dx, dy) || 1;
   p.x = clamp(p.x + (dx / len) * speed * dt, arena.x + p.r, arena.x + arena.w - p.r);
   p.y = clamp(p.y + (dy / len) * speed * dt, arena.y + p.r, arena.y + arena.h - p.r);
