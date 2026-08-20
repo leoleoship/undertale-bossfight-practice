@@ -78,6 +78,81 @@ const bosses = [
       { name: "Snowman Piece", heal: 45 },
     ],
   },
+  {
+    id: "sans",
+    name: "Sans",
+    icon: "S",
+    color: "#ffffff",
+    note: "Bones, gravity, blaster lanes",
+    waves: ["Bone Shuffle", "Gravity Drop", "Blaster Hall"],
+    heartModes: ["blue", "blue", "yellow"],
+    acts: ["Check", "Joke", "Stay Still"],
+    items: [
+      { name: "Hot Dog...?", heal: 20 },
+      { name: "Face Steak", heal: 60 },
+      { name: "Instant Noodles", heal: 45 },
+    ],
+  },
+  {
+    id: "undying",
+    name: "Undyne the Undying",
+    icon: "U",
+    color: "#80ed99",
+    note: "Dense spears and green-heart guards",
+    waves: ["Heroic Spears", "Undying Guard", "Final Salvo"],
+    heartModes: ["green", "green", "red"],
+    acts: ["Challenge", "Refuse", "Hold Ground"],
+    items: [
+      { name: "Sea Tea", heal: 10 },
+      { name: "Cinnamon Bunny", heal: 22 },
+      { name: "Snowman Piece", heal: 45 },
+    ],
+  },
+  {
+    id: "omega",
+    name: "Omega Flowey",
+    icon: "F",
+    color: "#ff7a1a",
+    note: "Petals, vines, screen pressure",
+    waves: ["Petal Burst", "Vine Cage", "Soul Storm"],
+    heartModes: ["yellow", "red", "yellow"],
+    acts: ["Call", "Resist", "Save"],
+    items: [
+      { name: "Junk Food", heal: 17 },
+      { name: "Steak in the Shape of Mettaton's Face", heal: 60 },
+      { name: "Instant Noodles", heal: 45 },
+    ],
+  },
+  {
+    id: "asriel",
+    name: "Asriel",
+    icon: "A",
+    color: "#c77dff",
+    note: "Stars, arcs, rainbow pressure",
+    waves: ["Starfall", "Chaos Saber", "Hope Break"],
+    heartModes: ["red", "yellow", "blue"],
+    acts: ["Hope", "Dream", "Save"],
+    items: [
+      { name: "Dream", heal: 35 },
+      { name: "Last Dream", heal: 70 },
+      { name: "Legendary Hero", heal: 40 },
+    ],
+  },
+  {
+    id: "mettaton",
+    name: "Mettaton",
+    icon: "M",
+    color: "#ff8bd1",
+    note: "Drama beams, bombs, yellow shots",
+    waves: ["Spotlight", "Leg Day", "Ratings Rush"],
+    heartModes: ["yellow", "yellow", "red"],
+    acts: ["Pose", "Boast", "Heel Turn"],
+    items: [
+      { name: "Glamburger", heal: 27 },
+      { name: "Legendary Hero", heal: 40 },
+      { name: "Face Steak", heal: 60 },
+    ],
+  },
 ];
 
 const heartColors = {
@@ -127,6 +202,31 @@ const chipTunes = {
     bpm: 198,
     lead: [784, 740, 659, 587, 659, 740, 784, 988, 880, 784, 740, 659, 587, 659, 740, 784],
     bass: [196, 147, 165, 196, 220, 165, 147, 196],
+  },
+  sans: {
+    bpm: 184,
+    lead: [392, 392, 587, 523, 0, 392, 349, 330, 294, 294, 440, 392, 0, 330, 349, 392],
+    bass: [98, 98, 147, 147, 87, 87, 131, 131],
+  },
+  undying: {
+    bpm: 204,
+    lead: [740, 784, 880, 988, 880, 784, 740, 659, 784, 880, 988, 1175, 988, 880, 784, 740],
+    bass: [185, 185, 220, 220, 247, 247, 220, 220],
+  },
+  omega: {
+    bpm: 152,
+    lead: [523, 659, 622, 523, 466, 523, 622, 659, 698, 659, 622, 523, 466, 392, 466, 523],
+    bass: [131, 117, 98, 87, 131, 117, 98, 87],
+  },
+  asriel: {
+    bpm: 168,
+    lead: [659, 784, 988, 880, 784, 659, 587, 659, 740, 880, 1175, 988, 880, 740, 659, 587],
+    bass: [165, 196, 247, 220, 165, 196, 247, 220],
+  },
+  mettaton: {
+    bpm: 176,
+    lead: [880, 0, 880, 988, 1047, 988, 880, 784, 740, 0, 740, 880, 988, 880, 740, 659],
+    bass: [220, 220, 196, 196, 165, 165, 196, 196],
   },
 };
 
@@ -181,6 +281,67 @@ const bossSprites = {
     ".BB...BSSB...GG.",
     "BBBB.BSSSSB.GSSG",
   ],
+  sans: [
+    "...WWWWWW...",
+    "..WKKWWKKW..",
+    "..WWWWWWWW..",
+    "...WKKKKW...",
+    "....WWWW....",
+    "..BBBBBBBB..",
+    ".BBWBWWBWB.",
+    "BBBBBBBBBBBB",
+    "..BB....BB..",
+    ".WW......WW.",
+  ],
+  undying: [
+    "....GGGG....",
+    "...GBBBG...",
+    "..GBBBBGG..",
+    "..GBBWGBG..",
+    "...GYYG....",
+    "..GYYYYG...",
+    ".GYYGGYYG..",
+    "GYYG..GYYG.",
+    "..GSSSSG...",
+    ".GGSGGSGG..",
+    "GGG....GGG.",
+  ],
+  omega: [
+    "....OOOO....",
+    "..OOYYYYOO..",
+    ".OYGGYYGGYO.",
+    "OYGYKKKKYGYO",
+    "OYGYKMMKYGYO",
+    ".OYGGYYGGYO.",
+    "..OOYYYYOO..",
+    ".G..OOOO..G.",
+    "GGG..YY..GGG",
+    ".G..YYYY..G.",
+  ],
+  asriel: [
+    "W..W....W..W",
+    ".W.WWWWWW.W.",
+    "..WPPWWPPW..",
+    "..WWWWWWWW..",
+    "...WYYYYW...",
+    "..PPYYYYPP..",
+    ".PPWPPPPWPP.",
+    "PPW.WYYW.WPP",
+    "...WSSSSW...",
+    "..WW....WW..",
+  ],
+  mettaton: [
+    "...PPPPPP...",
+    "..PWWPPWWP..",
+    "..PPPPPPPP..",
+    "...PKKKKP...",
+    "..PPMMMMPP..",
+    ".PMPPPPPMP.",
+    "PPM.PPPP.MPP",
+    "...PYYYYP...",
+    "..PY....YP..",
+    ".PP......PP.",
+  ],
 };
 
 const spriteColors = {
@@ -194,6 +355,8 @@ const spriteColors = {
   R: "#d94f45",
   K: "#111118",
   M: "#ff3855",
+  O: "#ff7a1a",
+  P: "#ff8bd1",
 };
 
 function makeState() {
@@ -477,6 +640,11 @@ function runPattern(dt) {
   if (selectedBoss.id === "asgore") asgorePattern(dt);
   if (selectedBoss.id === "disbelief") disbeliefPattern(dt);
   if (selectedBoss.id === "btt") bttPattern(dt);
+  if (selectedBoss.id === "sans") sansPattern(dt);
+  if (selectedBoss.id === "undying") undyingPattern(dt);
+  if (selectedBoss.id === "omega") omegaPattern(dt);
+  if (selectedBoss.id === "asriel") asrielPattern(dt);
+  if (selectedBoss.id === "mettaton") mettatonPattern(dt);
 }
 
 function undynePattern(dt) {
@@ -558,6 +726,110 @@ function bttPattern(dt) {
   }
 }
 
+function sansPattern(dt) {
+  if (every("sans-bones", state.wave === 0 ? 0.26 : 0.2, dt)) {
+    const h = rand(54, 116);
+    spawn("bone", { x: arena.x + arena.w + 28, y: arena.y + arena.h - h / 2, vx: -260, vy: 0, r: 14, h });
+  }
+  if (state.wave >= 1 && every("sans-blue", 0.7, dt)) {
+    spawn("blueBone", { x: rand(arena.x + 20, arena.x + arena.w - 20), y: arena.y - 34, vx: 0, vy: 255, r: 14, h: 70 });
+  }
+  if (state.wave === 2 && every("sans-beam", 1.05, dt)) {
+    const horizontal = Math.random() > 0.35;
+    spawn("beam", {
+      x: horizontal ? arena.x : rand(arena.x + 30, arena.x + arena.w - 30),
+      y: horizontal ? rand(arena.y + 30, arena.y + arena.h - 30) : arena.y,
+      vx: 0,
+      vy: 0,
+      r: 24,
+      horizontal,
+      warn: 0.48,
+      life: 0.95,
+    });
+  }
+}
+
+function undyingPattern(dt) {
+  if (every("undying-aimed", 0.22, dt)) {
+    const edge = Math.floor(rand(0, 4));
+    const x = edge === 0 ? arena.x - 36 : edge === 1 ? arena.x + arena.w + 36 : rand(arena.x, arena.x + arena.w);
+    const y = edge === 2 ? arena.y - 36 : edge === 3 ? arena.y + arena.h + 36 : rand(arena.y, arena.y + arena.h);
+    const a = Math.atan2(state.player.y - y, state.player.x - x);
+    spawn("spear", { x, y, vx: Math.cos(a) * 275, vy: Math.sin(a) * 275, r: 12, angle: a });
+  }
+  if (state.wave >= 1 && every("undying-cross", 0.46, dt)) {
+    spawn("spear", { x: rand(arena.x, arena.x + arena.w), y: arena.y - 35, vx: 0, vy: 325, r: 12, angle: Math.PI / 2 });
+    spawn("spear", { x: arena.x - 35, y: rand(arena.y, arena.y + arena.h), vx: 335, vy: 0, r: 12, angle: 0 });
+  }
+}
+
+function omegaPattern(dt) {
+  if (every("omega-petal", 0.18, dt)) {
+    const a = state.t * 4 + rand(-0.7, 0.7);
+    const x = arena.x + arena.w / 2 + Math.cos(a) * 245;
+    const y = arena.y + arena.h / 2 + Math.sin(a) * 180;
+    const toward = Math.atan2(state.player.y - y, state.player.x - x);
+    spawn("fire", { x, y, vx: Math.cos(toward) * 190, vy: Math.sin(toward) * 190, r: 10 });
+  }
+  if (state.wave >= 1 && every("omega-vine", 1.0, dt)) {
+    const horizontal = Math.random() > 0.5;
+    spawn("beam", {
+      x: horizontal ? arena.x : rand(arena.x + 20, arena.x + arena.w - 20),
+      y: horizontal ? rand(arena.y + 20, arena.y + arena.h - 20) : arena.y,
+      vx: 0,
+      vy: 0,
+      r: 24,
+      horizontal,
+      warn: 0.62,
+      life: 1.18,
+    });
+  }
+  if (state.wave === 2 && every("omega-ring", 1.2, dt)) {
+    for (let i = 0; i < 14; i++) {
+      const a = (Math.PI * 2 * i) / 14 + state.t;
+      spawn("fire", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 155, vy: Math.sin(a) * 155, r: 8 });
+    }
+  }
+}
+
+function asrielPattern(dt) {
+  if (every("asriel-starfall", 0.2, dt)) {
+    spawn("star", { x: rand(arena.x, arena.x + arena.w), y: arena.y - 24, vx: rand(-55, 55), vy: rand(190, 275), r: 12, spin: 3.2 });
+  }
+  if (state.wave >= 1 && every("asriel-saber", 0.95, dt)) {
+    const fromLeft = Math.random() > 0.5;
+    spawn("trident", { x: fromLeft ? arena.x - 58 : arena.x + arena.w + 58, y: rand(arena.y + 30, arena.y + arena.h - 30), vx: fromLeft ? 410 : -410, vy: 0, r: 22, angle: fromLeft ? 0 : Math.PI });
+  }
+  if (state.wave === 2 && every("asriel-hope", 1.15, dt)) {
+    for (let i = 0; i < 10; i++) {
+      const a = (Math.PI * 2 * i) / 10 - state.t;
+      spawn("star", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 170, vy: Math.sin(a) * 170, r: 10, spin: -4 });
+    }
+  }
+}
+
+function mettatonPattern(dt) {
+  if (every("mettaton-spot", 0.75, dt)) {
+    spawn("beam", {
+      x: rand(arena.x + 25, arena.x + arena.w - 25),
+      y: arena.y,
+      vx: 0,
+      vy: 0,
+      r: 24,
+      horizontal: false,
+      warn: 0.5,
+      life: 1.0,
+    });
+  }
+  if (state.wave >= 1 && every("mettaton-bombs", 0.28, dt)) {
+    spawn("fire", { x: rand(arena.x, arena.x + arena.w), y: arena.y - 24, vx: Math.sin(state.t * 5) * 75, vy: rand(210, 285), r: 12 });
+  }
+  if (state.wave === 2 && every("mettaton-rush", 0.5, dt)) {
+    const y = rand(arena.y + 25, arena.y + arena.h - 25);
+    spawn("trident", { x: arena.x + arena.w + 45, y, vx: -360, vy: 0, r: 22, angle: Math.PI });
+  }
+}
+
 function touching(b) {
   const p = state.player;
   if (state.heartMode === "green" && shieldBlocks(b)) return false;
@@ -618,7 +890,7 @@ function drawBackdrop() {
 
 function drawBoss() {
   const sprite = bossSprites[selectedBoss.id];
-  const scale = selectedBoss.id === "btt" ? 5 : 7;
+  const scale = sprite[0].length > 14 ? 5 : 7;
   const w = sprite[0].length * scale;
   const h = sprite.length * scale;
   drawPixelSprite(sprite, canvas.width / 2 - w / 2, 38 + Math.sin(state.t * 4) * 3, scale);
@@ -661,6 +933,18 @@ function drawBullets() {
       ctx.fillRect(30, -22, 7, 12);
       ctx.fillRect(30, -6, 7, 12);
       ctx.fillRect(30, 10, 7, 12);
+    } else if (b.kind === "star") {
+      ctx.fillStyle = "#111118";
+      ctx.fillRect(-15, -15, 30, 30);
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(-4, -16, 8, 32);
+      ctx.fillRect(-16, -4, 32, 8);
+      ctx.fillStyle = "#ffd166";
+      ctx.fillRect(-8, -8, 16, 16);
+      ctx.fillRect(-2, -22, 4, 8);
+      ctx.fillRect(-2, 14, 4, 8);
+      ctx.fillRect(-22, -2, 8, 4);
+      ctx.fillRect(14, -2, 8, 4);
     } else if (b.kind === "bone" || b.kind === "blueBone") {
       ctx.fillStyle = "#111118";
       ctx.fillRect(-12, -b.h / 2 - 10, 24, b.h + 20);
@@ -691,7 +975,7 @@ function drawPlayer() {
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.globalAlpha = p.inv > 0 ? 0.45 + Math.sin(state.t * 32) * 0.25 : 1;
-  drawPixelHeart(-12, -10, pixel, heartColors[state.heartMode]);
+  drawPixelHeart(-21, -18, pixel, heartColors[state.heartMode]);
   if (state.heartMode === "green") drawShield(p.shieldDir);
   ctx.restore();
 }

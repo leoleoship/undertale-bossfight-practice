@@ -10,6 +10,11 @@ This is a fan-made practice project with original code and simple original visua
 - Asgore
 - Disbelief Papyrus
 - Bad Time Trio
+- Sans
+- Undyne the Undying
+- Omega Flowey
+- Asriel
+- Mettaton
 
 Each fight uses original pixel-style character art, 8-bit bullets, and an original browser-generated chiptune loop.
 
