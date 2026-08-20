@@ -814,6 +814,13 @@ function attackProgress() {
   return clamp(attackTime() / activeLength, 0, 1);
 }
 
+function attackIntensity() {
+  const p = attackProgress();
+  if (p < 0.18) return (p / 0.18) * 0.38;
+  if (p < 0.72) return 0.38 + ((p - 0.18) / 0.54) * 0.42;
+  return 0.8 + ((p - 0.72) / 0.28) * 0.2;
+}
+
 function startEnemyTurn(message, pressure = 1, command = null) {
   state.phase = "enemy";
   state.message = message;
@@ -1083,7 +1090,7 @@ function runPattern(dt) {
 
 function undynePattern(dt) {
   if (state.wave === 0) {
-    const progress = attackProgress();
+    const progress = attackIntensity();
     const interval = 0.56 - progress * 0.18;
     const arrowSpeed = 216 + progress * 76;
     const chordStep = 0.13 - progress * 0.045;
@@ -1182,7 +1189,7 @@ function asgorePattern(dt) {
 }
 
 function disbeliefPattern(dt) {
-  const progress = attackProgress();
+  const progress = attackIntensity();
   const boneInterval = state.wave === 0 ? 0.5 - progress * 0.1 : 0.4 - progress * 0.07;
   if (every("bones", boneInterval, dt)) {
     const lanes = [0.28, 0.48, 0.68, 0.38, 0.58];
@@ -1207,7 +1214,7 @@ function disbeliefPattern(dt) {
 }
 
 function bttPattern(dt) {
-  const progress = attackProgress();
+  const progress = attackIntensity();
   undynePattern(dt);
   const fireInterval = 0.92 - progress * 0.14;
   if (every("small-fire", fireInterval, dt)) {
@@ -1263,7 +1270,7 @@ function spawnBlaster(biasHorizontal = 0.5) {
 }
 
 function sansPattern(dt) {
-  const progress = attackProgress();
+  const progress = attackIntensity();
   const boneInterval = state.wave === 0 ? 0.46 - progress * 0.08 : 0.38 - progress * 0.05;
   if (every("sans-bones", boneInterval, dt)) {
     const heights = state.wave === 0 ? [38, 62, 96, 48, 122, 72, 42, 104] : [44, 74, 112, 56, 132, 84, 48, 104];
@@ -1323,7 +1330,7 @@ function spawnBoneWallFromTop(gap, count, speed, heights, orangeOffset = -1) {
 }
 
 function undyingPattern(dt) {
-  const progress = attackProgress();
+  const progress = attackIntensity();
   const aimedInterval = state.heartMode === "green" ? 0.32 - progress * 0.06 : 0.3 - progress * 0.05;
   if (every("undying-aimed", aimedInterval, dt)) {
     if (state.heartMode === "green") {
@@ -1352,7 +1359,7 @@ function undyingPattern(dt) {
 
 function omegaPattern(dt) {
   const t = patternClock();
-  const progress = attackProgress();
+  const progress = attackIntensity();
   const petalInterval = 0.36 - progress * 0.08;
   const pelletLaneInterval = 0.5 - progress * 0.05;
   if (state.wave === 0 && every("omega-petal", petalInterval, dt)) {
@@ -1409,7 +1416,7 @@ function omegaPattern(dt) {
 
 function asrielPattern(dt) {
   const t = patternClock();
-  const progress = attackProgress();
+  const progress = attackIntensity();
   const starInterval = state.wave === 0 ? 0.32 - progress * 0.06 : 0.42 - progress * 0.06;
   if (every("asriel-starfall", starInterval, dt)) {
     const lanes = [0.16, 0.3, 0.44, 0.58, 0.72, 0.86, 0.38, 0.66];
@@ -1445,7 +1452,7 @@ function asrielPattern(dt) {
 
 function mettatonPattern(dt) {
   const t = patternClock();
-  const progress = attackProgress();
+  const progress = attackIntensity();
   const spotInterval = state.wave === 2 ? 0.92 : 0.82 - progress * 0.08;
   const bombInterval = 0.46 - progress * 0.08;
   const legInterval = 0.72 - progress * 0.08;

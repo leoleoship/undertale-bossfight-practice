@@ -44,6 +44,7 @@ Enemy turns now show colored soul-mode transition callouts and wave-specific bos
 Sans and Disbelief include blue/orange bone rules: stop for blue attacks and move through orange attacks.
 Normal mode is tuned for learning, with lower damage, slower attacks, and a bullet cap so waves stay dodgeable.
 Bullet speed and spawn rate now use boss-and-wave-specific pacing profiles, with a small in-canvas speed/rate readout for practice tuning.
+Dynamic wave ramps use staged opener/build/finale intensity, so attacks start readable and tighten toward the end instead of changing at one flat rate.
 Pattern sequencing now advances with the tuned spawn rate, so faster waves use the intended ordered reads instead of repeating lanes; Sans, Undyne, Undying, Asgore, Omega, Asriel, Mettaton, and Disbelief patterns have tighter speeds and more source-style safe gaps.
 Attack timing is now repeatable per boss wave regardless of which action you choose, with per-wave bullet caps plus snappier blue-soul gravity/jumps and faster yellow-soul shots for closer practice feel.
 Undyne green-heart arrows and Sans bone waves now ramp during the enemy turn, and Asgore's fire rings/trident sweeps use faster movement with wider planned escape gaps.
