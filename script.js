@@ -429,10 +429,13 @@ function renderRoster() {
     const card = document.createElement("button");
     card.className = `boss-card${boss.id === selectedBoss.id ? " active" : ""}`;
     card.innerHTML = `
-      <div class="boss-icon" style="color:${boss.color}">${boss.icon}</div>
+      <div class="boss-thumb" style="--boss-color:${boss.color}">
+        <img src="${bossImagePaths[boss.id]}" alt="" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';" />
+        <span>${boss.icon}</span>
+      </div>
       <div>
         <h2>${boss.name}</h2>
-        <span>${boss.note}</span>
+        <span class="boss-note">${boss.note}</span>
       </div>
     `;
     card.addEventListener("click", () => selectBoss(boss));

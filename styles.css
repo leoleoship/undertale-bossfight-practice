@@ -106,10 +106,10 @@ p {
 
 .boss-card {
   display: grid;
-  grid-template-columns: 42px 1fr;
-  gap: 10px;
+  grid-template-columns: 68px 1fr;
+  gap: 12px;
   align-items: center;
-  min-height: 76px;
+  min-height: 88px;
   padding: 10px;
   border: 2px solid #33333d;
   background: rgba(20, 20, 25, 0.94);
@@ -122,13 +122,35 @@ p {
   border-color: var(--gold);
 }
 
-.boss-icon {
-  width: 42px;
-  height: 42px;
+.boss-thumb {
+  width: 68px;
+  height: 68px;
   display: grid;
   place-items: center;
-  border: 2px solid currentColor;
-  color: var(--cyan);
+  position: relative;
+  overflow: hidden;
+  border: 2px solid var(--boss-color, var(--cyan));
+  background: #050506;
+}
+
+.boss-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.18));
+}
+
+.boss-thumb span {
+  width: 100%;
+  height: 100%;
+  display: none;
+  place-items: center;
+  position: absolute;
+  inset: 0;
+  color: var(--boss-color, var(--cyan));
   font-size: 1.35rem;
 }
 
@@ -138,7 +160,7 @@ p {
   line-height: 1.1;
 }
 
-.boss-card span {
+.boss-note {
   display: block;
   margin-top: 5px;
   color: var(--muted);
