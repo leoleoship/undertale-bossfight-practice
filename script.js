@@ -13,7 +13,7 @@ const commandPanel = document.getElementById("commandPanel");
 const commandText = document.getElementById("commandText");
 const turnInfo = document.getElementById("turnInfo");
 
-const arena = { x: 260, y: 190, w: 440, h: 292 };
+const arena = { x: 250, y: 292, w: 460, h: 238 };
 const maxHp = 92;
 const pixel = 6;
 
@@ -900,7 +900,7 @@ function drawBackdrop() {
 
 function drawBoss() {
   ctx.save();
-  ctx.translate(canvas.width / 2, 104 + Math.sin(state.t * 4) * 2);
+  ctx.translate(canvas.width / 2, 130 + Math.sin(state.t * 4) * 2);
   if (selectedBoss.id === "sans") drawSansPortrait(1.15);
   else if (selectedBoss.id === "disbelief") drawPapyrusPortrait(1.04);
   else if (selectedBoss.id === "btt") drawTrioPortrait(0.78);
@@ -931,65 +931,87 @@ function outlineBox(x, y, w, h, color = "#ffffff") {
   px(x + w - 4, y, 4, h, color);
 }
 
-function drawSkull(x, y, s, grin = true) {
-  px(x - 28 * s, y - 36 * s, 56 * s, 8 * s);
-  px(x - 40 * s, y - 28 * s, 80 * s, 44 * s);
-  px(x - 32 * s, y + 16 * s, 64 * s, 22 * s);
-  px(x - 24 * s, y - 10 * s, 18 * s, 14 * s, "#050507");
-  px(x + 8 * s, y - 10 * s, 18 * s, 14 * s, "#050507");
-  px(x - 4 * s, y + 2 * s, 8 * s, 14 * s, "#050507");
-  if (grin) {
-    px(x - 24 * s, y + 22 * s, 48 * s, 6 * s, "#050507");
-    for (let i = -18; i <= 18; i += 9) px(x + i * s, y + 22 * s, 3 * s, 12 * s, "#ffffff");
-  }
+function line(points, color = "#ffffff", width = 4) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.lineCap = "square";
+  ctx.lineJoin = "miter";
+  ctx.beginPath();
+  ctx.moveTo(points[0][0], points[0][1]);
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+  ctx.stroke();
+}
+
+function poly(points, color = "#ffffff") {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(points[0][0], points[0][1]);
+  for (let i = 1; i < points.length; i++) ctx.lineTo(points[i][0], points[i][1]);
+  ctx.closePath();
+  ctx.fill();
+}
+
+function ellipseStroke(x, y, rx, ry, color = "#ffffff", width = 4) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = width;
+  ctx.beginPath();
+  ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+  ctx.stroke();
+}
+
+function drawSkullHead(x, y, s, wink = false) {
+  ellipseStroke(x, y - 18 * s, 40 * s, 36 * s, "#ffffff", 5 * s);
+  line([[x - 28 * s, y + 10 * s], [x - 22 * s, y + 30 * s], [x + 22 * s, y + 30 * s], [x + 28 * s, y + 10 * s]], "#ffffff", 5 * s);
+  px(x - 23 * s, y - 20 * s, 17 * s, 16 * s, "#ffffff");
+  px(x + 6 * s, y - 20 * s, 17 * s, 16 * s, wink ? "#57d6ff" : "#ffffff");
+  px(x - 17 * s, y - 15 * s, 8 * s, 8 * s, "#050507");
+  px(x + 12 * s, y - 15 * s, 8 * s, 8 * s, "#050507");
+  poly([[x, y - 2 * s], [x - 7 * s, y + 12 * s], [x + 7 * s, y + 12 * s]], "#ffffff");
+  line([[x - 22 * s, y + 18 * s], [x - 10 * s, y + 25 * s], [x + 8 * s, y + 25 * s], [x + 22 * s, y + 18 * s]], "#ffffff", 4 * s);
+  for (let i = -14; i <= 14; i += 7) px(x + i * s, y + 18 * s, 3 * s, 10 * s, "#ffffff");
 }
 
 function drawSansPortrait(s) {
   ctx.save();
   ctx.scale(s, s);
-  drawSkull(0, -62, 1, true);
-  outlineBox(-50, -12, 100, 66);
-  px(-46, -8, 18, 56, "#050507");
-  px(28, -8, 18, 56, "#050507");
-  px(-14, 0, 28, 36, "#050507");
-  px(-66, -4, 18, 62);
-  px(48, -4, 18, 62);
-  px(-48, 54, 34, 50);
-  px(14, 54, 34, 50);
-  px(-60, 102, 46, 12);
-  px(14, 102, 46, 12);
+  drawSkullHead(0, -70, 1.05, true);
+  line([[-44, -30], [-64, 6], [-58, 64], [-30, 78]], "#ffffff", 5);
+  line([[44, -30], [64, 6], [58, 64], [30, 78]], "#ffffff", 5);
+  outlineBox(-38, -20, 76, 76);
+  px(-24, -8, 48, 56, "#050507");
+  line([[-26, 48], [-38, 110], [-14, 110]], "#ffffff", 5);
+  line([[26, 48], [38, 110], [14, 110]], "#ffffff", 5);
+  line([[-52, 112], [-22, 108], [-4, 116]], "#ffffff", 5);
+  line([[52, 112], [22, 108], [4, 116]], "#ffffff", 5);
   ctx.restore();
 }
 
 function drawPapyrusPortrait(s) {
   ctx.save();
   ctx.scale(s, s);
-  drawSkull(0, -78, 0.82, true);
-  outlineBox(-34, -26, 68, 82);
-  px(-56, -18, 22, 24);
-  px(34, -18, 22, 24);
-  px(-8, -70, 70, 5, "#ffd166");
-  px(54, -66, 8, 8, "#ffd166");
-  px(-78, 8, 14, 88);
-  px(64, 4, 14, 92);
-  px(-96, 88, 36, 10);
-  px(60, 88, 36, 10);
-  px(-30, 56, 20, 58);
-  px(10, 56, 20, 58);
-  px(-42, 108, 34, 10);
-  px(8, 108, 34, 10);
+  drawSkullHead(0, -82, 0.78, false);
+  line([[-10, -102], [78, -118], [88, -108]], "#ffd166", 4);
+  line([[74, -116], [78, -98], [91, -103]], "#ffd166", 3);
+  line([[-38, -40], [-60, -10], [-48, 42], [-24, 74]], "#ffffff", 5);
+  line([[38, -40], [62, -6], [72, 38], [92, 80]], "#ffffff", 5);
+  line([[-40, -36], [0, -52], [40, -36], [34, 48], [0, 70], [-34, 48], [-40, -36]], "#ffffff", 5);
+  outlineBox(-22, -20, 44, 52);
+  line([[-68, 20], [-102, 90], [-126, 112]], "#ffffff", 5);
+  line([[-112, 104], [-142, 100]], "#ffffff", 4);
+  line([[-32, 70], [-44, 118], [-14, 118]], "#ffffff", 5);
+  line([[32, 70], [44, 118], [14, 118]], "#ffffff", 5);
   ctx.restore();
 }
 
 function drawTrioPortrait(s) {
   ctx.save();
   ctx.scale(s, s);
-  ctx.translate(-92, 0);
-  drawPapyrusPortrait(0.7);
-  ctx.translate(92, 10);
-  drawSansPortrait(0.7);
-  ctx.translate(92, -6);
-  drawUndynePortrait(0.65, true);
+  ctx.translate(-98, 8);
+  drawPapyrusPortrait(0.68);
+  ctx.translate(98, 8);
+  drawSansPortrait(0.68);
+  ctx.translate(98, -6);
+  drawUndynePortrait(0.64, true);
   ctx.restore();
 }
 
@@ -997,27 +1019,22 @@ function drawUndynePortrait(s, undying) {
   ctx.save();
   ctx.scale(s, s);
   const accent = undying ? "#80ed99" : "#57d6ff";
-  px(-38, -106, 76, 54);
-  px(-48, -94, 12, 36);
-  px(36, -94, 12, 36);
-  px(-22, -86, 16, 12, "#050507");
-  px(8, -86, 16, 12, "#050507");
-  px(-8, -72, 16, 8, "#050507");
-  px(-88, -116, 78, 8, accent);
-  outlineBox(-44, -50, 88, 70);
-  px(-66, -42, 22, 50);
-  px(44, -42, 22, 50);
-  px(-78, -4, 26, 64);
-  px(52, -4, 26, 64);
-  px(-70, 60, 22, 54);
-  px(48, 60, 22, 54);
-  px(-92, 108, 42, 10);
-  px(50, 108, 42, 10);
-  px(-108, 20, 12, 92, accent);
-  px(-120, 102, 38, 8, accent);
+  line([[-64, -112], [-22, -128], [34, -118], [54, -92], [36, -58], [-28, -52], [-58, -76], [-64, -112]], "#ffffff", 5);
+  line([[-78, -102], [-126, -118], [-142, -112]], accent, 4);
+  line([[42, -96], [74, -112], [88, -96], [54, -70]], "#ffffff", 5);
+  px(-28, -92, 16, 10, "#050507");
+  px(10, -88, 18, 10, "#050507");
+  line([[-14, -68], [8, -64], [26, -70]], "#050507", 4);
+  line([[-70, -40], [-42, -58], [0, -48], [42, -58], [70, -40]], "#ffffff", 6);
+  line([[-50, -36], [-34, 58], [0, 78], [34, 58], [50, -36]], "#ffffff", 5);
+  line([[-88, -28], [-126, 42], [-140, 112]], "#ffffff", 5);
+  line([[-144, 104], [-108, 104]], accent, 5);
+  line([[70, -30], [92, 42], [110, 90]], "#ffffff", 5);
+  line([[-34, 60], [-52, 122], [-20, 122]], "#ffffff", 5);
+  line([[34, 60], [52, 122], [20, 122]], "#ffffff", 5);
   if (undying) {
-    px(-58, -72, 116, 8, accent);
-    px(-54, -20, 108, 10, accent);
+    line([[-78, -26], [0, -2], [78, -26]], accent, 5);
+    line([[-52, 12], [52, 12]], accent, 5);
   }
   ctx.restore();
 }
@@ -1025,84 +1042,79 @@ function drawUndynePortrait(s, undying) {
 function drawAsgorePortrait(s) {
   ctx.save();
   ctx.scale(s, s);
-  px(-74, -112, 28, 42);
-  px(46, -112, 28, 42);
-  px(-58, -94, 116, 56);
-  px(-24, -76, 16, 12, "#050507");
-  px(8, -76, 16, 12, "#050507");
-  px(-10, -58, 20, 8, "#050507");
-  outlineBox(-56, -34, 112, 104);
-  px(-70, -10, 14, 74);
-  px(56, -10, 14, 74);
-  px(-40, 70, 28, 48);
-  px(12, 70, 28, 48);
-  px(-52, 114, 44, 10);
-  px(8, 114, 44, 10);
-  px(-4, -12, 8, 72, "#ffd166");
+  line([[-52, -98], [-86, -130], [-78, -78]], "#ffffff", 6);
+  line([[52, -98], [86, -130], [78, -78]], "#ffffff", 6);
+  line([[-56, -96], [-34, -118], [34, -118], [56, -96], [48, -58], [0, -42], [-48, -58], [-56, -96]], "#ffffff", 5);
+  px(-24, -86, 16, 10, "#050507");
+  px(8, -86, 16, 10, "#050507");
+  line([[-18, -62], [0, -54], [18, -62]], "#050507", 4);
+  line([[-82, -28], [-48, -58], [48, -58], [82, -28]], "#ffffff", 6);
+  line([[-60, -22], [-48, 74], [0, 104], [48, 74], [60, -22]], "#ffffff", 5);
+  line([[-4, -18], [-4, 82]], "#ffd166", 5);
+  line([[-76, -8], [-104, 72]], "#ffffff", 5);
+  line([[76, -8], [104, 72]], "#ffffff", 5);
+  line([[-42, 78], [-58, 124], [-18, 124]], "#ffffff", 5);
+  line([[42, 78], [58, 124], [18, 124]], "#ffffff", 5);
   ctx.restore();
 }
 
 function drawOmegaPortrait(s) {
   ctx.save();
   ctx.scale(s, s);
-  px(-120, -10, 28, 88, "#80ed99");
-  px(92, -10, 28, 88, "#80ed99");
-  px(-132, 64, 48, 20, "#80ed99");
-  px(84, 64, 48, 20, "#80ed99");
-  px(-62, -86, 124, 74);
-  px(-74, -104, 148, 24);
-  px(-42, -66, 18, 18, "#050507");
-  px(24, -66, 18, 18, "#050507");
-  px(-26, -30, 52, 8, "#050507");
-  for (let i = -78; i <= 78; i += 26) px(i, -16, 16, 80, "#f6d28a");
-  px(-24, 46, 48, 44, "#ff7a1a");
-  px(-12, 58, 24, 20, "#050507");
-  px(-106, -96, 26, 18);
-  px(80, -96, 26, 18);
+  line([[-116, -16], [-156, 42], [-146, 112]], "#80ed99", 8);
+  line([[116, -16], [156, 42], [146, 112]], "#80ed99", 8);
+  line([[-112, 68], [-166, 96], [-130, 124]], "#80ed99", 8);
+  line([[112, 68], [166, 96], [130, 124]], "#80ed99", 8);
+  ellipseStroke(0, -66, 72, 50, "#ffffff", 6);
+  px(-74, -118, 148, 22);
+  px(-26, -132, 52, 18);
+  px(-44, -82, 20, 18, "#050507");
+  px(24, -82, 20, 18, "#050507");
+  line([[-34, -38], [-14, -24], [14, -24], [34, -38]], "#050507", 5);
+  for (let i = -54; i <= 54; i += 27) line([[i, -16], [i - 16, 84]], "#f6d28a", 7);
+  ellipseStroke(0, 72, 36, 38, "#ff7a1a", 7);
+  px(-12, 58, 24, 26, "#050507");
+  ellipseStroke(-98, -92, 20, 14, "#ffffff", 5);
+  ellipseStroke(98, -92, 20, 14, "#ffffff", 5);
   ctx.restore();
 }
 
 function drawAsrielPortrait(s) {
   ctx.save();
   ctx.scale(s, s);
-  px(-74, -118, 38, 28);
-  px(36, -118, 38, 28);
-  px(-52, -100, 104, 56);
-  px(-22, -82, 18, 12, "#050507");
-  px(6, -82, 18, 12, "#050507");
-  px(-16, -62, 32, 8, "#050507");
-  px(-88, -60, 176, 22);
-  outlineBox(-54, -38, 108, 90);
-  px(-14, -14, 28, 34, "#050507");
-  px(-78, -30, 24, 92);
-  px(54, -30, 24, 92);
-  px(-42, 52, 28, 64);
-  px(14, 52, 28, 64);
-  px(-56, 110, 40, 10);
-  px(16, 110, 40, 10);
-  px(-88, -96, 42, 8, "#c77dff");
+  line([[-52, -104], [-86, -130], [-70, -82]], "#ffffff", 5);
+  line([[52, -104], [86, -130], [70, -82]], "#ffffff", 5);
+  line([[-52, -100], [-28, -120], [28, -120], [52, -100], [44, -64], [0, -48], [-44, -64], [-52, -100]], "#ffffff", 5);
+  px(-24, -88, 16, 10, "#050507");
+  px(8, -88, 16, 10, "#050507");
+  line([[-18, -66], [0, -58], [18, -66]], "#050507", 4);
+  line([[-104, -44], [-58, -70], [-40, -34], [-96, 4]], "#ffffff", 5);
+  line([[104, -44], [58, -70], [40, -34], [96, 4]], "#ffffff", 5);
+  line([[-70, -26], [0, -58], [70, -26]], "#ffffff", 6);
+  line([[-50, -20], [-30, 58], [0, 84], [30, 58], [50, -20]], "#ffffff", 5);
+  poly([[-16, -2], [0, 28], [16, -2], [0, -12]], "#ffffff");
+  line([[-82, -4], [-114, 56]], "#ffffff", 5);
+  line([[82, -4], [114, 56]], "#ffffff", 5);
+  line([[-34, 62], [-52, 122], [-14, 122]], "#ffffff", 5);
+  line([[34, 62], [52, 122], [14, 122]], "#ffffff", 5);
   ctx.restore();
 }
 
 function drawMettatonPortrait(s) {
   ctx.save();
   ctx.scale(s, s);
-  px(-42, -112, 84, 44);
-  px(-22, -98, 14, 12, "#050507");
-  px(8, -98, 14, 12, "#050507");
-  px(-18, -78, 36, 7, "#050507");
-  px(-86, -56, 172, 12);
-  outlineBox(-56, -52, 112, 82);
-  px(-12, -26, 24, 24, "#050507");
-  px(-74, -36, 18, 88);
-  px(56, -36, 18, 88);
-  px(-108, 38, 52, 9);
-  px(56, 38, 52, 9);
-  px(-58, 30, 22, 88);
-  px(36, 30, 22, 88);
-  px(-76, 112, 44, 10);
-  px(32, 112, 44, 10);
-  px(-8, -20, 16, 16, "#ff8bd1");
+  line([[-26, -128], [22, -128], [50, -104], [40, -76], [4, -62], [-38, -78], [-52, -106], [-26, -128]], "#ffffff", 5);
+  line([[-6, -128], [-42, -150], [-62, -130]], "#ffffff", 4);
+  px(-22, -106, 14, 10, "#050507");
+  px(10, -100, 14, 10, "#050507");
+  line([[-18, -78], [10, -72], [28, -82]], "#050507", 4);
+  line([[-106, -56], [-52, -68], [52, -68], [106, -56]], "#ffffff", 6);
+  line([[-58, -54], [-40, 32], [0, 62], [40, 32], [58, -54]], "#ffffff", 5);
+  ellipseStroke(0, -14, 18, 18, "#ff8bd1", 5);
+  line([[-86, -42], [-132, 28], [-164, 78]], "#ffffff", 5);
+  line([[86, -42], [132, 28], [164, 78]], "#ffffff", 5);
+  line([[-46, 32], [-72, 118], [-32, 118]], "#ffffff", 5);
+  line([[46, 32], [72, 118], [32, 118]], "#ffffff", 5);
   ctx.restore();
 }
 

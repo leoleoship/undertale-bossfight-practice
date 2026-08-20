@@ -17,6 +17,7 @@ This is a fan-made practice project with original code and simple original visua
 - Mettaton
 
 Each fight uses original pixel-style character art, 8-bit bullets, and an original browser-generated chiptune loop.
+Boss portraits use original fan-art line silhouettes with recognizable character shapes, outfits, weapons, and poses.
 Bullet patterns are boss-themed for practice: bones and blaster lanes, spear shields, fire/trident pressure, petals and vines, stars/sabers, and Mettaton-style bombs/legs.
 Normal mode is tuned for learning, with lower damage, slower attacks, and a bullet cap so waves stay dodgeable.
 
