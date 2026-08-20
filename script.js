@@ -914,7 +914,7 @@ function disbeliefPattern(dt) {
   }
   if (state.wave === 2 && every("slam", 1.15, dt)) {
     for (let i = 0; i < 7; i++) {
-      spawn("bone", { x: arena.x + 26 + i * ((arena.w - 52) / 6), y: arena.y + arena.h + 34, vx: 0, vy: -250, r: 13, h: i % 2 ? 58 : 78 });
+      spawn(i % 3 === 1 ? "orangeBone" : "bone", { x: arena.x + 26 + i * ((arena.w - 52) / 6), y: arena.y + arena.h + 34, vx: 0, vy: -250, r: 13, h: i % 2 ? 58 : 78 });
     }
   }
 }
@@ -964,6 +964,10 @@ function sansPattern(dt) {
   if (state.wave >= 1) {
     const xFrac = sequencedEvery("sans-blue", 0.86, dt, [0.22, 0.44, 0.66, 0.82, 0.34]);
     if (xFrac !== null) spawn("blueBone", { x: arena.x + arena.w * xFrac, y: arena.y - 34, vx: 0, vy: 255, r: 14, h: 70 });
+  }
+  if (state.wave === 2) {
+    const xFrac = sequencedEvery("sans-orange", 1.3, dt, [0.16, 0.5, 0.84]);
+    if (xFrac !== null) spawn("orangeBone", { x: arena.x + arena.w * xFrac, y: arena.y - 34, vx: 0, vy: 238, r: 14, h: 64 });
   }
   if (state.wave === 2) {
     const beam = sequencedEvery("sans-beam", 1.1, dt, ["h", "v", "h", "v"]);
@@ -1104,11 +1108,10 @@ function touching(b) {
     if (b.age < b.warn) return false;
     return b.horizontal ? Math.abs(p.y - b.y) < 18 : Math.abs(p.x - b.x) < 18;
   }
-  if (b.kind === "bone" || b.kind === "blueBone") {
-    const moving = keys.has("ArrowLeft") || keys.has("ArrowRight") || keys.has("ArrowUp") || keys.has("ArrowDown") || keys.has("a") || keys.has("d") || keys.has("w") || keys.has("s");
-    if (b.kind === "blueBone" && !moving) {
-      return false;
-    }
+  if (b.kind === "bone" || b.kind === "blueBone" || b.kind === "orangeBone") {
+    const moving = playerIsTryingToMove();
+    if (b.kind === "blueBone" && !moving) return false;
+    if (b.kind === "orangeBone" && moving) return false;
     return rectCircle(b.x - 9, b.y - b.h / 2, 18, b.h, p.x, p.y, p.r);
   }
   if (b.kind === "leg" || b.kind === "saber") {
@@ -1118,6 +1121,10 @@ function touching(b) {
     return rectCircle(b.x - 14, b.y - 14, 28, 28, p.x, p.y, p.r);
   }
   return Math.hypot(p.x - b.x, p.y - b.y) < p.r + b.r;
+}
+
+function playerIsTryingToMove() {
+  return keys.has("ArrowLeft") || keys.has("ArrowRight") || keys.has("ArrowUp") || keys.has("ArrowDown") || keys.has("a") || keys.has("d") || keys.has("w") || keys.has("s");
 }
 
 function shieldBlocks(b) {
@@ -1144,6 +1151,7 @@ function draw() {
   drawBackdrop();
   drawBoss();
   drawArena();
+  drawSoulRuleHint();
   drawBullets();
   drawShots();
   drawEffects();
@@ -1315,6 +1323,7 @@ function drawBossNameplate() {
 
 function drawBossSpeechBox() {
   const text = getBossSpeech();
+  const visibleText = getVisibleSpeech(text);
   const box = getSpeechBoxPlacement(selectedBoss.id);
   ctx.save();
   px(box.x, box.y, box.w, box.h, "#ffffff");
@@ -1324,7 +1333,7 @@ function drawBossSpeechBox() {
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
   ctx.fillStyle = "#ffffff";
-  drawWrappedSpeech(text, box.x + 14, box.y + 12, box.w - 28, 18, 3);
+  drawWrappedSpeech(visibleText, box.x + 14, box.y + 12, box.w - 28, 18, 3);
   ctx.restore();
 }
 
@@ -1368,6 +1377,12 @@ function getBossSpeech() {
     return commandDialogues[state.lastCommand]?.[selectedBoss.id] || lines[state.wave % lines.length];
   }
   return lines[state.wave % lines.length];
+}
+
+function getVisibleSpeech(text) {
+  const age = state.phase === "enemy" ? state.waveT : state.phase === "ready" ? 10 : Math.max(1.5, state.t);
+  const count = Math.max(1, Math.floor(age * 42));
+  return text.slice(0, count);
 }
 
 function drawWrappedSpeech(text, x, y, maxWidth, lineHeight, maxLines) {
@@ -2228,6 +2243,25 @@ function drawArena() {
   ctx.strokeRect(arena.x, arena.y, arena.w, arena.h);
 }
 
+function drawSoulRuleHint() {
+  const hasBlue = state.bullets.some((b) => b.kind === "blueBone");
+  const hasOrange = state.bullets.some((b) => b.kind === "orangeBone");
+  if (!hasBlue && !hasOrange) return;
+  ctx.save();
+  ctx.font = "bold 13px Courier New";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const text = hasBlue && hasOrange ? "BLUE: STOP  ORANGE: MOVE" : hasBlue ? "BLUE: STOP" : "ORANGE: MOVE";
+  const w = Math.min(arena.w - 28, ctx.measureText(text).width + 24);
+  px(arena.x + arena.w / 2 - w / 2, arena.y + 10, w, 24, "#050507");
+  ctx.strokeStyle = hasOrange ? "#ff9f1c" : "#57d6ff";
+  ctx.lineWidth = 2;
+  ctx.strokeRect(arena.x + arena.w / 2 - w / 2, arena.y + 10, w, 24);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text, arena.x + arena.w / 2, arena.y + 22);
+  ctx.restore();
+}
+
 function drawBullets() {
   for (const b of state.bullets) {
     ctx.save();
@@ -2327,10 +2361,10 @@ function drawBullets() {
       ctx.fillRect(12, -18, 12, 36);
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(20, 8, 18, 8);
-    } else if (b.kind === "bone" || b.kind === "blueBone") {
+    } else if (b.kind === "bone" || b.kind === "blueBone" || b.kind === "orangeBone") {
       ctx.fillStyle = "#111118";
       ctx.fillRect(-12, -b.h / 2 - 10, 24, b.h + 20);
-      ctx.fillStyle = b.kind === "blueBone" ? "#57d6ff" : "#ffffff";
+      ctx.fillStyle = b.kind === "blueBone" ? "#57d6ff" : b.kind === "orangeBone" ? "#ff9f1c" : "#ffffff";
       ctx.fillRect(-7, -b.h / 2, 14, b.h);
       ctx.fillRect(-13, -b.h / 2 - 8, 26, 16);
       ctx.fillRect(-13, b.h / 2 - 8, 26, 16);
