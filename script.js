@@ -114,6 +114,41 @@ const commandDialogues = {
     btt: "* The attacks don't stop yet.",
   },
 };
+const playerCommandMessages = {
+  fight: {
+    sans: "* You swing. Sans is already a step away.",
+    undyne: "* You strike. Undyne grins through it.",
+    undying: "* You attack. The heroine refuses to fall.",
+    asgore: "* You attack. Asgore's trident lowers.",
+    disbelief: "* You attack. Papyrus steadies his bones.",
+    btt: "* You attack. Three shadows prepare at once.",
+    omega: "* You fire back. The screen tears with static.",
+    asriel: "* You attack. The light bends around him.",
+    mettaton: "* You attack. The ratings spike.",
+  },
+  act: {
+    sans: "* You checked the timing. The next gap is small.",
+    undyne: "* You challenge her. Spears answer first.",
+    undying: "* You hold your ground. The shield feels heavier.",
+    asgore: "* You talk. For a breath, the flames slow.",
+    disbelief: "* You endure. The bone lanes become readable.",
+    btt: "* You analyze. The first cue belongs to the bones.",
+    omega: "* You call out. The vines twitch in response.",
+    asriel: "* You hope. A safe path flashes in the stars.",
+    mettaton: "* You pose. The spotlight snaps toward you.",
+  },
+  spare: {
+    sans: "* You spare. The shortcut is not open yet.",
+    undyne: "* You spare. Undyne points her spear again.",
+    undying: "* You spare. She will not yield.",
+    asgore: "* You spare. Asgore's grip tightens.",
+    disbelief: "* You spare. Mercy still matters.",
+    btt: "* You spare. The pressure keeps building.",
+    omega: "* You spare. Static swallows the offer.",
+    asriel: "* You spare. The feeling reaches him.",
+    mettaton: "* You spare. The audience holds its breath.",
+  },
+};
 
 const bosses = [
   {
@@ -676,12 +711,12 @@ function chooseCommand(command) {
   if (!state.running || state.phase !== "menu" || state.over) return;
   if (command === "fight") {
     state.mercy = clamp(state.mercy + 18, 0, 100);
-    startEnemyTurn(`You attack. ${selectedBoss.name} gets serious.`, 1.14, "fight");
+    startEnemyTurn(getPlayerCommandMessage("fight"), 1.14, "fight");
   }
   if (command === "act") {
     const act = selectedBoss.acts[(state.turn - 1) % selectedBoss.acts.length];
     state.mercy = clamp(state.mercy + 24, 0, 100);
-    startEnemyTurn(`${act}. ${selectedBoss.name} hesitates.`, 0.88, "act");
+    startEnemyTurn(`${getPlayerCommandMessage("act")} (${act}.)`, 0.88, "act");
   }
   if (command === "item") {
     const item = selectedBoss.items[state.itemIndex % selectedBoss.items.length];
@@ -689,7 +724,7 @@ function chooseCommand(command) {
     state.hp = clamp(state.hp + item.heal, 0, maxHp);
     state.mercy = clamp(state.mercy + 8, 0, 100);
     syncHp();
-    startEnemyTurn(`You used ${item.name}. +${item.heal} HP.`, 1, "item");
+    startEnemyTurn(`* You used ${item.name}. +${item.heal} HP.`, 1, "item");
   }
   if (command === "spare") {
     if (state.mercy >= 100 || state.turn >= 6) {
@@ -702,8 +737,12 @@ function chooseCommand(command) {
       return;
     }
     state.mercy = clamp(state.mercy + 12, 0, 100);
-    startEnemyTurn("Not enough mercy yet.", 1.05, "spare");
+    startEnemyTurn(getPlayerCommandMessage("spare"), 1.05, "spare");
   }
+}
+
+function getPlayerCommandMessage(command) {
+  return playerCommandMessages[command]?.[selectedBoss.id] || `* ${selectedBoss.name} prepares the next attack.`;
 }
 
 function firePlayerShot() {
@@ -1290,6 +1329,7 @@ function draw() {
   drawShots();
   drawEffects();
   drawPlayer();
+  drawNarrationBox();
   drawOverlay();
 }
 
@@ -2437,6 +2477,37 @@ function drawAttackLeadInCue() {
   ctx.fillStyle = "#ffffff";
   ctx.fillText(text, arena.x + arena.w / 2, y + h / 2 + 1);
   ctx.restore();
+}
+
+function drawNarrationBox() {
+  if (state.over || state.phase === "ready") return;
+  const text = getNarrationText();
+  if (!text) return;
+  const box = getNarrationBox();
+  ctx.save();
+  px(box.x, box.y, box.w, box.h, "#ffffff");
+  px(box.x + 4, box.y + 4, box.w - 8, box.h - 8, "#050507");
+  ctx.font = "bold 18px Courier New";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "top";
+  ctx.fillStyle = "#ffffff";
+  drawWrappedSpeech(text, box.x + 22, box.y + 17, box.w - 44, 24, 3);
+  ctx.restore();
+}
+
+function getNarrationBox() {
+  const y = Math.min(552, arena.y + arena.h + 24);
+  return { x: 170, y, w: 620, h: 76 };
+}
+
+function getNarrationText() {
+  if (state.phase === "menu") {
+    return `* ${selectedBoss.name} blocks the way.`;
+  }
+  if (state.phase === "enemy" && state.waveT < getAttackLeadIn() + 0.15) {
+    return state.message;
+  }
+  return "";
 }
 
 function drawSoulRuleHint() {

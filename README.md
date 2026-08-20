@@ -38,6 +38,7 @@ Large weapon attacks now show short lane warnings before moving, making tridents
 Undyne-style green-heart turns use square-box shield reads with multi-direction arrow chords and warning lanes.
 Boss waves also adjust the battle box shape for closer practice feel, including low corridor boxes, narrow cage boxes, wide final-phase boxes, and tall yellow-heart boxes.
 The in-canvas battle box shows soul-mode cues, attack lead-in labels, green-heart shield markers, and a tiny center hitbox marker on the heart.
+Player commands now mirror Undertale-style action narration inside the canvas before the boss attack begins.
 Sans and Disbelief include blue/orange bone rules: stop for blue attacks and move through orange attacks.
 Normal mode is tuned for learning, with lower damage, slower attacks, and a bullet cap so waves stay dodgeable.
 
