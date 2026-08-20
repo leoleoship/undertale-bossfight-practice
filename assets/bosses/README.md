@@ -1,6 +1,7 @@
 # Boss Images
 
 The game loads original generated pixel-art PNG portraits from this folder before using the canvas fallback sprites.
+The portraits are fan-made square-piece silhouettes with stronger costume, weapon, and pose cues for recognition.
 
 Included/expected filenames:
 

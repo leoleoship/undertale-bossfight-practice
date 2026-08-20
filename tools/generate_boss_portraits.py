@@ -68,24 +68,28 @@ def skull(draw, cx, cy, scale=1, eye=BLACK, wink=False):
 def sans():
     img = new_canvas()
     d = ImageDraw.Draw(img)
-    skull(d, 80, 34, 1, BLUE, True)
-    line(d, [(52, 56), (42, 84), (50, 103)], WHITE, 4)
-    line(d, [(108, 56), (118, 84), (110, 103)], WHITE, 4)
-    rect(d, (52, 57, 108, 96), WHITE)
-    rect(d, (62, 61, 98, 92), BLACK)
-    rect(d, (55, 57, 64, 93), BLUE)
-    rect(d, (96, 57, 105, 93), BLUE)
-    rect(d, (75, 58, 85, 94), WHITE)
-    rect(d, (49, 78, 64, 91), WHITE)
-    rect(d, (96, 78, 111, 91), WHITE)
-    rect(d, (57, 82, 67, 92), BLACK)
-    rect(d, (93, 82, 103, 92), BLACK)
-    rect(d, (62, 93, 73, 114), WHITE)
-    rect(d, (87, 93, 98, 114), WHITE)
-    rect(d, (63, 96, 73, 110), BLACK)
-    rect(d, (87, 96, 97, 110), BLACK)
-    rect(d, (50, 114, 75, 120), WHITE)
-    rect(d, (85, 114, 110, 120), WHITE)
+    skull(d, 80, 31, 1, BLUE, True)
+    line(d, [(49, 55), (39, 83), (48, 105)], WHITE, 5)
+    line(d, [(111, 55), (121, 83), (112, 105)], WHITE, 5)
+    rect(d, (48, 56, 112, 96), WHITE)
+    rect(d, (57, 59, 103, 93), BLACK)
+    rect(d, (50, 56, 62, 94), BLUE)
+    rect(d, (98, 56, 110, 94), BLUE)
+    rect(d, (72, 57, 88, 96), WHITE)
+    rect(d, (57, 64, 68, 79), WHITE)
+    rect(d, (92, 64, 103, 79), WHITE)
+    rect(d, (54, 79, 70, 91), WHITE)
+    rect(d, (90, 79, 106, 91), WHITE)
+    rect(d, (59, 82, 68, 91), BLACK)
+    rect(d, (92, 82, 101, 91), BLACK)
+    rect(d, (62, 94, 75, 116), WHITE)
+    rect(d, (85, 94, 98, 116), WHITE)
+    rect(d, (63, 99, 75, 112), BLACK)
+    rect(d, (85, 99, 97, 112), BLACK)
+    rect(d, (49, 116, 76, 123), WHITE)
+    rect(d, (84, 116, 111, 123), WHITE)
+    rect(d, (50, 112, 77, 117), BLACK)
+    rect(d, (83, 112, 110, 117), BLACK)
     line(d, [(18, 101), (138, 101)], WHITE, 3)
     for x in range(20, 134, 14):
         rect(d, (x, 96, x + 9, 106), WHITE)
@@ -107,24 +111,27 @@ def blaster(draw, cx, cy, scale=1):
 def papyrus():
     img = new_canvas()
     d = ImageDraw.Draw(img)
-    skull(d, 80, 26, 1, BLACK)
-    line(d, [(76, 10), (128, 3), (135, 9)], YELLOW, 2)
-    rect(d, (61, 47, 99, 57), RED)
-    rect(d, (45, 56, 115, 66), WHITE)
-    rect(d, (52, 65, 108, 88), WHITE)
-    rect(d, (60, 64, 100, 92), BLACK)
-    rect(d, (64, 67, 96, 87), WHITE)
-    rect(d, (71, 70, 89, 83), BLACK)
-    line(d, [(51, 60), (33, 92), (20, 117)], WHITE, 3)
-    line(d, [(109, 60), (128, 88), (142, 119)], WHITE, 3)
-    line(d, [(31, 105), (10, 102)], WHITE, 3)
-    line(d, [(131, 110), (151, 102)], WHITE, 3)
-    rect(d, (63, 90, 73, 122), WHITE)
-    rect(d, (87, 90, 97, 122), WHITE)
-    rect(d, (63, 99, 73, 117), BLACK)
-    rect(d, (87, 99, 97, 117), BLACK)
-    rect(d, (50, 120, 74, 126), WHITE)
-    rect(d, (86, 120, 110, 126), WHITE)
+    skull(d, 80, 24, 1, BLACK)
+    line(d, [(76, 8), (124, 2), (137, 10)], YELLOW, 2)
+    rect(d, (55, 45, 105, 56), RED)
+    rect(d, (43, 55, 117, 66), WHITE)
+    rect(d, (52, 66, 108, 88), WHITE)
+    rect(d, (58, 64, 102, 93), BLACK)
+    rect(d, (63, 67, 97, 88), WHITE)
+    rect(d, (70, 70, 90, 83), BLACK)
+    rect(d, (55, 55, 65, 67), RED)
+    rect(d, (95, 55, 105, 67), RED)
+    line(d, [(50, 60), (31, 93), (17, 120)], WHITE, 4)
+    line(d, [(110, 60), (130, 90), (145, 121)], WHITE, 4)
+    line(d, [(29, 105), (8, 102)], WHITE, 4)
+    line(d, [(130, 110), (152, 101)], WHITE, 4)
+    rect(d, (62, 90, 74, 123), WHITE)
+    rect(d, (86, 90, 98, 123), WHITE)
+    rect(d, (63, 100, 74, 118), BLACK)
+    rect(d, (86, 100, 97, 118), BLACK)
+    rect(d, (46, 121, 75, 128), WHITE)
+    rect(d, (85, 121, 114, 128), WHITE)
+    spear(d, 25, 118, 132, 20, WHITE)
     save(img, "disbelief")
 
 
@@ -193,28 +200,31 @@ def trident(draw, x, y):
 def omega():
     img = new_canvas()
     d = ImageDraw.Draw(img)
-    rect(d, (38, 6, 122, 28), WHITE)
-    rect(d, (58, 0, 102, 12), WHITE)
-    rect(d, (50, 11, 110, 23), BLACK)
-    rect(d, (55, 14, 63, 19), RED)
-    rect(d, (77, 14, 85, 19), RED)
-    rect(d, (96, 14, 104, 19), RED)
-    draw_omega_face(d, 80, 47)
-    for x, y in [(25, 42), (135, 42), (42, 68), (118, 68)]:
+    rect(d, (36, 5, 124, 29), WHITE)
+    rect(d, (57, 0, 103, 13), WHITE)
+    rect(d, (49, 11, 111, 24), BLACK)
+    rect(d, (55, 14, 63, 20), RED)
+    rect(d, (77, 14, 85, 20), RED)
+    rect(d, (97, 14, 105, 20), RED)
+    draw_omega_face(d, 80, 49)
+    for x, y in [(24, 42), (136, 42), (40, 69), (120, 69), (80, 31)]:
         draw_eye(d, x, y)
     for pts in [
-        [(26, 55), (5, 87), (10, 128)],
-        [(134, 55), (155, 87), (150, 128)],
-        [(46, 84), (14, 112), (42, 128)],
-        [(114, 84), (146, 112), (118, 128)],
-        [(62, 101), (45, 128)],
-        [(98, 101), (115, 128)],
+        [(26, 55), (4, 86), (9, 129)],
+        [(134, 55), (156, 86), (151, 129)],
+        [(45, 83), (12, 110), (40, 129)],
+        [(115, 83), (148, 110), (120, 129)],
+        [(62, 99), (43, 129)],
+        [(98, 99), (117, 129)],
+        [(33, 32), (8, 20), (2, 45)],
+        [(127, 32), (152, 20), (158, 45)],
     ]:
         line(d, pts, GREEN, 5)
     for x, y in [(52, 88), (108, 88), (38, 112), (122, 112)]:
         poly(d, [(x, y - 12), (x + 13, y), (x, y + 12), (x - 13, y)], GREEN)
-    rect(d, (61, 73, 99, 122), ORANGE)
+    rect(d, (60, 72, 100, 123), ORANGE)
     rect(d, (71, 84, 89, 112), BLACK)
+    rect(d, (75, 76, 85, 82), YELLOW)
     line(d, [(54, 120), (106, 120)], ORANGE, 4)
     save(img, "omega")
 
@@ -245,6 +255,8 @@ def asriel():
     line(d, [(37, 59), (123, 59)], WHITE, 5)
     poly(d, [(47, 61), (113, 61), (104, 117), (80, 127), (56, 117)], PURPLE)
     poly(d, [(70, 72), (80, 103), (90, 72), (80, 63)], WHITE)
+    rect(d, (70, 74, 90, 81), RED)
+    rect(d, (73, 83, 87, 91), BLUE)
     line(d, [(63, 64), (46, 104)], WHITE, 2)
     line(d, [(97, 64), (114, 104)], WHITE, 2)
     line(d, [(41, 86), (21, 123)], WHITE, 3)
