@@ -37,6 +37,7 @@ Do not publish copied Undertale screenshots or sprites unless you have permissio
 
 - Move: arrow keys or WASD
 - Focus: Shift
+- Green heart: arrow keys or WASD aim the shield; the heart does not move
 - Yellow heart shot: Space
 - Restart: R
 

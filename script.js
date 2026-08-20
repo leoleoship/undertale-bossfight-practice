@@ -621,25 +621,46 @@ function update(dt) {
     b.x += (b.vx || 0) * dt * d.speed * state.pressure;
     b.y += (b.vy || 0) * dt * d.speed * state.pressure;
     if (b.spin) b.angle = (b.angle || 0) + b.spin * dt;
-    if (touching(b) && state.player.inv <= 0) {
-      state.hp -= d.damage;
-      state.player.inv = 1.0;
-      state.effects.push({ x: state.player.x, y: state.player.y, age: 0 });
-      syncHp();
-      if (state.hp <= 0) {
-        state.over = true;
-        state.running = false;
-        stopMusic();
+
+    if (b.kind === "arrow" && state.heartMode === "green" && arrowReachedSoul(b)) {
+      if (state.player.shieldDir === b.dir) {
+        b.hit = true;
+        state.effects.push({ x: state.player.x, y: state.player.y, age: 0, block: true });
+      } else {
+        damagePlayer(d.damage);
+        b.hit = true;
       }
+      continue;
+    }
+
+    if (touching(b) && state.player.inv <= 0) {
+      damagePlayer(d.damage);
     }
   }
 
   state.effects.forEach((e) => (e.age += dt));
   state.effects = state.effects.filter((e) => e.age < 0.45);
-  state.bullets = state.bullets.filter((b) => !outside(b));
+  state.bullets = state.bullets.filter((b) => !b.hit && !outside(b));
   state.shots = state.shots.filter((s) => s.y > arena.y - 70 && !s.hit);
   timeLeft.textContent = Math.max(0, state.enemyTurnLength - state.waveT).toFixed(1);
   syncTurnUi();
+}
+
+function damagePlayer(amount) {
+  if (state.player.inv > 0) return;
+  state.hp -= amount;
+  state.player.inv = 1.0;
+  state.effects.push({ x: state.player.x, y: state.player.y, age: 0, block: false });
+  syncHp();
+  if (state.hp <= 0) {
+    state.over = true;
+    state.running = false;
+    stopMusic();
+  }
+}
+
+function arrowReachedSoul(b) {
+  return Math.hypot(state.player.x - b.x, state.player.y - b.y) < 34;
 }
 
 function movePlayer(dt) {
@@ -929,6 +950,7 @@ function touching(b) {
 
 function shieldBlocks(b) {
   const p = state.player;
+  if (b.kind === "arrow") return arrowReachedSoul(b) && p.shieldDir === b.dir;
   const dx = b.x - p.x;
   const dy = b.y - p.y;
   const close = Math.hypot(dx, dy) < 48;
@@ -952,6 +974,7 @@ function draw() {
   drawArena();
   drawBullets();
   drawShots();
+  drawEffects();
   drawPlayer();
   drawOverlay();
 }
@@ -1561,12 +1584,24 @@ function drawShots() {
   ctx.restore();
 }
 
+function drawEffects() {
+  ctx.save();
+  for (const e of state.effects) {
+    const size = 18 + e.age * 70;
+    ctx.globalAlpha = Math.max(0, 1 - e.age / 0.45);
+    ctx.strokeStyle = e.block ? "#80ed99" : "#ff3855";
+    ctx.lineWidth = 4;
+    ctx.strokeRect(e.x - size / 2, e.y - size / 2, size, size);
+  }
+  ctx.restore();
+}
+
 function drawShield(dir) {
   ctx.fillStyle = "#80ed99";
-  if (dir === "up") ctx.fillRect(-18, -34, 36, 6);
-  if (dir === "down") ctx.fillRect(-18, 30, 36, 6);
-  if (dir === "left") ctx.fillRect(-34, -14, 6, 36);
-  if (dir === "right") ctx.fillRect(30, -14, 6, 36);
+  if (dir === "up") ctx.fillRect(-24, -42, 48, 8);
+  if (dir === "down") ctx.fillRect(-24, 36, 48, 8);
+  if (dir === "left") ctx.fillRect(-42, -20, 8, 48);
+  if (dir === "right") ctx.fillRect(36, -20, 8, 48);
 }
 
 function drawPixelHeart(x, y, size, color) {
