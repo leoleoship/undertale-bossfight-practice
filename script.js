@@ -196,49 +196,58 @@ let music = {
 
 const chipTunes = {
   undyne: {
-    bpm: 172,
-    lead: [659, 740, 784, 740, 659, 587, 659, 880, 784, 740, 659, 587, 523, 587, 659, 740],
-    bass: [165, 165, 196, 196, 147, 147, 196, 196],
+    bpm: 184,
+    lead: [784, 0, 740, 784, 988, 880, 784, 740, 659, 0, 740, 784, 880, 988, 880, 784],
+    bass: [196, 196, 147, 147, 165, 165, 185, 185],
+    pulse: 0.62,
   },
   asgore: {
-    bpm: 136,
-    lead: [392, 440, 523, 587, 659, 587, 523, 440, 349, 392, 440, 523, 587, 523, 440, 392],
-    bass: [98, 131, 147, 131, 87, 117, 131, 117],
+    bpm: 144,
+    lead: [523, 587, 659, 784, 740, 659, 587, 523, 440, 523, 587, 659, 698, 659, 587, 523],
+    bass: [131, 131, 98, 98, 117, 117, 87, 87],
+    pulse: 0.48,
   },
   disbelief: {
-    bpm: 188,
-    lead: [523, 0, 523, 587, 622, 587, 523, 392, 466, 0, 466, 523, 587, 523, 466, 392],
-    bass: [131, 131, 117, 117, 98, 98, 117, 117],
+    bpm: 192,
+    lead: [587, 0, 587, 698, 784, 698, 587, 523, 466, 0, 523, 587, 698, 587, 523, 466],
+    bass: [147, 147, 110, 110, 131, 131, 98, 98],
+    pulse: 0.7,
   },
   btt: {
-    bpm: 198,
-    lead: [784, 740, 659, 587, 659, 740, 784, 988, 880, 784, 740, 659, 587, 659, 740, 784],
-    bass: [196, 147, 165, 196, 220, 165, 147, 196],
+    bpm: 204,
+    lead: [784, 0, 740, 659, 784, 0, 988, 880, 784, 740, 659, 587, 659, 740, 784, 988],
+    bass: [196, 147, 165, 196, 147, 196, 220, 196],
+    pulse: 0.75,
   },
   sans: {
-    bpm: 184,
-    lead: [392, 392, 587, 523, 0, 392, 349, 330, 294, 294, 440, 392, 0, 330, 349, 392],
-    bass: [98, 98, 147, 147, 87, 87, 131, 131],
+    bpm: 200,
+    lead: [392, 0, 392, 587, 523, 0, 466, 392, 294, 0, 294, 440, 392, 0, 349, 330],
+    bass: [98, 98, 147, 98, 87, 87, 131, 87],
+    pulse: 0.85,
   },
   undying: {
-    bpm: 204,
-    lead: [740, 784, 880, 988, 880, 784, 740, 659, 784, 880, 988, 1175, 988, 880, 784, 740],
-    bass: [185, 185, 220, 220, 247, 247, 220, 220],
+    bpm: 212,
+    lead: [880, 988, 1175, 1319, 1175, 988, 880, 784, 988, 1175, 1319, 1568, 1319, 1175, 988, 880],
+    bass: [220, 220, 165, 165, 196, 196, 247, 247],
+    pulse: 0.78,
   },
   omega: {
-    bpm: 152,
-    lead: [523, 659, 622, 523, 466, 523, 622, 659, 698, 659, 622, 523, 466, 392, 466, 523],
-    bass: [131, 117, 98, 87, 131, 117, 98, 87],
+    bpm: 156,
+    lead: [523, 622, 659, 523, 466, 392, 466, 523, 698, 659, 622, 523, 466, 523, 622, 659],
+    bass: [65, 98, 87, 98, 65, 98, 87, 98],
+    pulse: 0.56,
   },
   asriel: {
-    bpm: 168,
-    lead: [659, 784, 988, 880, 784, 659, 587, 659, 740, 880, 1175, 988, 880, 740, 659, 587],
-    bass: [165, 196, 247, 220, 165, 196, 247, 220],
+    bpm: 172,
+    lead: [659, 784, 988, 1175, 988, 880, 784, 659, 740, 880, 1175, 1319, 1175, 988, 880, 740],
+    bass: [165, 196, 247, 196, 220, 247, 294, 247],
+    pulse: 0.52,
   },
   mettaton: {
-    bpm: 176,
-    lead: [880, 0, 880, 988, 1047, 988, 880, 784, 740, 0, 740, 880, 988, 880, 740, 659],
-    bass: [220, 220, 196, 196, 165, 165, 196, 196],
+    bpm: 180,
+    lead: [880, 0, 880, 988, 1047, 0, 988, 880, 740, 0, 740, 880, 988, 0, 880, 740],
+    bass: [220, 165, 196, 147, 220, 165, 196, 147],
+    pulse: 0.72,
   },
 };
 
@@ -635,7 +644,7 @@ function update(dt) {
 
 function movePlayer(dt) {
   const slow = keys.has("Shift") ? 0.45 : 1;
-  const speed = (state.heartMode === "green" ? 150 : 245) * slow;
+  const speed = 245 * slow;
   const p = state.player;
   let dx = 0;
   let dy = 0;
@@ -647,6 +656,11 @@ function movePlayer(dt) {
   if (state.heartMode === "green") {
     if (Math.abs(dx) > Math.abs(dy)) p.shieldDir = dx < 0 ? "left" : "right";
     else if (dy !== 0) p.shieldDir = dy < 0 ? "up" : "down";
+    p.x = arena.x + arena.w / 2;
+    p.y = arena.y + arena.h / 2;
+    p.vy = 0;
+    p.grounded = false;
+    return;
   }
 
   if (state.heartMode === "blue") {
@@ -890,6 +904,9 @@ function mettatonPattern(dt) {
 function touching(b) {
   const p = state.player;
   if (state.heartMode === "green" && shieldBlocks(b)) return false;
+  if (b.kind === "arrow") {
+    return Math.hypot(p.x - b.x, p.y - b.y) < p.r + 18;
+  }
   if (b.kind === "beam" || b.kind === "vine") {
     if (b.age < b.warn) return false;
     return b.horizontal ? Math.abs(p.y - b.y) < 18 : Math.abs(p.x - b.x) < 18;
@@ -1665,9 +1682,13 @@ function updateMusic() {
   while (music.nextTime < music.ctx.currentTime + 0.18) {
     const lead = tune.lead[music.step % tune.lead.length];
     const bass = tune.bass[Math.floor(music.step / 2) % tune.bass.length];
-    if (lead) playTone(lead, music.nextTime, beat * 0.42, "square", 0.08);
-    if (music.step % 2 === 0) playTone(bass, music.nextTime, beat * 0.8, "triangle", 0.055);
-    if (music.step % 4 === 2) playNoiseHat(music.nextTime, beat * 0.12);
+    const pulse = tune.pulse || 0.5;
+    if (lead) {
+      playTone(lead, music.nextTime, beat * 0.38, "square", 0.065 + pulse * 0.03);
+      if (pulse > 0.68 && music.step % 4 === 0) playTone(lead * 2, music.nextTime + beat * 0.08, beat * 0.18, "square", 0.025);
+    }
+    if (music.step % 2 === 0) playTone(bass, music.nextTime, beat * 0.82, "triangle", 0.045 + pulse * 0.02);
+    if (music.step % 4 === 2 || pulse > 0.7) playNoiseHat(music.nextTime, beat * 0.1);
     music.step++;
     music.nextTime += beat / 2;
   }

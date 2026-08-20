@@ -17,6 +17,7 @@ This is a fan-made practice project with original code and simple original visua
 - Mettaton
 
 Each fight uses original pixel-style character art, 8-bit bullets, and an original browser-generated chiptune loop.
+The BGM loops are original chiptune-style tracks tuned to each boss's mood and tempo; they do not copy Undertale's actual songs.
 Boss portraits use original fan-art tile sprites made from small square pixel pieces with recognizable character shapes, outfits, weapons, and poses.
 Bullet patterns are boss-themed for practice: bones and blaster lanes, spear shields, fire/trident pressure, petals and vines, stars/sabers, and Mettaton-style bombs/legs.
 Patterns are inspired by the recognizable mechanics from the boss fights, but they are retimed and simplified for practice.
