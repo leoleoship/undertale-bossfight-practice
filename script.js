@@ -1283,7 +1283,9 @@ function draw() {
   drawBackdrop();
   drawBoss();
   drawArena();
+  drawArenaModeDetails();
   drawSoulRuleHint();
+  drawAttackLeadInCue();
   drawBullets();
   drawShots();
   drawEffects();
@@ -2378,6 +2380,65 @@ function drawArena() {
   ctx.strokeRect(arena.x, arena.y, arena.w, arena.h);
 }
 
+function drawArenaModeDetails() {
+  ctx.save();
+  if (state.heartMode === "green") {
+    const cx = arena.x + arena.w / 2;
+    const cy = arena.y + arena.h / 2;
+    ctx.globalAlpha = 0.82;
+    drawShieldMarker(cx, arena.y + 16, "up");
+    drawShieldMarker(arena.x + arena.w - 16, cy, "right");
+    drawShieldMarker(cx, arena.y + arena.h - 16, "down");
+    drawShieldMarker(arena.x + 16, cy, "left");
+  }
+  if (state.heartMode === "blue") {
+    ctx.globalAlpha = 0.26;
+    ctx.fillStyle = "#4ea1ff";
+    for (let x = arena.x + 16; x < arena.x + arena.w; x += 24) {
+      ctx.fillRect(x, arena.y + arena.h - 12, 12, 4);
+    }
+  }
+  if (state.heartMode === "yellow") {
+    ctx.globalAlpha = 0.28;
+    ctx.fillStyle = "#ffd166";
+    for (let y = arena.y + 20; y < arena.y + arena.h - 10; y += 30) {
+      ctx.fillRect(arena.x + arena.w / 2 - 2, y, 4, 14);
+    }
+  }
+  ctx.restore();
+}
+
+function drawShieldMarker(x, y, dir) {
+  ctx.save();
+  ctx.translate(x, y);
+  const rotations = { up: 0, right: Math.PI / 2, down: Math.PI, left: -Math.PI / 2 };
+  ctx.rotate(rotations[dir] || 0);
+  ctx.fillStyle = state.player.shieldDir === dir ? "#80ed99" : "#2f6f35";
+  ctx.fillRect(-10, -4, 20, 8);
+  ctx.fillRect(-4, -12, 8, 8);
+  ctx.restore();
+}
+
+function drawAttackLeadInCue() {
+  if (state.phase !== "enemy" || state.waveT >= getAttackLeadIn()) return;
+  const text = `* ${selectedBoss.waves[state.wave]}`;
+  ctx.save();
+  ctx.font = "bold 18px Courier New";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  const w = Math.min(arena.w - 30, ctx.measureText(text).width + 34);
+  const h = 34;
+  const x = arena.x + arena.w / 2 - w / 2;
+  const y = arena.y + arena.h - h - 16;
+  px(x, y, w, h, "#050507");
+  ctx.strokeStyle = selectedBoss.color;
+  ctx.lineWidth = 2;
+  ctx.strokeRect(x, y, w, h);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillText(text, arena.x + arena.w / 2, y + h / 2 + 1);
+  ctx.restore();
+}
+
 function drawSoulRuleHint() {
   const hasBlue = state.bullets.some((b) => b.kind === "blueBone");
   const hasOrange = state.bullets.some((b) => b.kind === "orangeBone");
@@ -2551,7 +2612,8 @@ function drawPlayer() {
   ctx.save();
   ctx.translate(p.x, p.y);
   ctx.globalAlpha = p.inv > 0 ? 0.45 + Math.sin(state.t * 32) * 0.25 : 1;
-  drawPixelHeart(-21, -18, pixel, heartColors[state.heartMode]);
+  drawPixelHeart(-21, -18, pixel, heartColors[state.heartMode], state.heartMode);
+  drawSoulHitbox();
   if (state.heartMode === "green") drawShield(p.shieldDir);
   ctx.restore();
 }
@@ -2605,7 +2667,7 @@ function drawShield(dir) {
   ctx.restore();
 }
 
-function drawPixelHeart(x, y, size, color) {
+function drawPixelHeart(x, y, size, color, mode = "red") {
   const map = [
     ".XX.XX.",
     "XXXXXXX",
@@ -2622,6 +2684,24 @@ function drawPixelHeart(x, y, size, color) {
       if (map[row][col] === "X") ctx.fillRect(x + col * size, y + row * size, size, size);
     }
   }
+  if (mode === "yellow") {
+    ctx.fillStyle = "#050507";
+    ctx.fillRect(x + 18, y - 8, 6, 10);
+    ctx.fillStyle = color;
+    ctx.fillRect(x + 18, y - 14, 6, 12);
+    ctx.fillRect(x + 12, y - 8, 18, 6);
+  }
+  if (mode === "blue") {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(x + 18, y + 28, 6, 4);
+  }
+}
+
+function drawSoulHitbox() {
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(-2, -2, 4, 4);
+  ctx.fillStyle = "#050507";
+  ctx.fillRect(-1, -1, 2, 2);
 }
 
 function drawPixelSprite(sprite, x, y, size) {

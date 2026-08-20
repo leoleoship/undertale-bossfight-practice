@@ -292,9 +292,9 @@ canvas {
   gap: 12px;
   align-items: center;
   padding: 10px 12px;
-  border: 2px solid #33333d;
-  border-radius: 6px;
-  background: rgba(18, 18, 24, 0.94);
+  border: 2px solid var(--line);
+  border-radius: 0;
+  background: #050506;
 }
 
 .command-panel.disabled {
@@ -302,9 +302,12 @@ canvas {
 }
 
 .command-text {
-  min-height: 1.4em;
+  min-height: 2.4em;
+  display: flex;
+  align-items: center;
   overflow-wrap: anywhere;
   color: var(--text);
+  font-size: 1rem;
 }
 
 .commands {
@@ -315,7 +318,36 @@ canvas {
 
 .commands button {
   min-height: 38px;
-  border-radius: 4px;
+  min-width: 88px;
+  border-color: #ff9f1c;
+  border-radius: 0;
+  color: #ff9f1c;
+  font-weight: 700;
+  position: relative;
+  padding-left: 26px;
+  text-align: left;
+}
+
+.commands button::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%) rotate(45deg);
+  background: #ff9f1c;
+}
+
+.commands button:hover,
+.commands button:focus-visible {
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.commands button:hover::before,
+.commands button:focus-visible::before {
+  background: var(--gold);
 }
 
 .touch-controls {
