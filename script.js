@@ -1531,6 +1531,29 @@ function omegaPattern(dt) {
       spawn("pellet", { x: arena.x + arena.w / 2, y: arena.y + arena.h * 0.44, vx: Math.cos(a) * 148, vy: Math.sin(a) * 148, r: 7, angle: a, spin: -2.1 });
     }
   }
+  if (state.wave === 0 && every("omega-petal-fan", 1.08 - progress * 0.08, dt)) {
+    const index = sequenceIndex(1.08 - progress * 0.08);
+    const safe = index % 7;
+    const centerX = arena.x + arena.w / 2;
+    for (let i = 0; i < 7; i++) {
+      if (i === safe || i === (safe + 1) % 7) continue;
+      const lane = 0.12 + i * 0.13;
+      const fromTop = index % 2 === 0;
+      const x = arena.x + arena.w * lane;
+      const y = fromTop ? arena.y - 24 : arena.y + arena.h + 24;
+      const toward = Math.atan2(arena.y + arena.h * 0.48 - y, centerX - x);
+      spawn("petal", {
+        x,
+        y,
+        vx: Math.cos(toward) * (164 + progress * 34),
+        vy: Math.sin(toward) * (164 + progress * 34),
+        r: 11,
+        angle: toward,
+        spin: fromTop ? 2.4 : -2.4,
+        delay: i * 0.035,
+      });
+    }
+  }
   if (state.wave >= 1) {
     const vineInterval = 0.92 - progress * 0.14;
     const vine = sequencedEvery("omega-vine", vineInterval, dt, ["v25", "h38", "v75", "h62", "v50", "h50"]);

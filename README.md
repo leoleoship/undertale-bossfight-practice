@@ -65,6 +65,7 @@ Asgore Fire Rings now includes an extra original side fire sweep with a planned 
 Sans Bone Shuffle now adds an original low/high bone-wall layer with safe columns, giving the opener a more recognizable Sans-style practice rhythm without copying an exact attack.
 Sans and Disbelief Papyrus also have sharper jacket/scarf/chest pixel blocks, which carry into the Bad Time Trio thumbnail.
 Mettaton now has stronger hair, face, and chest-core pixels, and Ratings Rush adds a scripted ratings-lane burst with safe columns and pellet pressure for a showier yellow-heart practice feel.
+Omega Flowey now has clearer monitor sides, vine nodes, and body-core pixels, while Petal Burst adds an original petal-fan layer with skipped lanes for safer screen-filling pressure.
 Dynamic wave ramps use staged opener/build/finale intensity, so attacks start readable and tighten toward the end instead of changing at one flat rate.
 Weapon warnings and hazard telegraphs also follow that intensity curve, giving longer reads at the start of a turn and quicker warnings during the finale.
 Pattern sequencing now advances with the tuned spawn rate, so faster waves use the intended ordered reads instead of repeating lanes; Sans, Undyne, Undying, Asgore, Omega, Asriel, Mettaton, and Disbelief patterns have tighter speeds and more source-style safe gaps.
