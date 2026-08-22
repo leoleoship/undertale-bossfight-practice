@@ -76,6 +76,11 @@ def chest_heart(draw, cx, cy, color=RED):
     rect(draw, (cx - 2, cy + 8, cx + 2, cy + 12), color)
 
 
+def trim_panel(draw, x1, y1, x2, y2, color=WHITE, accent=BLACK):
+    line(draw, [(x1, y1), ((x1 + x2) // 2, y2), (x2, y1)], color, 2)
+    line(draw, [(x1 + 4, y1 + 3), ((x1 + x2) // 2, y2 - 7), (x2 - 4, y1 + 3)], accent, 1)
+
+
 def face_line(draw, cx, cy, width=18):
     rect(draw, (cx - width // 2, cy, cx + width // 2, cy + 2), BLACK)
     rect(draw, (cx - width // 2 + 3, cy + 3, cx - width // 2 + 6, cy + 5), BLACK)
@@ -101,6 +106,8 @@ def sans():
     rect(d, (78, 83, 82, 92), WHITE)
     line(d, [(68, 58), (68, 95)], WHITE, 1)
     line(d, [(92, 58), (92, 95)], WHITE, 1)
+    rect(d, (73, 72, 87, 77), WHITE)
+    rect(d, (77, 73, 83, 76), BLACK)
     rect(d, (57, 64, 68, 79), WHITE)
     rect(d, (92, 64, 103, 79), WHITE)
     rect(d, (54, 79, 70, 91), WHITE)
@@ -147,6 +154,7 @@ def papyrus():
     shirt_panel(d, 57, 67, 103, 93, BLACK, WHITE)
     rect(d, (66, 70, 94, 83), WHITE)
     rect(d, (72, 73, 88, 82), BLACK)
+    rect(d, (76, 70, 84, 83), RED)
     rect(d, (70, 58, 90, 63), RED)
     line(d, [(52, 45), (96, 66)], RED, 5)
     line(d, [(108, 44), (69, 66)], RED, 4)
@@ -191,6 +199,7 @@ def undyne(name="undyne", undying=False):
     rect(d, (76, 99, 84, 113), armor)
     line(d, [(57, 69), (103, 69)], WHITE, 2)
     line(d, [(80, 63), (80, 114)], WHITE, 2)
+    trim_panel(d, 61, 72, 99, 108, WHITE, BLACK)
     if undying:
         rect(d, (69, 72, 91, 88), RED)
         line(d, [(47, 73), (113, 73)], GREEN, 3)
@@ -228,6 +237,8 @@ def asgore():
     line(d, [(65, 80), (95, 80)], GOLD, 2)
     chest_heart(d, 80, 95, GOLD)
     line(d, [(56, 74), (80, 121), (104, 74)], GOLD, 2)
+    rect(d, (72, 83, 88, 88), GOLD)
+    rect(d, (75, 86, 85, 111), GOLD)
     poly(d, [(52, 72), (20, 126), (55, 122)], WHITE)
     poly(d, [(108, 72), (140, 126), (105, 122)], WHITE)
     line(d, [(80, 74), (80, 119)], YELLOW, 3)
@@ -272,6 +283,7 @@ def omega():
     rect(d, (69, 82, 91, 112), BLACK)
     rect(d, (74, 75, 86, 82), YELLOW)
     line(d, [(61, 72), (99, 72)], YELLOW, 2)
+    line(d, [(58, 70), (80, 123), (102, 70)], YELLOW, 2)
     line(d, [(54, 120), (106, 120)], ORANGE, 4)
     save(img, "omega")
 
@@ -310,6 +322,7 @@ def asriel():
     rect(d, (73, 84, 87, 93), BLUE)
     rect(d, (66, 66, 94, 70), WHITE)
     line(d, [(63, 68), (80, 104), (97, 68)], WHITE, 2)
+    trim_panel(d, 61, 67, 99, 112, WHITE, BLACK)
     line(d, [(63, 64), (46, 104)], WHITE, 2)
     line(d, [(97, 64), (114, 104)], WHITE, 2)
     line(d, [(41, 86), (21, 123)], WHITE, 3)
@@ -336,6 +349,8 @@ def mettaton():
     rect(d, (76, 82, 84, 90), PINK)
     rect(d, (57, 66, 103, 70), PINK)
     line(d, [(64, 70), (80, 118), (96, 70)], PINK, 2)
+    rect(d, (70, 76, 90, 98), PINK)
+    rect(d, (75, 81, 85, 93), WHITE)
     line(d, [(50, 73), (17, 117)], WHITE, 3)
     line(d, [(110, 73), (143, 117)], WHITE, 3)
     line(d, [(65, 101), (43, 126)], WHITE, 4)

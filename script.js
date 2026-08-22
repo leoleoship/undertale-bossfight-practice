@@ -1132,10 +1132,10 @@ function undynePattern(dt) {
     const index = sequenceIndex(0.62);
     const lane = [0.18, 0.36, 0.64, 0.82, 0.5, 0.28, 0.72][index % 7];
     const fromLeft = index % 2 === 0;
-    spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: arena.y + arena.h * lane, vx: fromLeft ? 304 : -304, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI, delay: intensityRange(0.34, 0.24) });
+      spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: arena.y + arena.h * lane, vx: fromLeft ? 326 : -326, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI, delay: intensityRange(0.32, 0.22) });
     if (index % 3 !== 1) {
       const x = arena.x + arena.w * ([0.24, 0.5, 0.76, 0.38, 0.62][index % 5]);
-      spawn("spear", { x, y: arena.y - 35, vx: 0, vy: 266, r: 13, angle: Math.PI / 2, delay: intensityRange(0.42, 0.3) });
+      spawn("spear", { x, y: arena.y - 35, vx: 0, vy: 286, r: 13, angle: Math.PI / 2, delay: intensityRange(0.4, 0.28) });
     }
   }
   if (state.wave === 2 && every("cyclone", 0.34 - attackIntensity() * 0.06, dt)) {
@@ -1145,7 +1145,7 @@ function undynePattern(dt) {
     const x = arena.x + arena.w / 2 + Math.cos(angle) * radiusX;
     const y = arena.y + arena.h / 2 + Math.sin(angle) * radiusY;
     const toward = Math.atan2(state.player.y - y, state.player.x - x);
-    const speed = 232 + attackIntensity() * 46;
+    const speed = 248 + attackIntensity() * 56;
     spawn("spear", { x, y, vx: Math.cos(toward) * speed, vy: Math.sin(toward) * speed, r: 12, angle: toward, delay: intensityRange(0.24, 0.16) });
   }
 }
@@ -1190,8 +1190,8 @@ function asgorePattern(dt) {
     const lane = sequencedEvery("sweep", interval, dt, [0.24, 0.5, 0.76, 0.36, 0.64]);
     if (lane !== null) {
       const y = arena.y + arena.h * lane;
-      spawn("trident", { x: arena.x - 60, y, vx: 440, vy: 0, r: 22, angle: 0, delay: intensityRange(0.5, 0.34) });
-      if (state.wave === 2) spawn("trident", { x: arena.x + arena.w + 60, y: arena.y + arena.h * (1 - lane), vx: -440, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.5, 0.34) });
+      spawn("trident", { x: arena.x - 60, y, vx: 472, vy: 0, r: 22, angle: 0, delay: intensityRange(0.48, 0.32) });
+      if (state.wave === 2) spawn("trident", { x: arena.x + arena.w + 60, y: arena.y + arena.h * (1 - lane), vx: -472, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.48, 0.32) });
     }
   }
   if (state.wave === 2 && every("flame-curtain", 0.42, dt)) {
@@ -1300,8 +1300,8 @@ function sansPattern(dt) {
     const index = sequenceIndex(boneInterval);
     const h = heights[index % heights.length];
     const speed = 242 + progress * 48;
-    spawn("bone", { x: arena.x + arena.w + 28, y: arena.y + arena.h - h / 2, vx: -speed, vy: 0, r: 14, h });
-    if (state.wave >= 1 && index % 3 !== 1) spawn("bone", { x: arena.x - 28, y: arena.y + h / 2, vx: speed - 18, vy: 0, r: 14, h: Math.max(42, h * 0.62) });
+    spawn("bone", { x: arena.x + arena.w + 28, y: arena.y + arena.h - h / 2, vx: -speed - 12, vy: 0, r: 14, h });
+    if (state.wave >= 1 && index % 3 !== 1) spawn("bone", { x: arena.x - 28, y: arena.y + h / 2, vx: speed, vy: 0, r: 14, h: Math.max(42, h * 0.62) });
   }
   if (state.wave >= 1) {
     const xFrac = sequencedEvery("sans-blue", 0.8, dt, [0.2, 0.42, 0.64, 0.82, 0.34, 0.56]);
@@ -1334,8 +1334,8 @@ function sansPattern(dt) {
         vy: 0,
         r: 24,
         horizontal: beam === "h",
-        warn: intensityRange(0.5, 0.38),
-        life: 0.96,
+        warn: intensityRange(0.46, 0.34),
+        life: 0.88,
       });
     }
   }
@@ -1399,8 +1399,8 @@ function undyingPattern(dt) {
   const crossInterval = 0.58 - progress * 0.06;
   if (state.wave >= 1 && every("undying-cross", crossInterval, dt)) {
     const index = sequenceIndex(crossInterval);
-    spawn("spear", { x: arena.x + arena.w * ([0.2, 0.42, 0.68, 0.84, 0.34, 0.58][index % 6]), y: arena.y - 35, vx: 0, vy: 292 + progress * 26, r: 12, angle: Math.PI / 2, delay: intensityRange(0.26, 0.18) });
-    if (index % 3 !== 1) spawn("spear", { x: arena.x - 35, y: arena.y + arena.h * ([0.26, 0.52, 0.76][index % 3]), vx: 304 + progress * 26, vy: 0, r: 12, angle: 0, delay: intensityRange(0.3, 0.2) });
+    spawn("spear", { x: arena.x + arena.w * ([0.2, 0.42, 0.68, 0.84, 0.34, 0.58][index % 6]), y: arena.y - 35, vx: 0, vy: 314 + progress * 32, r: 12, angle: Math.PI / 2, delay: intensityRange(0.24, 0.16) });
+    if (index % 3 !== 1) spawn("spear", { x: arena.x - 35, y: arena.y + arena.h * ([0.26, 0.52, 0.76][index % 3]), vx: 328 + progress * 30, vy: 0, r: 12, angle: 0, delay: intensityRange(0.28, 0.18) });
   }
 }
 
