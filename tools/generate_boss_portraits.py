@@ -245,6 +245,8 @@ def undyne(name="undyne", undying=False):
     rect(d, (102, 24, 109, 35), BLACK)
     rect(d, (58, 33, 71, 36), BLACK)
     rect(d, (88, 34, 101, 37), BLACK)
+    rect(d, (59, 20, 72, 23), color)
+    rect(d, (88, 20, 103, 23), color)
     if undying:
         rect(d, (57, 18, 72, 22), GREEN)
         rect(d, (88, 17, 105, 21), GREEN)
@@ -273,6 +275,8 @@ def undyne(name="undyne", undying=False):
     rect(d, (69, 80, 91, 86), BLACK)
     rect(d, (73, 82, 87, 88), color)
     rect(d, (77, 78, 83, 96), WHITE)
+    rect(d, (68, 91, 92, 97), BLACK)
+    rect(d, (73, 92, 87, 99), color)
     line(d, [(57, 69), (103, 69)], WHITE, 2)
     line(d, [(80, 63), (80, 114)], WHITE, 2)
     trim_panel(d, 61, 72, 99, 108, WHITE, BLACK)

@@ -1157,6 +1157,11 @@ function undynePattern(dt) {
     const chord = chords[sequenceIndex(0.72 - attackIntensity() * 0.08) % chords.length];
     spawnUndyneArrowChord(236 + attackIntensity() * 66, chord.split(" "), Math.max(0.055, 0.1 - attackIntensity() * 0.035));
   }
+  if (state.wave === 2 && every("undyne-guard-ladder", 1.18 - attackIntensity() * 0.1, dt)) {
+    const ladders = ["up left down", "right up left", "down right up", "left down right"];
+    const ladder = ladders[sequenceIndex(1.18 - attackIntensity() * 0.1) % ladders.length];
+    spawnUndyneArrowChord(258 + attackIntensity() * 58, ladder.split(" "), Math.max(0.065, 0.12 - attackIntensity() * 0.03));
+  }
 }
 
 function spawnUndyneArrowChord(speed, dirs, step = 0.14) {
@@ -1489,6 +1494,11 @@ function undyingPattern(dt) {
     const index = sequenceIndex(crossInterval);
     spawn("spear", { x: arena.x + arena.w * ([0.2, 0.42, 0.68, 0.84, 0.34, 0.58][index % 6]), y: arena.y - 35, vx: 0, vy: 314 + progress * 32, r: 12, angle: Math.PI / 2, delay: intensityRange(0.24, 0.16) });
     if (index % 3 !== 1) spawn("spear", { x: arena.x - 35, y: arena.y + arena.h * ([0.26, 0.52, 0.76][index % 3]), vx: 328 + progress * 30, vy: 0, r: 12, angle: 0, delay: intensityRange(0.28, 0.18) });
+  }
+  if (state.wave === 1 && every("undying-guard-ladder", 1.04 - progress * 0.08, dt)) {
+    const ladders = ["up right down", "left up right", "down left up", "right down left"];
+    const ladder = ladders[sequenceIndex(1.04 - progress * 0.08) % ladders.length];
+    spawnUndyneArrowChord(300 + progress * 58, ladder.split(" "), Math.max(0.045, 0.082 - progress * 0.025));
   }
   if (state.wave === 2 && every("undying-ring-salvo", 1.12 - progress * 0.1, dt)) {
     const index = sequenceIndex(1.12 - progress * 0.1);
