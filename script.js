@@ -1152,6 +1152,11 @@ function undynePattern(dt) {
     const speed = 248 + attackIntensity() * 56;
     spawn("spear", { x, y, vx: Math.cos(toward) * speed, vy: Math.sin(toward) * speed, r: 12, angle: toward, delay: intensityRange(0.24, 0.16) });
   }
+  if (state.wave === 2 && every("cyclone-guard-chord", 0.72 - attackIntensity() * 0.08, dt)) {
+    const chords = ["up right", "down left", "left up", "right down", "up down", "left right"];
+    const chord = chords[sequenceIndex(0.72 - attackIntensity() * 0.08) % chords.length];
+    spawnUndyneArrowChord(236 + attackIntensity() * 66, chord.split(" "), Math.max(0.055, 0.1 - attackIntensity() * 0.035));
+  }
 }
 
 function spawnUndyneArrowChord(speed, dirs, step = 0.14) {
@@ -1474,6 +1479,14 @@ function omegaPattern(dt) {
         life: 0.9,
       });
     }
+  }
+  if (state.wave === 1 && every("omega-seeds", 0.58 - progress * 0.08, dt)) {
+    const index = sequenceIndex(0.58 - progress * 0.08);
+    const fromLeft = index % 2 === 0;
+    const lanes = [0.18, 0.34, 0.5, 0.66, 0.82, 0.42, 0.58];
+    const y = arena.y + arena.h * lanes[index % lanes.length];
+    const arc = (index % 3) - 1;
+    spawn("pellet", { x: fromLeft ? arena.x - 18 : arena.x + arena.w + 18, y, vx: fromLeft ? 176 + progress * 30 : -176 - progress * 30, vy: arc * (34 + progress * 12), r: 7, angle: fromLeft ? 0 : Math.PI, spin: -2.2 });
   }
   if (state.wave === 2 && every("omega-ring", 1.16, dt)) {
     const skip = sequenceIndex(1.16) % 12;

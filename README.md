@@ -54,6 +54,7 @@ Signature weapon patterns now have snappier spear, trident, bone, and beam movem
 Mettaton bomb shots now burst into quick shard pellets, Omega Flowey petals and rings move faster, and Asriel starfall has stronger falling speed for closer practice pressure.
 The newest portrait pass adds more hand-placed face pixels and shirt panels for Undyne, Undyne the Undying, Asriel, and Mettaton, plus snappier Undyne cross-lances, Sans bones, and Mettaton spotlight/leg entries.
 Asgore, Disbelief Papyrus, Omega Flowey, and the Bad Time Trio now have sharper hand-placed outfit/face cues, and the Sans and Asgore finales add extra original beam and fire-grid pressure with readable safe lanes.
+Sans and Asriel now have clearer hand-placed face, clothing, and emblem details, while Undyne's green-heart cyclone adds shield-direction chords and Omega Flowey's vine cage adds faster seed pellets.
 Dynamic wave ramps use staged opener/build/finale intensity, so attacks start readable and tighten toward the end instead of changing at one flat rate.
 Weapon warnings and hazard telegraphs also follow that intensity curve, giving longer reads at the start of a turn and quicker warnings during the finale.
 Pattern sequencing now advances with the tuned spawn rate, so faster waves use the intended ordered reads instead of repeating lanes; Sans, Undyne, Undying, Asgore, Omega, Asriel, Mettaton, and Disbelief patterns have tighter speeds and more source-style safe gaps.
