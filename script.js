@@ -1676,6 +1676,17 @@ function asrielPattern(dt) {
     const x = arena.x + arena.w * lanes[index % lanes.length];
     spawn("diamond", { x, y: arena.y - 22, vx: index % 2 ? 34 : -34, vy: 220 + progress * 42, r: 9, spin: -3.6 });
   }
+  if (state.wave === 2 && every("asriel-hope-gate", 1.06 - progress * 0.1, dt)) {
+    const index = sequenceIndex(1.06 - progress * 0.1);
+    const safe = index % 6;
+    for (let i = 0; i < 6; i++) {
+      if (i === safe || i === (safe + 1) % 6) continue;
+      const x = arena.x + arena.w * (0.1 + i * 0.16);
+      spawn("beam", { x, y: arena.y, vx: 0, vy: 0, r: 24, horizontal: false, warn: intensityRange(0.58, 0.42), life: 0.72 });
+    }
+    const x = arena.x + arena.w * (0.18 + ((safe + 3) % 6) * 0.12);
+    spawn("diamond", { x, y: arena.y - 24, vx: (index % 2 ? 36 : -36), vy: 238 + progress * 42, r: 9, spin: -3.8, delay: intensityRange(0.16, 0.08) });
+  }
   if (state.wave === 2 && every("asriel-shocker", 1.48 - progress * 0.14, dt)) {
     const index = sequenceIndex(1.48 - progress * 0.14);
     const safeColumn = index % 5;
