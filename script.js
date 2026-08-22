@@ -1194,6 +1194,23 @@ function asgorePattern(dt) {
       spawn(kind, { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 146, vy: Math.sin(a) * 146, r: 9 });
     }
   }
+  if (state.wave === 0 && every("asgore-hand-sweep", 1.12 - progress * 0.1, dt)) {
+    const index = sequenceIndex(1.12 - progress * 0.1);
+    const safe = [0.24, 0.48, 0.72, 0.36, 0.62][index % 5];
+    for (let i = 0; i < 5; i++) {
+      const lane = 0.18 + i * 0.16;
+      if (Math.abs(lane - safe) < 0.13) continue;
+      const fromLeft = (i + index) % 2 === 0;
+      const kind = i % 4 === 1 ? "blueFire" : i % 4 === 3 ? "orangeFire" : "fire";
+      spawn(kind, {
+        x: fromLeft ? arena.x - 28 : arena.x + arena.w + 28,
+        y: arena.y + arena.h * lane,
+        vx: fromLeft ? 214 + progress * 36 : -214 - progress * 36,
+        vy: Math.sin(t * 3 + i) * (22 + progress * 8),
+        r: 10,
+      });
+    }
+  }
   if (state.wave >= 1) {
     const interval = state.wave === 2 ? 0.92 : 1.08;
     const lane = sequencedEvery("sweep", interval, dt, [0.24, 0.5, 0.76, 0.36, 0.64]);
