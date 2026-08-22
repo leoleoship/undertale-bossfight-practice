@@ -1436,6 +1436,21 @@ function undyingPattern(dt) {
     spawn("spear", { x: arena.x + arena.w * ([0.2, 0.42, 0.68, 0.84, 0.34, 0.58][index % 6]), y: arena.y - 35, vx: 0, vy: 314 + progress * 32, r: 12, angle: Math.PI / 2, delay: intensityRange(0.24, 0.16) });
     if (index % 3 !== 1) spawn("spear", { x: arena.x - 35, y: arena.y + arena.h * ([0.26, 0.52, 0.76][index % 3]), vx: 328 + progress * 30, vy: 0, r: 12, angle: 0, delay: intensityRange(0.28, 0.18) });
   }
+  if (state.wave === 2 && every("undying-ring-salvo", 1.12 - progress * 0.1, dt)) {
+    const index = sequenceIndex(1.12 - progress * 0.1);
+    const skip = index % 10;
+    const cx = arena.x + arena.w / 2;
+    const cy = arena.y + arena.h / 2;
+    const radius = Math.max(arena.w, arena.h) / 2 + 42;
+    for (let i = 0; i < 10; i++) {
+      if (i === skip || i === (skip + 1) % 10 || i === (skip + 9) % 10) continue;
+      const a = (Math.PI * 2 * i) / 10 + patternClock() * 0.18;
+      const x = cx + Math.cos(a) * radius;
+      const y = cy + Math.sin(a) * radius;
+      const toward = Math.atan2(cy - y, cx - x);
+      spawn("spear", { x, y, vx: Math.cos(toward) * (252 + progress * 48), vy: Math.sin(toward) * (252 + progress * 48), r: 12, angle: toward, delay: intensityRange(0.3, 0.2) });
+    }
+  }
 }
 
 function omegaPattern(dt) {
@@ -1625,6 +1640,13 @@ function mettatonPattern(dt) {
   if (state.wave === 2 && every("mettaton-rush", legInterval, dt)) {
     const y = arena.y + arena.h * ([0.22, 0.44, 0.68, 0.82, 0.36][sequenceIndex(legInterval) % 5]);
     spawn("leg", { x: arena.x + arena.w + 45, y, vx: -448, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.36, 0.25) });
+  }
+  if (state.wave === 2 && every("mettaton-ratings-pellets", 0.34 - progress * 0.05, dt)) {
+    const index = sequenceIndex(0.34 - progress * 0.05);
+    const lanes = [0.16, 0.3, 0.44, 0.58, 0.72, 0.86, 0.38, 0.66];
+    const x = arena.x + arena.w * lanes[index % lanes.length];
+    const sway = index % 2 === 0 ? 42 : -42;
+    spawn("pellet", { x, y: arena.y - 18, vx: sway, vy: 218 + progress * 42, r: 7, angle: Math.PI / 2, spin: 3.2 });
   }
 }
 
