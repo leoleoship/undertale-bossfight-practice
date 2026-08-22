@@ -1206,12 +1206,24 @@ function asgorePattern(dt) {
       const kind = i % 5 === 0 ? "blueFire" : i % 5 === 3 ? "orangeFire" : "fire";
       spawn(kind, { x, y: arena.y - 28, vx: 0, vy: 196, r: 9 });
     }
+    if (sequenceIndex(0.42) % 4 === 0) spawnAsgoreFireGrid(progress);
   } else if (state.wave >= 1 && every("side-embers", 0.5, dt)) {
     const index = sequenceIndex(0.5);
     const y = arena.y + arena.h * ([0.24, 0.48, 0.76, 0.36, 0.64][index % 5]);
     const fromLeft = index % 2 === 0;
     const kind = index % 4 === 1 ? "blueFire" : index % 4 === 3 ? "orangeFire" : "fire";
     spawn(kind, { x: fromLeft ? arena.x - 24 : arena.x + arena.w + 24, y, vx: fromLeft ? 184 + progress * 18 : -184 - progress * 18, vy: 0, r: 10 });
+  }
+}
+
+function spawnAsgoreFireGrid(progress) {
+  const safe = sequenceIndex(1.68) % 4;
+  for (let row = 0; row < 4; row++) {
+    if (row === safe) continue;
+    const y = arena.y + arena.h * (0.2 + row * 0.2);
+    const fromLeft = row % 2 === 0;
+    const kind = row % 3 === 0 ? "blueFire" : row % 3 === 1 ? "orangeFire" : "fire";
+    spawn(kind, { x: fromLeft ? arena.x - 24 : arena.x + arena.w + 24, y, vx: fromLeft ? 238 + progress * 32 : -238 - progress * 32, vy: 0, r: 10 });
   }
 }
 
@@ -1341,6 +1353,19 @@ function sansPattern(dt) {
         warn: intensityRange(0.46, 0.34),
         life: 0.88,
       });
+    }
+  }
+  if (state.wave === 2 && every("sans-cross-beam", 1.9 - progress * 0.14, dt)) {
+    const index = sequenceIndex(1.9 - progress * 0.14);
+    const safeV = [0.2, 0.5, 0.8][index % 3];
+    const safeH = [0.3, 0.7, 0.48][index % 3];
+    for (const lane of [0.2, 0.5, 0.8]) {
+      if (Math.abs(lane - safeV) < 0.04) continue;
+      spawn("beam", { x: arena.x + arena.w * lane, y: arena.y, vx: 0, vy: 0, r: 24, horizontal: false, warn: intensityRange(0.5, 0.36), life: 0.82 });
+    }
+    for (const lane of [0.3, 0.5, 0.7]) {
+      if (Math.abs(lane - safeH) < 0.04) continue;
+      spawn("beam", { x: arena.x, y: arena.y + arena.h * lane, vx: 0, vy: 0, r: 24, horizontal: true, warn: intensityRange(0.54, 0.38), life: 0.82 });
     }
   }
   if (state.wave === 2 && every("sans-floor-ceiling", 1.28, dt)) {
