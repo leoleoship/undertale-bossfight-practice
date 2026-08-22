@@ -1549,6 +1549,21 @@ function omegaPattern(dt) {
     const angle = t * 1.9 + index * 0.82;
     spawn("pellet", { x: origin[0], y: origin[1], vx: Math.cos(angle) * (148 + progress * 38), vy: Math.sin(angle) * (148 + progress * 38), r: 7, angle, spin: -2.7 });
   }
+  if (state.wave === 2 && every("omega-soul-relay", 0.9 - progress * 0.1, dt)) {
+    const index = sequenceIndex(0.9 - progress * 0.1);
+    const safe = index % 6;
+    const cx = arena.x + arena.w / 2;
+    const cy = arena.y + arena.h / 2;
+    for (let i = 0; i < 6; i++) {
+      if (i === safe || i === (safe + 1) % 6) continue;
+      const a = (Math.PI * 2 * i) / 6 + t * 0.22;
+      const x = cx + Math.cos(a) * (arena.w / 2 + 20);
+      const y = cy + Math.sin(a) * (arena.h / 2 + 20);
+      const toward = Math.atan2(cy - y, cx - x);
+      const kind = i % 2 === 0 ? "diamond" : "pellet";
+      spawn(kind, { x, y, vx: Math.cos(toward) * (170 + progress * 34), vy: Math.sin(toward) * (170 + progress * 34), r: kind === "diamond" ? 9 : 7, angle: toward, spin: kind === "diamond" ? -3.8 : -2.4 });
+    }
+  }
   if (state.wave === 2 && every("omega-vine-rake", 1.42 - progress * 0.12, dt)) {
     const index = sequenceIndex(1.42 - progress * 0.12);
     const safe = index % 4;

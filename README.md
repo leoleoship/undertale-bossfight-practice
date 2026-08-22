@@ -58,6 +58,7 @@ Sans and Asriel now have clearer hand-placed face, clothing, and emblem details,
 Undyne the Undying and Mettaton now have stronger face/core/armor pixel reads, with a new original Undying spear-ring salvo and faster Mettaton ratings pellets in their final waves.
 Disbelief Papyrus and Bad Time Trio now have sharper Papyrus face/body pixels, plus new original final-wave bone-fan and synchronized trio burst patterns with readable safe gaps.
 Asgore and Asriel now have stronger crown/robe/halo-style pixel cues, plus original trident-pinch, saber-cross, and dream-rain pressure for closer mid/final wave practice.
+Omega Flowey now has clearer monitor, red-eye, mouth, and vine-node pixels, and Soul Storm adds an original six-source relay burst with adjacent safe lanes.
 Dynamic wave ramps use staged opener/build/finale intensity, so attacks start readable and tighten toward the end instead of changing at one flat rate.
 Weapon warnings and hazard telegraphs also follow that intensity curve, giving longer reads at the start of a turn and quicker warnings during the finale.
 Pattern sequencing now advances with the tuned spawn rate, so faster waves use the intended ordered reads instead of repeating lanes; Sans, Undyne, Undying, Asgore, Omega, Asriel, Mettaton, and Disbelief patterns have tighter speeds and more source-style safe gaps.

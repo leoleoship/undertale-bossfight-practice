@@ -326,9 +326,12 @@ def omega():
     rect(d, (61, 3, 99, 8), WHITE)
     rect(d, (66, 5, 94, 9), BLACK)
     rect(d, (72, 7, 88, 11), WHITE)
+    rect(d, (48, 25, 112, 31), WHITE)
+    rect(d, (53, 27, 107, 31), BLACK)
     draw_omega_face(d, 80, 49)
     for x, y in [(24, 42), (136, 42), (40, 69), (120, 69), (80, 31)]:
         draw_eye(d, x, y)
+        rect(d, (x - 3, y - 3, x + 1, y + 1), RED if y < 50 else ORANGE)
     for pts in [
         [(26, 55), (4, 86), (9, 129)],
         [(134, 55), (156, 86), (151, 129)],
@@ -342,6 +345,7 @@ def omega():
         line(d, pts, GREEN, 5)
     for x, y in [(52, 88), (108, 88), (38, 112), (122, 112)]:
         poly(d, [(x, y - 12), (x + 13, y), (x, y + 12), (x - 13, y)], GREEN)
+        rect(d, (x - 4, y - 4, x + 4, y + 4), BLACK)
     rect(d, (58, 70, 102, 123), ORANGE)
     rect(d, (54, 66, 106, 74), WHITE)
     rect(d, (60, 74, 100, 82), ORANGE)
@@ -358,7 +362,12 @@ def draw_omega_face(draw, cx, cy):
     draw.ellipse((cx - 40, cy - 28, cx + 40, cy + 25), fill=WHITE)
     rect(draw, (cx - 26, cy - 8, cx - 13, cy + 4), BLACK)
     rect(draw, (cx + 13, cy - 8, cx + 26, cy + 4), BLACK)
+    rect(draw, (cx - 22, cy - 5, cx - 15, cy + 1), RED)
+    rect(draw, (cx + 15, cy - 5, cx + 22, cy + 1), RED)
     line(draw, [(cx - 19, cy + 16), (cx, cy + 7), (cx + 19, cy + 16)], BLACK, 3)
+    rect(draw, (cx - 18, cy + 15, cx + 18, cy + 19), BLACK)
+    for x in range(-14, 15, 7):
+        rect(draw, (cx + x, cy + 13, cx + x + 3, cy + 20), WHITE)
     rect(draw, (cx - 5, cy + 5, cx + 5, cy + 10), BLACK)
 
 
