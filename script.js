@@ -949,6 +949,10 @@ function updateShots(dt) {
             warn: 0.08,
             life: 0.32,
           });
+          for (let i = 0; i < 4; i++) {
+            const a = Math.PI / 4 + i * (Math.PI / 2);
+            spawn("pellet", { x: b.x, y: b.y, vx: Math.cos(a) * 178, vy: Math.sin(a) * 178, r: 7, angle: a, spin: -2.4 });
+          }
         }
         b.y = arena.y - 200;
         shot.hit = true;
@@ -1413,11 +1417,11 @@ function omegaPattern(dt) {
     const lanes = [0.18, 0.34, 0.5, 0.66, 0.82, 0.42, 0.58];
     const index = sequenceIndex(petalInterval);
     const x = arena.x + arena.w * lanes[index % lanes.length];
-    spawn("petal", { x, y: arena.y - 26, vx: Math.sin(t * 5) * (28 + progress * 18), vy: 196 + progress * 36, r: 12, angle: Math.PI / 2, spin: 2.2 });
+    spawn("petal", { x, y: arena.y - 26, vx: Math.sin(t * 5) * (34 + progress * 22), vy: 212 + progress * 42, r: 12, angle: Math.PI / 2, spin: 2.2 });
     if (index % 3 === 0) {
       const side = x < arena.x + arena.w / 2 ? arena.x + arena.w + 26 : arena.x - 26;
       const toward = Math.atan2(state.player.y - arena.y - arena.h * 0.5, state.player.x - side);
-      spawn("petal", { x: side, y: arena.y + arena.h * 0.5, vx: Math.cos(toward) * 166, vy: Math.sin(toward) * 166, r: 12, angle: toward, spin: 2.2 });
+      spawn("petal", { x: side, y: arena.y + arena.h * 0.5, vx: Math.cos(toward) * 184, vy: Math.sin(toward) * 184, r: 12, angle: toward, spin: 2.2 });
     }
   }
   if (state.wave === 0 && every("omega-burst", 1.55, dt)) {
@@ -1451,7 +1455,7 @@ function omegaPattern(dt) {
     for (let i = 0; i < 12; i++) {
       if (i === skip || i === (skip + 1) % 12 || i === (skip + 11) % 12) continue;
       const a = (Math.PI * 2 * i) / 12 + t * 0.45;
-      spawn("pellet", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * (162 + progress * 18), vy: Math.sin(a) * (162 + progress * 18), r: 8, angle: a, spin: -2.5 });
+      spawn("pellet", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * (178 + progress * 24), vy: Math.sin(a) * (178 + progress * 24), r: 8, angle: a, spin: -2.5 });
     }
   }
   if (state.wave === 2 && every("omega-spiral", 0.34 - progress * 0.05, dt)) {
@@ -1463,7 +1467,7 @@ function omegaPattern(dt) {
       [arena.x + 28, arena.y + arena.h - 28],
     ][Math.floor(index / 5) % 4];
     const angle = t * 1.9 + index * 0.82;
-    spawn("pellet", { x: origin[0], y: origin[1], vx: Math.cos(angle) * (126 + progress * 34), vy: Math.sin(angle) * (126 + progress * 34), r: 7, angle, spin: -2.7 });
+    spawn("pellet", { x: origin[0], y: origin[1], vx: Math.cos(angle) * (148 + progress * 38), vy: Math.sin(angle) * (148 + progress * 38), r: 7, angle, spin: -2.7 });
   }
   if (state.wave === 2 && every("omega-vine-rake", 1.42 - progress * 0.12, dt)) {
     const index = sequenceIndex(1.42 - progress * 0.12);
@@ -1489,7 +1493,7 @@ function asrielPattern(dt) {
     const lanes = [0.16, 0.3, 0.44, 0.58, 0.72, 0.86, 0.38, 0.66];
     const index = sequenceIndex(starInterval);
     const x = arena.x + arena.w * lanes[index % lanes.length];
-    spawn("star", { x, y: arena.y - 24, vx: index % 2 ? 46 : -46, vy: (state.wave === 0 ? 208 : 238) + progress * 28, r: 12, spin: 3.2 });
+    spawn("star", { x, y: arena.y - 24, vx: index % 2 ? 54 : -54, vy: (state.wave === 0 ? 220 : 258) + progress * 34, r: 12, spin: 3.2 });
   }
   if (state.wave === 0 && every("asriel-star-curtain", 1.28, dt)) {
     const gap = sequenceIndex(1.28) % 6;
