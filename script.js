@@ -1132,14 +1132,14 @@ function undynePattern(dt) {
     ]);
     if (chord) spawnUndyneArrowChord(arrowSpeed, chord.split(" "), chordStep);
   }
-  if (state.wave === 1 && every("cross-lances", 0.62, dt)) {
-    const index = sequenceIndex(0.62);
+  if (state.wave === 1 && every("cross-lances", 0.56, dt)) {
+    const index = sequenceIndex(0.56);
     const lane = [0.18, 0.36, 0.64, 0.82, 0.5, 0.28, 0.72][index % 7];
     const fromLeft = index % 2 === 0;
-      spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: arena.y + arena.h * lane, vx: fromLeft ? 326 : -326, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI, delay: intensityRange(0.32, 0.22) });
+    spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: arena.y + arena.h * lane, vx: fromLeft ? 348 : -348, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI, delay: intensityRange(0.3, 0.2) });
     if (index % 3 !== 1) {
       const x = arena.x + arena.w * ([0.24, 0.5, 0.76, 0.38, 0.62][index % 5]);
-      spawn("spear", { x, y: arena.y - 35, vx: 0, vy: 286, r: 13, angle: Math.PI / 2, delay: intensityRange(0.4, 0.28) });
+      spawn("spear", { x, y: arena.y - 35, vx: 0, vy: 306, r: 13, angle: Math.PI / 2, delay: intensityRange(0.36, 0.25) });
     }
   }
   if (state.wave === 2 && every("cyclone", 0.34 - attackIntensity() * 0.06, dt)) {
@@ -1303,7 +1303,7 @@ function sansPattern(dt) {
     const heights = state.wave === 0 ? [38, 62, 96, 48, 122, 72, 42, 104] : [44, 74, 112, 56, 132, 84, 48, 104];
     const index = sequenceIndex(boneInterval);
     const h = heights[index % heights.length];
-    const speed = 242 + progress * 48;
+    const speed = 258 + progress * 54;
     spawn("bone", { x: arena.x + arena.w + 28, y: arena.y + arena.h - h / 2, vx: -speed - 12, vy: 0, r: 14, h });
     if (state.wave >= 1 && index % 3 !== 1) spawn("bone", { x: arena.x - 28, y: arena.y + h / 2, vx: speed, vy: 0, r: 14, h: Math.max(42, h * 0.62) });
   }
@@ -1548,9 +1548,9 @@ function asrielPattern(dt) {
 function mettatonPattern(dt) {
   const t = patternClock();
   const progress = attackIntensity();
-  const spotInterval = state.wave === 2 ? 0.92 : 0.82 - progress * 0.08;
+  const spotInterval = state.wave === 2 ? 0.82 : 0.76 - progress * 0.08;
   const bombInterval = 0.46 - progress * 0.08;
-  const legInterval = 0.72 - progress * 0.08;
+  const legInterval = 0.66 - progress * 0.08;
   if (every("mettaton-spot", spotInterval, dt)) {
     const lanes = [0.2, 0.42, 0.64, 0.82, 0.36];
     spawn("beam", {
@@ -1560,7 +1560,7 @@ function mettatonPattern(dt) {
       vy: 0,
       r: 24,
       horizontal: false,
-      warn: intensityRange(0.58, 0.44),
+      warn: intensityRange(0.54, 0.4),
       life: 0.9,
     });
   }
@@ -1586,7 +1586,7 @@ function mettatonPattern(dt) {
   }
   if (state.wave === 2 && every("mettaton-rush", legInterval, dt)) {
     const y = arena.y + arena.h * ([0.22, 0.44, 0.68, 0.82, 0.36][sequenceIndex(legInterval) % 5]);
-    spawn("leg", { x: arena.x + arena.w + 45, y, vx: -420, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.4, 0.28) });
+    spawn("leg", { x: arena.x + arena.w + 45, y, vx: -448, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.36, 0.25) });
   }
 }
 

@@ -52,6 +52,7 @@ Bullet speed and spawn rate now use boss-and-wave-specific pacing profiles, with
 Several slower waves now use slightly faster bullet-speed profiles so attacks appear sooner and feel closer to the source fights while keeping the same safety caps.
 Signature weapon patterns now have snappier spear, trident, bone, and beam movement while preserving planned gaps and telegraphs.
 Mettaton bomb shots now burst into quick shard pellets, Omega Flowey petals and rings move faster, and Asriel starfall has stronger falling speed for closer practice pressure.
+The newest portrait pass adds more hand-placed face pixels and shirt panels for Undyne, Undyne the Undying, Asriel, and Mettaton, plus snappier Undyne cross-lances, Sans bones, and Mettaton spotlight/leg entries.
 Dynamic wave ramps use staged opener/build/finale intensity, so attacks start readable and tighten toward the end instead of changing at one flat rate.
 Weapon warnings and hazard telegraphs also follow that intensity curve, giving longer reads at the start of a turn and quicker warnings during the finale.
 Pattern sequencing now advances with the tuned spawn rate, so faster waves use the intended ordered reads instead of repeating lanes; Sans, Undyne, Undying, Asgore, Omega, Asriel, Mettaton, and Disbelief patterns have tighter speeds and more source-style safe gaps.
