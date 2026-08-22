@@ -1368,6 +1368,16 @@ function sansPattern(dt) {
     spawn("bone", { x: arena.x + arena.w + 28, y: arena.y + arena.h - h / 2, vx: -speed - 12, vy: 0, r: 14, h });
     if (state.wave >= 1 && index % 3 !== 1) spawn("bone", { x: arena.x - 28, y: arena.y + h / 2, vx: speed, vy: 0, r: 14, h: Math.max(42, h * 0.62) });
   }
+  if (state.wave === 0 && every("sans-low-high-wall", 1.05 - progress * 0.08, dt)) {
+    const index = sequenceIndex(1.05 - progress * 0.08);
+    const gap = [1, 4, 6, 2, 5][index % 5];
+    if (index % 2 === 0) {
+      spawnBoneWallFromBottom(gap, 8, 240 + progress * 30, [46, 78, 56, 96], 2);
+    } else {
+      spawnBoneWallFromTop(gap, 8, 230 + progress * 28, [40, 68, 52, 84]);
+      spawnBoneWallFromBottom((gap + 4) % 8, 8, 224 + progress * 24, [34, 56, 44], 1);
+    }
+  }
   if (state.wave >= 1) {
     const xFrac = sequencedEvery("sans-blue", 0.8, dt, [0.2, 0.42, 0.64, 0.82, 0.34, 0.56]);
     if (xFrac !== null) spawn("blueBone", { x: arena.x + arena.w * xFrac, y: arena.y - 34, vx: 0, vy: 288, r: 14, h: 70 });

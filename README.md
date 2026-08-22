@@ -62,6 +62,8 @@ Omega Flowey now has clearer monitor, red-eye, mouth, and vine-node pixels, and 
 The latest graphics pass adds stronger hand-placed eyes, brows, mouths, collars, chest panels, robes, armor cores, and hair blocks across the whole roster, plus faster Undyne, Undying, and Mettaton pacing where the waves needed more snap.
 Another sprite pass adds clearer teeth, face marks, armor seams, chest cores, hair blocks, and robe hems while keeping the art made from original square-piece pixels.
 Asgore Fire Rings now includes an extra original side fire sweep with a planned safe lane, making the first wave feel more like heavy boss pressure while staying practiceable.
+Sans Bone Shuffle now adds an original low/high bone-wall layer with safe columns, giving the opener a more recognizable Sans-style practice rhythm without copying an exact attack.
+Sans and Disbelief Papyrus also have sharper jacket/scarf/chest pixel blocks, which carry into the Bad Time Trio thumbnail.
 Dynamic wave ramps use staged opener/build/finale intensity, so attacks start readable and tighten toward the end instead of changing at one flat rate.
 Weapon warnings and hazard telegraphs also follow that intensity curve, giving longer reads at the start of a turn and quicker warnings during the finale.
 Pattern sequencing now advances with the tuned spawn rate, so faster waves use the intended ordered reads instead of repeating lanes; Sans, Undyne, Undying, Asgore, Omega, Asriel, Mettaton, and Disbelief patterns have tighter speeds and more source-style safe gaps.
