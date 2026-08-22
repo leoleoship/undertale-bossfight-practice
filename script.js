@@ -1203,6 +1203,13 @@ function asgorePattern(dt) {
       if (state.wave === 2) spawn("trident", { x: arena.x + arena.w + 60, y: arena.y + arena.h * (1 - lane), vx: -472, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.48, 0.32) });
     }
   }
+  if (state.wave === 1 && every("asgore-trident-pinch", 1.36 - progress * 0.12, dt)) {
+    const index = sequenceIndex(1.36 - progress * 0.12);
+    const lane = [0.26, 0.74, 0.42, 0.58][index % 4];
+    const y = arena.y + arena.h * lane;
+    spawn("trident", { x: arena.x - 58, y, vx: 430 + progress * 46, vy: 0, r: 22, angle: 0, delay: intensityRange(0.44, 0.3) });
+    spawn("trident", { x: arena.x + arena.w + 58, y: arena.y + arena.h * (1 - lane), vx: -430 - progress * 46, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.44, 0.3) });
+  }
   if (state.wave === 2 && every("flame-curtain", 0.42, dt)) {
     const gap = arena.x + arena.w * ([0.25, 0.5, 0.75, 0.4, 0.62][sequenceIndex(0.42) % 5]);
     for (let i = 0; i < 8; i++) {
@@ -1584,6 +1591,12 @@ function asrielPattern(dt) {
       spawn("saber", { x: fromLeft ? arena.x - 58 : arena.x + arena.w + 58, y: arena.y + arena.h * lane, vx: fromLeft ? 470 : -470, vy: 0, r: 22, angle: fromLeft ? 0 : Math.PI, delay: intensityRange(0.42, 0.28) });
     }
   }
+  if (state.wave === 1 && every("asriel-saber-cross", 1.34 - progress * 0.1, dt)) {
+    const index = sequenceIndex(1.34 - progress * 0.1);
+    const lane = [0.3, 0.7, 0.48, 0.58][index % 4];
+    spawn("saber", { x: arena.x - 58, y: arena.y + arena.h * lane, vx: 486 + progress * 38, vy: 0, r: 22, angle: 0, delay: intensityRange(0.38, 0.26) });
+    if (index % 2 === 0) spawn("saber", { x: arena.x + arena.w + 58, y: arena.y + arena.h * (1 - lane), vx: -486 - progress * 38, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.46, 0.32) });
+  }
   if (state.wave === 2 && every("asriel-hope", 1.12, dt)) {
     const skip = sequenceIndex(1.12) % 8;
     for (let i = 0; i < 8; i++) {
@@ -1591,6 +1604,12 @@ function asrielPattern(dt) {
       const a = (Math.PI * 2 * i) / 8 - t * 0.55;
       spawn("diamond", { x: arena.x + arena.w / 2, y: arena.y + arena.h / 2, vx: Math.cos(a) * 174, vy: Math.sin(a) * 174, r: 10, spin: -4 });
     }
+  }
+  if (state.wave === 2 && every("asriel-dream-rain", 0.62 - progress * 0.08, dt)) {
+    const index = sequenceIndex(0.62 - progress * 0.08);
+    const lanes = [0.2, 0.36, 0.52, 0.68, 0.84, 0.44, 0.6];
+    const x = arena.x + arena.w * lanes[index % lanes.length];
+    spawn("diamond", { x, y: arena.y - 22, vx: index % 2 ? 34 : -34, vy: 220 + progress * 42, r: 9, spin: -3.6 });
   }
   if (state.wave === 2 && every("asriel-shocker", 1.48 - progress * 0.14, dt)) {
     const index = sequenceIndex(1.48 - progress * 0.14);
