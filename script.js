@@ -349,9 +349,9 @@ const projectileHitboxes = {
 };
 const waveTuning = {
   undyne: [
-    { rate: 0.94, speed: 1.08, length: 10.5, cap: 18 },
-    { rate: 0.86, speed: 1.04, length: 11.5, cap: 24 },
-    { rate: 1.06, speed: 1.12, length: 10.5, cap: 22 },
+    { rate: 1.04, speed: 1.14, length: 10.5, cap: 20 },
+    { rate: 0.96, speed: 1.1, length: 11.5, cap: 26 },
+    { rate: 1.14, speed: 1.18, length: 10.5, cap: 24 },
   ],
   asgore: [
     { rate: 0.8, speed: 0.98, length: 12.5, cap: 28 },
@@ -374,9 +374,9 @@ const waveTuning = {
     { rate: 1.24, speed: 1.22, length: 10, cap: 34 },
   ],
   undying: [
-    { rate: 1.18, speed: 1.12, length: 9.8, cap: 22 },
-    { rate: 1.28, speed: 1.18, length: 9.8, cap: 24 },
-    { rate: 1.08, speed: 1.14, length: 10.5, cap: 30 },
+    { rate: 1.26, speed: 1.16, length: 9.8, cap: 24 },
+    { rate: 1.34, speed: 1.22, length: 9.8, cap: 26 },
+    { rate: 1.14, speed: 1.18, length: 10.5, cap: 32 },
   ],
   omega: [
     { rate: 1.04, speed: 1.04, length: 12, cap: 36 },
@@ -389,9 +389,9 @@ const waveTuning = {
     { rate: 1.1, speed: 1.12, length: 12, cap: 36 },
   ],
   mettaton: [
-    { rate: 0.92, speed: 1.04, length: 12, cap: 26 },
-    { rate: 1.04, speed: 1.1, length: 11.5, cap: 30 },
-    { rate: 1.12, speed: 1.16, length: 10.5, cap: 32 },
+    { rate: 1.0, speed: 1.08, length: 12, cap: 28 },
+    { rate: 1.12, speed: 1.14, length: 11.5, cap: 32 },
+    { rate: 1.2, speed: 1.2, length: 10.5, cap: 34 },
   ],
 };
 
@@ -1112,8 +1112,8 @@ function runPattern(dt) {
 function undynePattern(dt) {
   if (state.wave === 0) {
     const progress = attackIntensity();
-    const interval = 0.6 - progress * 0.2;
-    const arrowSpeed = 224 + progress * 86;
+    const interval = 0.56 - progress * 0.18;
+    const arrowSpeed = 246 + progress * 88;
     const chordStep = 0.12 - progress * 0.05;
     const chord = sequencedEvery("spear-rain", interval, dt, [
       "up",
@@ -1132,14 +1132,14 @@ function undynePattern(dt) {
     ]);
     if (chord) spawnUndyneArrowChord(arrowSpeed, chord.split(" "), chordStep);
   }
-  if (state.wave === 1 && every("cross-lances", 0.56, dt)) {
-    const index = sequenceIndex(0.56);
+  if (state.wave === 1 && every("cross-lances", 0.5, dt)) {
+    const index = sequenceIndex(0.5);
     const lane = [0.18, 0.36, 0.64, 0.82, 0.5, 0.28, 0.72][index % 7];
     const fromLeft = index % 2 === 0;
-    spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: arena.y + arena.h * lane, vx: fromLeft ? 348 : -348, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI, delay: intensityRange(0.3, 0.2) });
+    spawn("spear", { x: fromLeft ? arena.x - 35 : arena.x + arena.w + 35, y: arena.y + arena.h * lane, vx: fromLeft ? 372 : -372, vy: 0, r: 13, angle: fromLeft ? 0 : Math.PI, delay: intensityRange(0.28, 0.19) });
     if (index % 3 !== 1) {
       const x = arena.x + arena.w * ([0.24, 0.5, 0.76, 0.38, 0.62][index % 5]);
-      spawn("spear", { x, y: arena.y - 35, vx: 0, vy: 306, r: 13, angle: Math.PI / 2, delay: intensityRange(0.36, 0.25) });
+      spawn("spear", { x, y: arena.y - 35, vx: 0, vy: 326, r: 13, angle: Math.PI / 2, delay: intensityRange(0.32, 0.23) });
     }
   }
   if (state.wave === 2 && every("cyclone", 0.34 - attackIntensity() * 0.06, dt)) {
@@ -1444,7 +1444,7 @@ function undyingPattern(dt) {
         "down left up",
       ];
       const chord = chords[sequenceIndex(aimedInterval) % chords.length];
-      spawnUndyneArrowChord(268 + progress * 62, chord.split(" "), Math.max(0.045, 0.09 - progress * 0.035));
+      spawnUndyneArrowChord(286 + progress * 66, chord.split(" "), Math.max(0.04, 0.085 - progress * 0.035));
     }
     else {
       const index = sequenceIndex(aimedInterval);
@@ -1454,7 +1454,7 @@ function undyingPattern(dt) {
       const x = edge === 0 ? arena.x - 36 : edge === 1 ? arena.x + arena.w + 36 : arena.x + arena.w * lane;
       const y = edge === 2 ? arena.y - 36 : edge === 3 ? arena.y + arena.h + 36 : arena.y + arena.h * lane;
       const a = Math.atan2(state.player.y - y, state.player.x - x);
-      spawn("spear", { x, y, vx: Math.cos(a) * (276 + progress * 38), vy: Math.sin(a) * (276 + progress * 38), r: 12, angle: a, delay: intensityRange(0.22, 0.14) });
+      spawn("spear", { x, y, vx: Math.cos(a) * (298 + progress * 42), vy: Math.sin(a) * (298 + progress * 42), r: 12, angle: a, delay: intensityRange(0.2, 0.13) });
     }
   }
   const crossInterval = 0.58 - progress * 0.06;
@@ -1655,9 +1655,9 @@ function asrielPattern(dt) {
 function mettatonPattern(dt) {
   const t = patternClock();
   const progress = attackIntensity();
-  const spotInterval = state.wave === 2 ? 0.82 : 0.76 - progress * 0.08;
-  const bombInterval = 0.46 - progress * 0.08;
-  const legInterval = 0.66 - progress * 0.08;
+  const spotInterval = state.wave === 2 ? 0.72 : 0.7 - progress * 0.08;
+  const bombInterval = 0.42 - progress * 0.07;
+  const legInterval = 0.6 - progress * 0.08;
   if (every("mettaton-spot", spotInterval, dt)) {
     const lanes = [0.2, 0.42, 0.64, 0.82, 0.36];
     spawn("beam", {
@@ -1693,7 +1693,7 @@ function mettatonPattern(dt) {
   }
   if (state.wave === 2 && every("mettaton-rush", legInterval, dt)) {
     const y = arena.y + arena.h * ([0.22, 0.44, 0.68, 0.82, 0.36][sequenceIndex(legInterval) % 5]);
-    spawn("leg", { x: arena.x + arena.w + 45, y, vx: -448, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.36, 0.25) });
+    spawn("leg", { x: arena.x + arena.w + 45, y, vx: -482, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.32, 0.23) });
   }
   if (state.wave === 2 && every("mettaton-ratings-pellets", 0.34 - progress * 0.05, dt)) {
     const index = sequenceIndex(0.34 - progress * 0.05);
