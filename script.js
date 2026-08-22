@@ -1255,6 +1255,16 @@ function disbeliefPattern(dt) {
     const gap = sequenceIndex(wallInterval) % 7;
     spawnBoneWallFromBottom(gap, 7, 272 + progress * 28, [54, 74, 64], 1);
   }
+  if (state.wave === 2 && every("disbelief-bone-fan", 0.96 - progress * 0.1, dt)) {
+    const index = sequenceIndex(0.96 - progress * 0.1);
+    const safe = index % 5;
+    for (let i = 0; i < 5; i++) {
+      if (i === safe || i === (safe + 1) % 5) continue;
+      const x = arena.x + arena.w * (0.16 + i * 0.17);
+      const kind = i % 2 === 0 ? "blueBone" : "bone";
+      spawn(kind, { x, y: arena.y - 34, vx: (i - 2) * (18 + progress * 8), vy: 286 + progress * 34, r: 13, h: 64 + (i % 2) * 20 });
+    }
+  }
 }
 
 function bttPattern(dt) {
@@ -1275,6 +1285,16 @@ function bttPattern(dt) {
   if (state.wave === 2 && every("btt-bones", bttBoneInterval, dt)) {
     const x = arena.x + arena.w * ([0.18, 0.38, 0.58, 0.78, 0.48][sequenceIndex(bttBoneInterval) % 5]);
     spawn("blueBone", { x, y: arena.y - 34, vx: 0, vy: 280 + progress * 24, r: 15, h: 70 });
+  }
+  if (state.wave === 2 && every("btt-sync-burst", 1.34 - progress * 0.12, dt)) {
+    const index = sequenceIndex(1.34 - progress * 0.12);
+    const safe = [0.25, 0.5, 0.75][index % 3];
+    for (const lane of [0.2, 0.4, 0.6, 0.8]) {
+      if (Math.abs(lane - safe) < 0.16) continue;
+      spawn("beam", { x: arena.x + arena.w * lane, y: arena.y, vx: 0, vy: 0, r: 24, horizontal: false, warn: intensityRange(0.5, 0.36), life: 0.82 });
+    }
+    spawn("fire", { x: arena.x - 22, y: arena.y + arena.h * safe, vx: 236 + progress * 34, vy: 0, r: 9 });
+    spawn("spear", { x: arena.x + arena.w + 34, y: arena.y + arena.h * (1 - safe), vx: -286 - progress * 36, vy: 0, r: 12, angle: Math.PI, delay: intensityRange(0.28, 0.18) });
   }
 }
 

@@ -56,6 +56,7 @@ The newest portrait pass adds more hand-placed face pixels and shirt panels for 
 Asgore, Disbelief Papyrus, Omega Flowey, and the Bad Time Trio now have sharper hand-placed outfit/face cues, and the Sans and Asgore finales add extra original beam and fire-grid pressure with readable safe lanes.
 Sans and Asriel now have clearer hand-placed face, clothing, and emblem details, while Undyne's green-heart cyclone adds shield-direction chords and Omega Flowey's vine cage adds faster seed pellets.
 Undyne the Undying and Mettaton now have stronger face/core/armor pixel reads, with a new original Undying spear-ring salvo and faster Mettaton ratings pellets in their final waves.
+Disbelief Papyrus and Bad Time Trio now have sharper Papyrus face/body pixels, plus new original final-wave bone-fan and synchronized trio burst patterns with readable safe gaps.
 Dynamic wave ramps use staged opener/build/finale intensity, so attacks start readable and tighten toward the end instead of changing at one flat rate.
 Weapon warnings and hazard telegraphs also follow that intensity curve, giving longer reads at the start of a turn and quicker warnings during the finale.
 Pattern sequencing now advances with the tuned spawn rate, so faster waves use the intended ordered reads instead of repeating lanes; Sans, Undyne, Undying, Asgore, Omega, Asriel, Mettaton, and Disbelief patterns have tighter speeds and more source-style safe gaps.
