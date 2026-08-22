@@ -1722,6 +1722,18 @@ function mettatonPattern(dt) {
     const y = arena.y + arena.h * ([0.22, 0.44, 0.68, 0.82, 0.36][sequenceIndex(legInterval) % 5]);
     spawn("leg", { x: arena.x + arena.w + 45, y, vx: -482, vy: 0, r: 22, angle: Math.PI, delay: intensityRange(0.32, 0.23) });
   }
+  if (state.wave === 2 && every("mettaton-ratings-lane", 1.18 - progress * 0.1, dt)) {
+    const index = sequenceIndex(1.18 - progress * 0.1);
+    const safe = index % 5;
+    for (let i = 0; i < 5; i++) {
+      const laneX = arena.x + arena.w * (0.14 + i * 0.18);
+      if (i === safe || i === (safe + 1) % 5) continue;
+      spawn("beam", { x: laneX, y: arena.y, vx: 0, vy: 0, r: 24, horizontal: false, warn: intensityRange(0.48, 0.34), life: 0.72 });
+    }
+    const row = [0.24, 0.42, 0.6, 0.78][index % 4];
+    const fromLeft = index % 2 === 0;
+    spawn("pellet", { x: fromLeft ? arena.x - 18 : arena.x + arena.w + 18, y: arena.y + arena.h * row, vx: fromLeft ? 246 + progress * 34 : -246 - progress * 34, vy: 0, r: 8, angle: fromLeft ? 0 : Math.PI, spin: 3.2 });
+  }
   if (state.wave === 2 && every("mettaton-ratings-pellets", 0.34 - progress * 0.05, dt)) {
     const index = sequenceIndex(0.34 - progress * 0.05);
     const lanes = [0.16, 0.3, 0.44, 0.58, 0.72, 0.86, 0.38, 0.66];
